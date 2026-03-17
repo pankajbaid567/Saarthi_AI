@@ -11,7 +11,8 @@
     "test": "vitest run",
     "format": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\"",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^7.5.0",

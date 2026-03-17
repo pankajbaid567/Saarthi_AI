@@ -13,6 +13,13 @@ enum UserRole {
   content_manager
 }
 
+enum ContentNodeType {
+  concept
+  fact
+  highlight
+  micro_note
+}
+
 model User {
   id           String       @id @default(uuid())
   email        String       @unique
@@ -30,4 +37,48 @@ model Session {
   expiresAt    DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
+}
+
+model Subject {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  topics      Topic[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Topic {
+  id               String        @id @default(uuid())
+  subjectId        String
+  parentTopicId    String?
+  name             String
+  slug             String
+  description      String?
+  materializedPath String
+  subject          Subject       @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  parentTopic      Topic?        @relation("TopicHierarchy", fields: [parentTopicId], references: [id], onDelete: Cascade)
+  childTopics      Topic[]       @relation("TopicHierarchy")
+  contentNodes     ContentNode[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@unique([subjectId, slug])
+  @@index([subjectId])
+  @@index([parentTopicId])
+  @@index([materializedPath])
+}
+
+model ContentNode {
+  id        String          @id @default(uuid())
+  topicId   String
+  type      ContentNodeType
+  title     String?
+  body      String
+  topic     Topic           @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([topicId])
 }

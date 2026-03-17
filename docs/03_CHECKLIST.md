@@ -51,28 +51,28 @@
 
 ### Week 2: Knowledge Graph — Schema & CRUD
 
-- [ ] Create subjects table + API
-  - [ ] **GET /api/v1/subjects** — List all subjects
-  - [ ] **GET /api/v1/subjects/:id** — Get subject details
-  - [ ] **POST /api/v1/subjects** — Create subject (admin)
-  - [ ] **PUT /api/v1/subjects/:id** — Update subject (admin)
-  - [ ] **DELETE /api/v1/subjects/:id** — Delete subject (admin)
-- [ ] Create topics table with self-referencing (parent_topic_id)
-  - [ ] **GET /api/v1/subjects/:id/topics** — List topics for subject
-  - [ ] **GET /api/v1/topics/:id** — Get topic with subtopics
-  - [ ] **GET /api/v1/topics/:id/subtopics** — Get subtopics
-  - [ ] **POST /api/v1/topics** — Create topic (admin)
-  - [ ] **PUT /api/v1/topics/:id** — Update topic (admin)
-  - [ ] **DELETE /api/v1/topics/:id** — Delete topic (admin)
-- [ ] Implement materialized path for fast hierarchy queries
-- [ ] Create content_nodes table (concept, fact, highlight, micro_note)
-  - [ ] **GET /api/v1/topics/:id/content** — Get all content for topic
-  - [ ] **POST /api/v1/content** — Create content node (admin)
-  - [ ] **PUT /api/v1/content/:id** — Update content node (admin)
-  - [ ] **DELETE /api/v1/content/:id** — Delete content node (admin)
-- [ ] Seed initial UPSC subject hierarchy (8 subjects, 200+ topics)
-- [ ] Unit tests for knowledge graph service
-- [ ] Integration tests for knowledge graph endpoints
+- [x] Create subjects table + API
+  - [x] **GET /api/v1/subjects** — List all subjects
+  - [x] **GET /api/v1/subjects/:id** — Get subject details
+  - [x] **POST /api/v1/subjects** — Create subject (admin)
+  - [x] **PUT /api/v1/subjects/:id** — Update subject (admin)
+  - [x] **DELETE /api/v1/subjects/:id** — Delete subject (admin)
+- [x] Create topics table with self-referencing (parent_topic_id)
+  - [x] **GET /api/v1/subjects/:id/topics** — List topics for subject
+  - [x] **GET /api/v1/topics/:id** — Get topic with subtopics
+  - [x] **GET /api/v1/topics/:id/subtopics** — Get subtopics
+  - [x] **POST /api/v1/topics** — Create topic (admin)
+  - [x] **PUT /api/v1/topics/:id** — Update topic (admin)
+  - [x] **DELETE /api/v1/topics/:id** — Delete topic (admin)
+- [x] Implement materialized path for fast hierarchy queries
+- [x] Create content_nodes table (concept, fact, highlight, micro_note)
+  - [x] **GET /api/v1/topics/:id/content** — Get all content for topic
+  - [x] **POST /api/v1/content** — Create content node (admin)
+  - [x] **PUT /api/v1/content/:id** — Update content node (admin)
+  - [x] **DELETE /api/v1/content/:id** — Delete content node (admin)
+- [x] Seed initial UPSC subject hierarchy (8 subjects, 200+ topics)
+- [x] Unit tests for knowledge graph service
+- [x] Integration tests for knowledge graph endpoints
 
 ### Week 3: Topic Learning Module (Backend)
 

@@ -9,6 +9,7 @@ import { authRateLimiter } from './middleware/rate-limit.middleware.js';
 import { requireRole } from './middleware/rbac.middleware.js';
 import { validateRequest } from './middleware/request-validation.js';
 import { createAuthRouter } from './routes/auth.routes.js';
+import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { echoRequestSchema } from './schemas/echo.schema.js';
 
 export const createApp = () => {
@@ -35,6 +36,7 @@ export const createApp = () => {
   });
 
   app.use('/api/v1/auth', createAuthRouter());
+  app.use('/api/v1', createKnowledgeGraphRouter());
 
   app.use((_req, _res, next) => {
     next(new AppError('Route not found', 404));
