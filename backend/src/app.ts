@@ -53,6 +53,7 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createMainsRouter());
   app.use('/api/v1', createPdfRouter());
   app.use('/api/v1', createTestsRouter());
+  app.use('/api/v1', createMainsRouter());
   app.use('/api/v1', createChatRouter());
 
   app.use((_req, _res, next) => {

@@ -376,35 +376,35 @@
 
 ### Week 14: AI Answer Evaluation Engine
 
-- [ ] Evaluation service
-  - [ ] **POST /api/v1/mains/submit** — Submit answer
-  - [ ] Structure analysis (intro-body-conclusion detection)
-  - [ ] Content depth scoring
-  - [ ] Keyword presence check (from rubric)
-  - [ ] Missing dimensions identification
-  - [ ] Current affairs integration check
-  - [ ] Diagram/flowchart suggestion
-- [ ] Scoring system
-  - [ ] Overall score (X/10)
-  - [ ] Structure score breakdown
-  - [ ] Content score breakdown
-  - [ ] Keyword score breakdown
-  - [ ] Improvement suggestions (actionable list)
-- [ ] Model answer comparison
-  - [ ] Show model/topper answer alongside
-  - [ ] Highlight gaps
-  - [ ] Show what student missed
-- [ ] Submission management
-  - [ ] **GET /api/v1/mains/submissions** — List submissions
-  - [ ] **GET /api/v1/mains/submissions/:id** — Get submission detail
-  - [ ] Track improvement over time per topic
-- [ ] Evaluation frontend
-  - [ ] Score display with gauge/ring chart
-  - [ ] Detailed breakdown cards
-  - [ ] Side-by-side comparison view
-  - [ ] Improvement suggestions list
-  - [ ] Historical score trend chart
-- [ ] Prompt engineering for UPSC-specific evaluation
+- [x] Evaluation service
+  - [x] **POST /api/v1/mains/submit** — Submit answer
+  - [x] Structure analysis (intro-body-conclusion detection)
+  - [x] Content depth scoring
+  - [x] Keyword presence check (from rubric)
+  - [x] Missing dimensions identification
+  - [x] Current affairs integration check
+  - [x] Diagram/flowchart suggestion
+- [x] Scoring system
+  - [x] Overall score (X/10)
+  - [x] Structure score breakdown
+  - [x] Content score breakdown
+  - [x] Keyword score breakdown
+  - [x] Improvement suggestions (actionable list)
+- [x] Model answer comparison
+  - [x] Show model/topper answer alongside
+  - [x] Highlight gaps
+  - [x] Show what student missed
+- [x] Submission management
+  - [x] **GET /api/v1/mains/submissions** — List submissions
+  - [x] **GET /api/v1/mains/submissions/:id** — Get submission detail
+  - [x] Track improvement over time per topic
+- [x] Evaluation frontend
+  - [x] Score display with gauge/ring chart
+  - [x] Detailed breakdown cards
+  - [x] Side-by-side comparison view
+  - [x] Improvement suggestions list
+  - [x] Historical score trend chart
+- [x] Prompt engineering for UPSC-specific evaluation
 
 ### Week 15: NeuroRevise AI – Core Engine
 
