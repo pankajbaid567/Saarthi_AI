@@ -85,6 +85,7 @@ export const createAuthRouter = (options: CreateAuthRouterOptions = {}): Router 
 
   router.get(
     '/me',
+    authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
       if (!req.authUser) {

@@ -5,6 +5,7 @@ import { env } from './config/env.js';
 import { AppError } from './errors/app-error.js';
 import { authMiddleware } from './middleware/auth.middleware.js';
 import { errorHandler } from './middleware/error-handler.js';
+import { authRateLimiter } from './middleware/rate-limit.middleware.js';
 import { requireRole } from './middleware/rbac.middleware.js';
 import { validateRequest } from './middleware/request-validation.js';
 import { createAuthRouter } from './routes/auth.routes.js';
@@ -29,7 +30,7 @@ export const createApp = () => {
     res.status(200).json({ message: req.body.message });
   });
 
-  app.get('/api/v1/system/admin/ping', authMiddleware, requireRole('admin'), (_req, res) => {
+  app.get('/api/v1/system/admin/ping', authRateLimiter, authMiddleware, requireRole('admin'), (_req, res) => {
     res.status(200).json({ status: 'ok' });
   });
 
