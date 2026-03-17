@@ -46,6 +46,15 @@ export type PdfExtractedContent = {
 };
 
 const DEFAULT_CONFIDENCE_THRESHOLD = 0.7;
+const MAX_NUMERIC_FACTS = 50;
+const MARKDOWN_HEADING_PATTERN = /^#{1,6}\s+\S+/;
+const NUMBERED_HEADING_PATTERN = /^\d+(\.\d+)*[).:-]?\s+[A-Za-z]/;
+const UPPERCASE_HEADING_PATTERN = /^[A-Z][A-Z\s-]{2,}$/;
+const CASE_STUDY_PATTERN = /(case\s*study|scenario|situation)\b/;
+const MCQ_SECTION_PATTERN = /(a\)|b\)|c\)|d\)|option\s+a|option\s+b|correct answer)\b/;
+const MAINS_SECTION_PATTERN = /(discuss|explain|analy[sz]e|critically evaluate|long answer|mains)\b/;
+const FACT_SECTION_PATTERN = /\b(article\s+\d+[a-z]?|act\s+\d{4}|amendment)\b/;
+const YEAR_PATTERN = /\b\d{4}\b/;
 
 const CLASSIFICATION_PROMPT_TEMPLATE = `Classify each section into one of:
 - concept
@@ -56,7 +65,7 @@ const CLASSIFICATION_PROMPT_TEMPLATE = `Classify each section into one of:
 Return a confidence score between 0 and 1 for each section.`;
 
 const clampConfidence = (value: number): number => {
-  return Number(Math.max(0, Math.min(0.99, value)).toFixed(2));
+  return Number(Math.max(0, Math.min(1, value)).toFixed(2));
 };
 
 const toLines = (value: string): string[] => {
@@ -67,7 +76,7 @@ const toLines = (value: string): string[] => {
 };
 
 const isHeading = (line: string): boolean => {
-  return /^#{1,6}\s+\S+/.test(line) || /^\d+(\.\d+)*[).:-]?\s+[A-Za-z]/.test(line) || /^[A-Z][A-Z\s-]{4,}$/.test(line);
+  return MARKDOWN_HEADING_PATTERN.test(line) || NUMBERED_HEADING_PATTERN.test(line) || UPPERCASE_HEADING_PATTERN.test(line);
 };
 
 const getHeadingLevel = (line: string): number => {
@@ -94,19 +103,19 @@ const extractBullets = (text: string): string[] => {
 const classifySection = (text: string): { type: ExtractedSectionType; confidence: number } => {
   const normalized = text.toLowerCase();
 
-  if (/(case\s*study|scenario|situation)\b/.test(normalized)) {
+  if (CASE_STUDY_PATTERN.test(normalized)) {
     return { type: 'case_study', confidence: clampConfidence(0.86) };
   }
 
-  if (/(a\)|b\)|c\)|d\)|option\s+a|option\s+b|correct answer)\b/.test(normalized)) {
+  if (MCQ_SECTION_PATTERN.test(normalized)) {
     return { type: 'mcq', confidence: clampConfidence(0.88) };
   }
 
-  if (/(discuss|explain|analy[sz]e|critically evaluate|long answer|mains)\b/.test(normalized)) {
+  if (MAINS_SECTION_PATTERN.test(normalized)) {
     return { type: 'mains_question', confidence: clampConfidence(0.8) };
   }
 
-  if (/\b(article\s+\d+[a-z]?|act\s+\d{4}|amendment)\b/.test(normalized) || /\b\d{4}\b/.test(normalized)) {
+  if (FACT_SECTION_PATTERN.test(normalized) || YEAR_PATTERN.test(normalized)) {
     return { type: 'fact', confidence: clampConfidence(0.76) };
   }
 
@@ -124,7 +133,11 @@ const extractMcqs = (fullText: string): ExtractedMcq[] => {
     }
 
     const question = lines[0] ?? '';
-    if (!/\?$/.test(question) && !/^\d+[).]/.test(question)) {
+    if (
+      !/\?$/.test(question) &&
+      !/^(?:q(?:uestion)?\s*)?\d+[).:-]/i.test(question) &&
+      !/^q\d+[).:-]?/i.test(question)
+    ) {
       continue;
     }
 
@@ -187,11 +200,13 @@ const uniqueSorted = (values: string[]): string[] => {
 };
 
 const extractKeyFacts = (fullText: string): ExtractedKeyFacts => {
+  const contextualNumberMatches =
+    fullText.match(/\b\d{1,3}(?:,\d{3})*(?:\.\d+)?\s*(?:%|crore|lakh|million|billion|km|kg|marks?)\b/gi) ?? [];
   const dateAndNumberMatches = [
     ...(fullText.match(/\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b/g) ?? []),
     ...(fullText.match(/\b(18|19|20)\d{2}\b/g) ?? []),
-    ...(fullText.match(/\b\d{2,}\b/g) ?? []).slice(0, 50),
-  ];
+    ...contextualNumberMatches,
+  ].slice(0, MAX_NUMERIC_FACTS);
   const articleMatches = fullText.match(/\bArticle\s+\d+[A-Z]?\b/gi) ?? [];
   const actMatches = [
     ...(fullText.match(/\b[A-Z][A-Za-z\s]+ Act,?\s+\d{4}\b/g) ?? []),

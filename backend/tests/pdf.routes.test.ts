@@ -106,6 +106,11 @@ describe('pdf routes', () => {
 
     expect(extractedResponse.status).toBe(200);
     expect(extractedResponse.body.structure.sections.length).toBeGreaterThan(0);
+    expect(['concept', 'fact', 'mcq', 'mains_question', 'case_study']).toContain(
+      extractedResponse.body.structure.sections[0]?.type,
+    );
+    expect(typeof extractedResponse.body.structure.sections[0]?.confidence).toBe('number');
+    expect(typeof extractedResponse.body.structure.sections[0]?.requiresReview).toBe('boolean');
     expect(extractedResponse.body.mcqs.length).toBe(1);
     expect(extractedResponse.body.mainsQuestions.length).toBe(1);
     expect(extractedResponse.body.keyFacts.constitutionalArticles).toContain('Article 21');

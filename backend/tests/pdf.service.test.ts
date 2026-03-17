@@ -74,6 +74,7 @@ describe('pdf service', () => {
 
     const extracted = await service.getExtracted('user-1', document.id);
     expect(extracted.structure.headings.length).toBeGreaterThan(0);
+    expect(extracted.structure.headings[0]).toMatchObject({ level: 1, title: 'CONSTITUTION NOTES' });
     expect(extracted.mcqs[0]?.correctAnswer).toBe('A');
     expect(extracted.mainsQuestions[0]?.marks).toBe(15);
     expect(extracted.keyFacts.constitutionalArticles).toContain('Article 14');
