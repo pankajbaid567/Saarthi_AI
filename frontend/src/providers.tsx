@@ -33,6 +33,14 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     document.documentElement.dataset.fontSize = fontSize;
   }, [fontSize, hydrated]);
 
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'production' || typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+      return;
+    }
+
+    void navigator.serviceWorker.register('/sw.js');
+  }, []);
+
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <QueryClientProvider client={queryClient}>

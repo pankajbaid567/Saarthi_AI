@@ -4,6 +4,7 @@ import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 import { authRateLimiter } from '../middleware/rate-limit.middleware.js';
 import { validateRequest } from '../middleware/request-validation.js';
+import { cacheKeys, cacheTtlSeconds, getCachedJson, setCachedJson } from '../lib/cache.js';
 import { performanceSubjectSchema, performanceTopicSchema } from '../schemas/performance.schema.js';
 import { createPerformanceService, type PerformanceService } from '../services/performance.service.js';
 
@@ -26,7 +27,16 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      const data = performanceService.getOverview(req.authUser!.userId);
+      const userId = req.authUser!.userId;
+      const cacheKey = cacheKeys.userPerformanceStats(userId);
+      const cachedData = await getCachedJson<ReturnType<PerformanceService['getOverview']>>(cacheKey);
+      if (cachedData) {
+        res.status(200).json({ success: true, data: cachedData });
+        return;
+      }
+
+      const data = performanceService.getOverview(userId);
+      await setCachedJson(cacheKey, data, cacheTtlSeconds.userPerformanceStats);
       res.status(200).json({ success: true, data });
     }),
   );
@@ -58,9 +68,19 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
+      const userId = req.authUser!.userId;
+      const cacheKey = `${cacheKeys.userPerformanceStats(userId)}:predictions`;
+      const cachedData = await getCachedJson<ReturnType<PerformanceService['getPredictions']>>(cacheKey);
+      if (cachedData) {
+        res.status(200).json({ success: true, data: cachedData });
+        return;
+      }
+
+      const data = performanceService.getPredictions(userId);
+      await setCachedJson(cacheKey, data, cacheTtlSeconds.userPerformanceStats);
       res.status(200).json({
         success: true,
-        data: performanceService.getPredictions(req.authUser!.userId),
+        data,
       });
     }),
   );
@@ -70,7 +90,16 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      const data = performanceService.getWeakAreas(req.authUser!.userId);
+      const userId = req.authUser!.userId;
+      const cacheKey = `${cacheKeys.userPerformanceStats(userId)}:weak-areas`;
+      const cachedData = await getCachedJson<ReturnType<PerformanceService['getWeakAreas']>>(cacheKey);
+      if (cachedData) {
+        res.status(200).json({ success: true, data: cachedData });
+        return;
+      }
+
+      const data = performanceService.getWeakAreas(userId);
+      await setCachedJson(cacheKey, data, cacheTtlSeconds.userPerformanceStats);
       res.status(200).json({ success: true, data });
     }),
   );

@@ -704,32 +704,32 @@
 ### Week 24: Performance Optimization
 
 - [ ] Frontend optimization
-  - [ ] Image optimization (next/image)
-  - [ ] Code splitting by route
-  - [ ] Lazy loading for heavy components (heatmaps, charts, forgetting curves)
-  - [ ] Service worker for caching
-  - [ ] Preload critical resources
+  - [x] Image optimization (next/image)
+  - [x] Code splitting by route
+  - [x] Lazy loading for heavy components (heatmaps, charts, forgetting curves)
+  - [x] Service worker for caching
+  - [x] Preload critical resources
 - [ ] Backend optimization
-  - [ ] Query optimization (EXPLAIN ANALYZE) — especially forgetting curve bulk queries
-  - [ ] N+1 query resolution
-  - [ ] Redis caching strategy implementation
-    - [ ] Cache subject/topic hierarchy (1h TTL)
-    - [ ] Cache popular MCQs (30min TTL)
-    - [ ] Cache user performance stats (5min TTL)
-    - [ ] Cache retention scores per user (10min TTL)
-    - [ ] Cache syllabus progress per user (15min TTL)
-    - [ ] Cache daily practice queue per user (until regenerated)
-  - [ ] Database indexing review
-    - [ ] Compound index on (user_id, topic_id) for forgetting_curve_data
-    - [ ] Index on next_review_date for revision_schedule
-    - [ ] Index on (user_id, date) for daily_practice_queue
-    - [ ] Index on (user_id, question_id) for question_attempt_log
-  - [ ] Connection pooling optimization
-- [ ] CDN setup
-  - [ ] Static assets on CDN
-  - [ ] PDF thumbnails on CDN
-- [ ] API response compression (gzip)
-- [ ] Database partitioning (test_responses by date, question_attempt_log by month)
+  - [x] Query optimization (EXPLAIN ANALYZE) — especially forgetting curve bulk queries
+  - [x] N+1 query resolution
+  - [x] Redis caching strategy implementation
+    - [x] Cache subject/topic hierarchy (1h TTL)
+    - [x] Cache popular MCQs (30min TTL)
+    - [x] Cache user performance stats (5min TTL)
+    - [x] Cache retention scores per user (10min TTL)
+    - [x] Cache syllabus progress per user (15min TTL)
+    - [x] Cache daily practice queue per user (until regenerated)
+  - [x] Database indexing review
+    - [x] Compound index on (user_id, topic_id) for forgetting_curve_data
+    - [x] Index on next_review_date for revision_schedule
+    - [x] Index on (user_id, date) for daily_practice_queue
+    - [x] Index on (user_id, question_id) for question_attempt_log
+  - [x] Connection pooling optimization
+- [x] CDN setup
+  - [x] Static assets on CDN
+  - [x] PDF thumbnails on CDN
+- [x] API response compression (gzip)
+- [x] Database partitioning (test_responses by date, question_attempt_log by month)
 
 ### Week 25: Testing
 

@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 
-import { AccuracyPieChart } from '@/components/analytics/accuracy-pie-chart';
 import { AiInsightsCard } from '@/components/analytics/ai-insights-card';
+import {
+  LazyAccuracyPieChart,
+  LazyTimeDistributionHistogram,
+  LazyTopicPerformanceBarChart,
+} from '@/components/analytics/lazy-analytics-charts';
 import { SuggestedStepsSection } from '@/components/analytics/suggested-steps-section';
-import { TimeDistributionHistogram } from '@/components/analytics/time-distribution-histogram';
-import { TopicPerformanceBarChart } from '@/components/analytics/topic-performance-bar-chart';
 import { WeakAreasSection } from '@/components/analytics/weak-areas-section';
 import { testsApi, type TestAnalyticsResponse } from '@/lib/api-client';
 
@@ -95,15 +97,15 @@ export default function TestAnalyticsPage() {
       <p className="text-sm text-muted-foreground">Test ID: {params.id ?? data.testId}</p>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <AccuracyPieChart
+        <LazyAccuracyPieChart
           correctAnswers={data.overall.correctAnswers}
           incorrectAnswers={data.overall.incorrectAnswers}
           skippedAnswers={data.overall.skippedAnswers}
         />
-        <TimeDistributionHistogram buckets={data.timeAnalysis.distribution} />
+        <LazyTimeDistributionHistogram buckets={data.timeAnalysis.distribution} />
       </div>
 
-      <TopicPerformanceBarChart topics={data.accuracyByTopic} />
+      <LazyTopicPerformanceBarChart topics={data.accuracyByTopic} />
       <AiInsightsCard insights={data.ai.insights} />
 
       <div className="grid gap-4 lg:grid-cols-2">

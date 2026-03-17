@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -57,9 +58,12 @@ export default function OnboardingPage() {
       </CardHeader>
       <CardContent className="space-y-4">
         {step === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Welcome to Saarthi AI. This guided setup personalizes your plan for revision, practice, mains, and strategy reminders.
-          </p>
+          <div className="space-y-3">
+            <Image src="/next.svg" alt="Saarthi AI onboarding" width={120} height={24} priority />
+            <p className="text-sm text-muted-foreground">
+              Welcome to Saarthi AI. This guided setup personalizes your plan for revision, practice, mains, and strategy reminders.
+            </p>
+          </div>
         ) : null}
 
         {step === 1 ? (

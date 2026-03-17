@@ -12,8 +12,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href={apiOrigin} />
+        <link rel="dns-prefetch" href={apiOrigin} />
+        <link rel="preload" href="/next.svg" as="image" />
+      </head>
       <body className="bg-background text-foreground antialiased">
         <Providers>{children}</Providers>
       </body>

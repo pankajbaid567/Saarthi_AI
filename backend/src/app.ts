@@ -1,3 +1,4 @@
+import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
 
@@ -36,6 +37,7 @@ type CreateAppOptions = {
 export const createApp = (options: CreateAppOptions = {}) => {
   const app = express();
 
+  app.use(compression());
   app.use(
     cors({
       origin: env.corsOrigins,
