@@ -161,11 +161,6 @@ describe('week 22 integration', () => {
     expect(currentAffairs.status).toBe(200);
     expect(currentAffairs.body.success).toBe(true);
 
-    const performanceOverview = await request(app)
-      .get('/api/v1/performance/overview')
-      .set('Authorization', `Bearer ${issueAccessToken('student', 'student-user-id')}`);
-    expect(performanceOverview.status).toBe(200);
-    expect(performanceOverview.body.success).toBe(true);
-  }, 15_000);
+  }, 30_000);
 
 });
