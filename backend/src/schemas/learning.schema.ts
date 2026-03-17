@@ -55,5 +55,9 @@ export const deleteUserBookmarkSchema = z.object({
 export const searchContentSchema = z.object({
   query: z.object({
     q: z.string().min(1).max(200),
+    type: z.string().min(1).max(50).optional(),
+    subject: z.string().min(1).max(120).optional(),
+    topic: z.string().min(1).max(120).optional(),
+    includeContext: z.coerce.boolean().optional(),
   }),
 });

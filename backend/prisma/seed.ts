@@ -25,8 +25,12 @@ const subjectNames = [
 const MATERIALIZED_PATH_PENDING_SEGMENT = 'pending';
 
 type OptionKey = 'A' | 'B' | 'C' | 'D';
+type MainsQuestionType = 'gs' | 'essay' | 'ethics' | 'optional';
+type MainsQuestionSource = 'pyq' | 'coaching' | 'ai_generated';
 
 const optionKeys: OptionKey[] = ['A', 'B', 'C', 'D'];
+const mainsQuestionTypes: MainsQuestionType[] = ['gs', 'essay', 'ethics', 'optional'];
+const mainsQuestionSources: MainsQuestionSource[] = ['pyq', 'coaching', 'ai_generated'];
 
 const difficultyByIndex = [1, 2, 2, 3, 2];
 
@@ -138,6 +142,31 @@ const main = async () => {
   if (questionsToCreate.length > 0) {
     await prisma.mcqQuestion.createMany({
       data: questionsToCreate,
+    });
+  }
+
+  const mainsQuestionsToCreate = topics.flatMap((topic, topicIndex) => {
+    return Array.from({ length: 3 }, (_value, questionIndex) => {
+      const source = mainsQuestionSources[(topicIndex + questionIndex) % mainsQuestionSources.length]!;
+      const type = mainsQuestionTypes[(topicIndex + questionIndex) % mainsQuestionTypes.length]!;
+      const marks = [10, 12, 15][questionIndex % 3]!;
+      return {
+        topicId: topic.id,
+        type,
+        source,
+        marks,
+        questionText: `${topic.name}: Analyze the key dimensions of this theme and propose a balanced policy response.`,
+        modelAnswer: `Model answer for ${topic.name} (${type}) question ${questionIndex + 1}.`,
+        suggestedWordLimit: marks === 15 ? 300 : 250,
+        year: source === 'pyq' ? 2015 + ((topicIndex + questionIndex) % 11) : null,
+      };
+    });
+  });
+
+  await prisma.mainsQuestion.deleteMany();
+  if (mainsQuestionsToCreate.length > 0) {
+    await prisma.mainsQuestion.createMany({
+      data: mainsQuestionsToCreate,
     });
   }
 };

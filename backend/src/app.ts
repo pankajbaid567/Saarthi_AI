@@ -50,6 +50,7 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createAnalyticsRouter({ analyticsService: options.analyticsService }));
   app.use('/api/v1', createKnowledgeGraphRouter());
   app.use('/api/v1', createLearningRouter());
+  app.use('/api/v1', createMainsRouter());
   app.use('/api/v1', createPdfRouter());
   app.use('/api/v1', createTestsRouter());
   app.use('/api/v1', createMainsRouter());

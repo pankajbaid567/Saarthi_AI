@@ -78,4 +78,41 @@ describe('knowledge graph service', () => {
     service.deleteContentNode(content.id);
     expect(service.getTopicContent(topic.id)).toHaveLength(0);
   });
+
+  it('supports week 11 auto-link review and enrichment workflow', () => {
+    const service = new KnowledgeGraphService({ seedData: false });
+    const subject = service.createSubject({ name: 'Polity' });
+    const topic = service.createTopic({ subjectId: subject.id, name: 'Fundamental Rights' });
+
+    const created = service.autoLinkExtractedContent({
+      concepts: [{ text: 'Fundamental rights protect liberty, equality and constitutional remedies.' }],
+      facts: [{ text: 'Article 32 is called the heart and soul of the Constitution.' }],
+      mcqs: [
+        {
+          question: 'Which article is called the heart and soul of the Constitution?',
+          options: ['Article 14', 'Article 19', 'Article 32', 'Article 226'],
+        },
+      ],
+      mainsQuestions: [{ question: 'Discuss the significance of Article 32 in Indian Polity.', marks: 10 }],
+    });
+
+    expect(created).toHaveLength(4);
+    expect(created.some((item) => item.smartHighlights.length > 0)).toBe(true);
+    expect(created.some((item) => item.type === 'concept' && item.microNote !== null)).toBe(true);
+    expect(created.some((item) => item.type === 'mcq' && item.difficulty !== null)).toBe(true);
+
+    const conceptItem = created.find((item) => item.type === 'concept');
+    expect(conceptItem).toBeDefined();
+
+    const approved = service.approveAutoLinkReviewItem(conceptItem!.id, { topicId: topic.id });
+    expect(approved.status).toBe('approved');
+    expect(approved.linkedTopicId).toBe(topic.id);
+
+    const rejected = service.rejectAutoLinkReviewItem(created[1]!.id);
+    expect(rejected.status).toBe('rejected');
+
+    const merged = service.mergeAutoLinkReviewItems(created[2]!.id, created[3]!.id);
+    expect(merged.status).toBe('merged');
+    expect(merged.mergedIntoId).toBe(created[2]!.id);
+  });
 });
