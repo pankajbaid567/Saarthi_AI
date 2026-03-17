@@ -21,13 +21,31 @@ export function UserPreferencesControls() {
       </Tooltip>
       <Tooltip label="Font size adjustment">
         <div className="flex items-center rounded-md border border-border">
-          <Button variant="ghost" className="h-9 rounded-r-none px-2" onClick={() => setFontSize('sm')} aria-label="Small font size">
+          <Button
+            variant={fontSize === 'sm' ? 'outline' : 'ghost'}
+            className="h-9 rounded-r-none px-2"
+            onClick={() => setFontSize('sm')}
+            aria-label="Small font size"
+            aria-pressed={fontSize === 'sm'}
+          >
             <Type className="h-3.5 w-3.5" />
           </Button>
-          <Button variant={fontSize === 'base' ? 'outline' : 'ghost'} className="h-9 rounded-none px-2" onClick={() => setFontSize('base')}>
+          <Button
+            variant={fontSize === 'base' ? 'outline' : 'ghost'}
+            className="h-9 rounded-none px-2"
+            onClick={() => setFontSize('base')}
+            aria-label="Base font size"
+            aria-pressed={fontSize === 'base'}
+          >
             A
           </Button>
-          <Button variant={fontSize === 'lg' ? 'outline' : 'ghost'} className="h-9 rounded-l-none px-2" onClick={() => setFontSize('lg')}>
+          <Button
+            variant={fontSize === 'lg' ? 'outline' : 'ghost'}
+            className="h-9 rounded-l-none px-2"
+            onClick={() => setFontSize('lg')}
+            aria-label="Large font size"
+            aria-pressed={fontSize === 'lg'}
+          >
             A+
           </Button>
         </div>

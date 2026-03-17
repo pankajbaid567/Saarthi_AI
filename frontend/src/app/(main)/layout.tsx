@@ -4,6 +4,7 @@ import { Breadcrumbs } from '@/components/shell/breadcrumbs';
 import { MainHeader } from '@/components/shell/main-header';
 import { Sidebar } from '@/components/shell/sidebar';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useUiPreferencesStore } from '@/stores/ui-preferences-store';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -11,7 +12,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const setFocusMode = useUiPreferencesStore((state) => state.setFocusMode);
 
   return (
-    <div className={`min-h-screen bg-background transition-all duration-300 ${focusMode ? '' : 'md:flex'}`}>
+    <div className={cn('min-h-screen bg-background transition-all duration-300', !focusMode && 'md:flex')}>
       {focusMode ? null : <Sidebar />}
       <div className="flex min-w-0 flex-1 flex-col">
         {focusMode ? (

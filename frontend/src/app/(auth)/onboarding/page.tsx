@@ -24,6 +24,7 @@ export default function OnboardingPage() {
   const [examDate, setExamDate] = useState('');
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [assessmentScore, setAssessmentScore] = useState('3');
+  const [error, setError] = useState<string | null>(null);
 
   const toggleSubject = (subject: string) => {
     setSelectedSubjects((prev) => (prev.includes(subject) ? prev.filter((value) => value !== subject) : [...prev, subject]));
@@ -38,6 +39,16 @@ export default function OnboardingPage() {
   };
 
   const isFinalStep = step === stepTitles.length - 1;
+
+  const goToNextStep = () => {
+    if (step === 1 && !examDate) {
+      setError('Please select your target exam date before proceeding.');
+      return;
+    }
+
+    setError(null);
+    setStep((value) => value + 1);
+  };
 
   return (
     <Card className="w-full max-w-2xl">
@@ -105,6 +116,8 @@ export default function OnboardingPage() {
           </ul>
         ) : null}
 
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
         <div className="flex items-center justify-between">
           <Button variant="outline" disabled={step === 0} onClick={() => setStep((value) => value - 1)}>
             Back
@@ -112,7 +125,7 @@ export default function OnboardingPage() {
           {isFinalStep ? (
             <Button onClick={completeOnboarding}>Finish and open dashboard</Button>
           ) : (
-            <Button onClick={() => setStep((value) => value + 1)}>Next</Button>
+            <Button onClick={goToNextStep}>Next</Button>
           )}
         </div>
       </CardContent>

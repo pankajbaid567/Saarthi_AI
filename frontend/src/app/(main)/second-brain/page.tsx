@@ -119,7 +119,7 @@ export default function SecondBrainPage() {
 
       {error ? <p className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
 
-      <section className="printable-notes rounded-lg border border-border bg-card p-4">
+      <section id="create-insight" className="printable-notes rounded-lg border border-border bg-card p-4">
         <h2 className="text-lg font-semibold">Create insight</h2>
         <div className="mt-3 grid gap-2 md:grid-cols-2">
           <input
@@ -217,7 +217,12 @@ export default function SecondBrainPage() {
             </article>
           ))}
           {entries.length === 0 ? (
-            <EmptyState title="No entries found" description="Capture your first insight to build long-term memory links." ctaLabel="Create one now" ctaHref="#top" />
+            <EmptyState
+              title="No entries found"
+              description="Capture your first insight to build long-term memory links."
+              ctaLabel="Create one now"
+              ctaHref="#create-insight"
+            />
           ) : null}
         </div>
       </section>
@@ -233,7 +238,7 @@ export default function SecondBrainPage() {
             ))}
             {connections.length === 0 ? (
               <li>
-                <EmptyState title="No connections yet" description="Add tagged entries so Saarthi can auto-link your topics." ctaLabel="Create an entry" ctaHref="#top" />
+                <EmptyState title="No connections yet" description="Add tagged entries so Saarthi can auto-link your topics." ctaLabel="Create an entry" ctaHref="#create-insight" />
               </li>
             ) : null}
           </ul>
