@@ -1,9 +1,12 @@
 import { randomUUID } from 'crypto';
 
 import { AppError } from '../errors/app-error.js';
+import { createEmbeddingService } from './embedding.service.js';
 import type { ChatMode } from '../models/chat-session.model.js';
 import type { ContentNode, KnowledgeGraphService } from './knowledge-graph.service.js';
 import { createKnowledgeGraphService } from './knowledge-graph.service.js';
+import { RagService } from './rag.service.js';
+import { VectorSearchService } from './vector-search.service.js';
 
 type ChatQuestion = {
   prompt: string;
@@ -137,8 +140,12 @@ export class ChatService {
 
   private readonly knowledgeGraphService: KnowledgeGraphService;
 
+  private readonly ragService: RagService;
+
   constructor(knowledgeGraphService?: KnowledgeGraphService) {
     this.knowledgeGraphService = knowledgeGraphService ?? createKnowledgeGraphService();
+    const vectorSearchService = new VectorSearchService(createEmbeddingService());
+    this.ragService = new RagService(vectorSearchService);
   }
 
   createSession(input: CreateSessionInput): ChatSession {
@@ -279,6 +286,22 @@ export class ChatService {
     const correctIndex = Math.floor(Math.random() * OPTION_KEYS.length);
     const correctAnswer = OPTION_KEYS[correctIndex];
     const selected = options[correctIndex]?.text ?? options[0]?.text ?? 'Correct option';
+    const ragContext = this.ragService.assembleContext(
+      `${session.subject} ${session.topic} core concepts`,
+      contentPool.map((content) => ({
+        id: content.id,
+        topicId: content.topicId,
+        source: 'content',
+        type: content.type,
+        title: content.title,
+        body: content.body,
+        subject: session.subject,
+        topic: session.topic,
+      })),
+      80,
+    );
+    const contextSummary =
+      ragContext.sources.length > 0 ? ragContext.sources.map((source) => source.title ?? source.type).join(', ') : session.topic;
 
     const prompt = `(${difficulty.toUpperCase()}) ${session.topic}: Choose the best answer based on core concepts.`;
 
@@ -286,7 +309,7 @@ export class ChatService {
       prompt,
       options,
       correctAnswer,
-      explanation: `${selected} is the best choice because it aligns with the core ${session.topic} concept in current study material.`,
+      explanation: `${selected} is the best choice because it aligns with ${session.topic}. RAG sources: ${contextSummary}.`,
       topic: session.topic,
       difficulty,
     };

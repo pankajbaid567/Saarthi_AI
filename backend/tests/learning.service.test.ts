@@ -73,7 +73,16 @@ describe('learning service', () => {
     learningService.deleteUserBookmark('user-1', bookmark.id);
     expect(learningService.listUserBookmarks('user-1')).toHaveLength(0);
 
-    const searchResults = learningService.searchContent('equality');
+    const searchResults = learningService.searchContent('equality', { type: 'pyq', subject: 'Polity' });
     expect(searchResults.length).toBeGreaterThan(0);
+    expect(searchResults[0]?.score).toBeGreaterThan(0);
+    expect(searchResults.every((result) => result.type === 'pyq')).toBe(true);
+
+    const related = learningService.getRelatedContent(topic.id, 3);
+    expect(related).toHaveLength(0);
+
+    const context = learningService.getSearchContext('search equality before law');
+    expect(context.understanding.intent).toBe('search');
+    expect(context.sources.length).toBeGreaterThan(0);
   });
 });

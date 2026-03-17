@@ -327,28 +327,28 @@
 
 ### Week 12: RAG Pipeline
 
-- [ ] pgvector extension setup
-- [ ] Embedding generation service
-  - [ ] Generate embeddings for all content nodes
-  - [ ] Batch processing for existing content
-  - [ ] Auto-generate on new content creation
-- [ ] Vector search implementation
-  - [ ] Similarity search function
-  - [ ] Hybrid search (vector + BM25)
-  - [ ] Search result re-ranking
-- [ ] RAG context assembly
-  - [ ] Query understanding (intent + entities)
-  - [ ] Multi-source retrieval (notes + MCQs + PYQs)
-  - [ ] Context window management (token budget)
-  - [ ] Source attribution
-- [ ] Integration with existing features
-  - [ ] Quiz Chat uses RAG for context-aware responses
-  - [ ] Content search uses hybrid search
-  - [ ] Topic pages show related content via embeddings
-- [ ] Search frontend improvements
-  - [ ] Semantic search results page
-  - [ ] Highlighted search matches
-  - [ ] Faceted search (by type, subject, topic)
+- [x] pgvector extension setup
+- [x] Embedding generation service
+  - [x] Generate embeddings for all content nodes
+  - [x] Batch processing for existing content
+  - [x] Auto-generate on new content creation
+- [x] Vector search implementation
+  - [x] Similarity search function
+  - [x] Hybrid search (vector + BM25)
+  - [x] Search result re-ranking
+- [x] RAG context assembly
+  - [x] Query understanding (intent + entities)
+  - [x] Multi-source retrieval (notes + MCQs + PYQs)
+  - [x] Context window management (token budget)
+  - [x] Source attribution
+- [x] Integration with existing features
+  - [x] Quiz Chat uses RAG for context-aware responses
+  - [x] Content search uses hybrid search
+  - [x] Topic pages show related content via embeddings
+- [x] Search frontend improvements
+  - [x] Semantic search results page
+  - [x] Highlighted search matches
+  - [x] Faceted search (by type, subject, topic)
 
 ---
 
