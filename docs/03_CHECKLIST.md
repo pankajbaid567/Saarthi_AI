@@ -99,7 +99,7 @@
 
 ### Week 4: Frontend Shell
 
-- [ ] Next.js project structure
+- [x] Next.js project structure
   ```
   app/
   ├── (auth)/login/page.tsx
@@ -111,27 +111,27 @@
   ├── (main)/topics/[id]/page.tsx
   └── ...
   ```
-- [ ] Set up Tailwind CSS + shadcn/ui
-- [ ] Design system: colors, typography, spacing tokens
-- [ ] Layout component with sidebar navigation
-- [ ] Sidebar: Subject → Topic tree (collapsible)
-- [ ] Breadcrumb navigation
-- [ ] Cmd+K spotlight search (cmdk library)
-- [ ] Dark mode toggle (next-themes)
-- [ ] Auth pages: Login, Register, Forgot Password
-- [ ] Auth state management (Zustand + React Query)
-- [ ] API client setup (axios/fetch wrapper)
-- [ ] Dashboard page (placeholder)
-- [ ] Subject listing page
-- [ ] Topic page with tabs:
-  - [ ] Concept Notes tab (markdown rendering)
-  - [ ] PYQs tab
-  - [ ] Smart Highlights tab
-  - [ ] Micro Notes tab
-- [ ] Reading experience: adjustable font size, focus mode
-- [ ] Responsive layout (desktop, tablet, mobile)
-- [ ] Loading states + error boundaries
-- [ ] Toast notifications
+- [x] Set up Tailwind CSS + shadcn/ui
+- [x] Design system: colors, typography, spacing tokens
+- [x] Layout component with sidebar navigation
+- [x] Sidebar: Subject → Topic tree (collapsible)
+- [x] Breadcrumb navigation
+- [x] Cmd+K spotlight search (cmdk library)
+- [x] Dark mode toggle (next-themes)
+- [x] Auth pages: Login, Register, Forgot Password
+- [x] Auth state management (Zustand + React Query)
+- [x] API client setup (axios/fetch wrapper)
+- [x] Dashboard page (placeholder)
+- [x] Subject listing page
+- [x] Topic page with tabs:
+  - [x] Concept Notes tab (markdown rendering)
+  - [x] PYQs tab
+  - [x] Smart Highlights tab
+  - [x] Micro Notes tab
+- [x] Reading experience: adjustable font size, focus mode
+- [x] Responsive layout (desktop, tablet, mobile)
+- [x] Loading states + error boundaries
+- [x] Toast notifications
 
 ---
 
