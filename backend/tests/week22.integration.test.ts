@@ -71,15 +71,16 @@ class MemoryUserStore implements UserStore {
 class MemorySessionStore implements SessionStore {
   private readonly sessions = new Map<string, { refreshTokenHash: string }>();
 
-  async create(session: {
+  async create({
+    id,
+    refreshTokenHash,
+  }: {
     id: string;
     userId: string;
     refreshTokenHash: string;
     expiresAt: Date;
   }): Promise<void> {
-    void session.userId;
-    void session.expiresAt;
-    this.sessions.set(session.id, { refreshTokenHash: session.refreshTokenHash });
+    this.sessions.set(id, { refreshTokenHash });
   }
 
   async updateRefreshTokenHash(sessionId: string, refreshTokenHash: string): Promise<void> {
