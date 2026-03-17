@@ -155,6 +155,17 @@ const STOP_WORDS = new Set([
   'should',
 ]);
 
+const MIN_TOKEN_LENGTH = 2;
+const TOPIC_MATCH_CONFIDENCE_THRESHOLD = 0.2;
+const LLM_KEYWORD_WEIGHT = 0.6;
+const LLM_SEMANTIC_WEIGHT = 0.4;
+const LLM_PHRASE_BOOST = 0.15;
+const MIN_HIGHLIGHT_LENGTH = 15;
+const MAX_HIGHLIGHTS = 3;
+const MAX_MICRO_NOTE_WORDS = 16;
+const EASY_DIFFICULTY_THRESHOLD = 25;
+const MEDIUM_DIFFICULTY_THRESHOLD = 45;
+
 const toSlug = (value: string): string => {
   return value
     .trim()
@@ -660,7 +671,7 @@ export class KnowledgeGraphService {
       }
     });
 
-    if (best.confidence < 0.2) {
+    if (best.confidence < TOPIC_MATCH_CONFIDENCE_THRESHOLD) {
       return {
         topicId: null,
         confidence: best.confidence,
@@ -682,7 +693,7 @@ export class KnowledgeGraphService {
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, ' ')
       .split(/\s+/)
-      .filter((token) => token.length > 2 && !STOP_WORDS.has(token));
+      .filter((token) => token.length > MIN_TOKEN_LENGTH && !STOP_WORDS.has(token));
   }
 
   private keywordSimilarity(left: string, right: string): number {
@@ -731,8 +742,14 @@ export class KnowledgeGraphService {
   private llmStyleClassificationScore(content: string, topicText: string): number {
     const loweredContent = content.toLowerCase();
     const loweredTopic = topicText.toLowerCase();
-    const phraseBoost = loweredContent.includes(loweredTopic.split(' ')[0] ?? '') ? 0.15 : 0;
-    return Math.min(1, this.keywordSimilarity(content, topicText) * 0.6 + this.semanticSimilarity(content, topicText) * 0.4 + phraseBoost);
+    const topicFirstToken = loweredTopic.trim().split(/\s+/)[0];
+    const phraseBoost = topicFirstToken && loweredContent.includes(topicFirstToken) ? LLM_PHRASE_BOOST : 0;
+    return Math.min(
+      1,
+      this.keywordSimilarity(content, topicText) * LLM_KEYWORD_WEIGHT +
+        this.semanticSimilarity(content, topicText) * LLM_SEMANTIC_WEIGHT +
+        phraseBoost,
+    );
   }
 
   private suggestNewTopicName(text: string): string {
@@ -747,21 +764,22 @@ export class KnowledgeGraphService {
     return text
       .split(/[.!?]\s+/)
       .map((segment) => segment.trim())
-      .filter((segment) => segment.length > 15)
-      .slice(0, 3);
+      .filter((segment) => segment.length > MIN_HIGHLIGHT_LENGTH)
+      .slice(0, MAX_HIGHLIGHTS);
   }
 
   private generateMicroNote(text: string): string {
-    const words = text.trim().split(/\s+/).slice(0, 16).join(' ');
-    return words.length > 0 ? `${words}${text.split(/\s+/).length > 16 ? '…' : ''}` : 'Quick concept recap';
+    const tokens = text.trim().split(/\s+/).filter((token) => token.length > 0);
+    const words = tokens.slice(0, MAX_MICRO_NOTE_WORDS).join(' ');
+    return words.length > 0 ? `${words}${tokens.length > MAX_MICRO_NOTE_WORDS ? '…' : ''}` : 'Quick concept recap';
   }
 
   private tagMcqDifficulty(text: string): 'easy' | 'medium' | 'hard' {
     const length = text.split(/\s+/).length;
-    if (length <= 25) {
+    if (length <= EASY_DIFFICULTY_THRESHOLD) {
       return 'easy';
     }
-    if (length <= 45) {
+    if (length <= MEDIUM_DIFFICULTY_THRESHOLD) {
       return 'medium';
     }
     return 'hard';
