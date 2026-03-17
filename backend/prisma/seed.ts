@@ -24,6 +24,12 @@ const subjectNames = [
 
 const MATERIALIZED_PATH_PENDING_SEGMENT = 'pending';
 
+type OptionKey = 'A' | 'B' | 'C' | 'D';
+
+const optionKeys: OptionKey[] = ['A', 'B', 'C', 'D'];
+
+const difficultyByIndex = [1, 2, 2, 3, 2];
+
 const main = async () => {
   for (const subjectName of subjectNames) {
     const subject = await prisma.subject.upsert({
@@ -96,6 +102,43 @@ const main = async () => {
         });
       }
     }
+  }
+
+  const topics = await prisma.topic.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  const questionsToCreate = topics.flatMap((topic, topicIndex) => {
+    return Array.from({ length: 5 }, (_value, questionIndex) => {
+      const correctOption = optionKeys[(topicIndex + questionIndex) % optionKeys.length]!;
+      const isPyq = questionIndex === 0 || (topicIndex + questionIndex) % 8 === 0;
+      return {
+        topicId: topic.id,
+        questionText: `${topic.name}: MCQ ${questionIndex + 1} - identify the most appropriate statement.`,
+        optionA: `${topic.name} option A`,
+        optionB: `${topic.name} option B`,
+        optionC: `${topic.name} option C`,
+        optionD: `${topic.name} option D`,
+        correctOption,
+        explanation: `Reference explanation for ${topic.name} question ${questionIndex + 1}.`,
+        difficulty: difficultyByIndex[questionIndex]!,
+        isPyq,
+        pyqYear: isPyq ? 2015 + ((topicIndex + questionIndex) % 11) : null,
+      };
+    });
+  });
+
+  await prisma.mcqQuestion.deleteMany();
+  if (questionsToCreate.length > 0) {
+    await prisma.mcqQuestion.createMany({
+      data: questionsToCreate,
+    });
   }
 };
 

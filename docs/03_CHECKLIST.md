@@ -139,56 +139,56 @@
 
 ### Week 5: MCQ Engine Backend
 
-- [ ] MCQ questions table (PostgreSQL)
-- [ ] Seed initial MCQ data (1000+ questions)
-- [ ] Test generation service
-  - [ ] **POST /api/v1/tests/generate** — Generate test
-    - [ ] Topic-wise generation
-    - [ ] Subtopic-wise generation
-    - [ ] Mixed (random across subjects)
-    - [ ] PYQ-based generation
-    - [ ] AI weak-area generation
-    - [ ] Custom (user selects topics + count)
-  - [ ] Negative marking calculation (-0.33)
-- [ ] Test session management (Redis for active tests)
-- [ ] Test submission service
-  - [ ] **POST /api/v1/tests/:id/submit** — Submit test
-  - [ ] Calculate score with negative marking
-  - [ ] Store responses in test_responses table
-- [ ] Test retrieval
-  - [ ] **GET /api/v1/tests/:id** — Get test (during/after)
-  - [ ] **GET /api/v1/tests/:id/results** — Get results
-  - [ ] **GET /api/v1/tests/history** — Test history
-- [ ] Test state persistence (resume after disconnect)
-- [ ] Unit tests for MCQ engine
-- [ ] Integration tests for MCQ endpoints
+- [x] MCQ questions table (PostgreSQL)
+- [x] Seed initial MCQ data (1000+ questions)
+- [x] Test generation service
+  - [x] **POST /api/v1/tests/generate** — Generate test
+    - [x] Topic-wise generation
+    - [x] Subtopic-wise generation
+    - [x] Mixed (random across subjects)
+    - [x] PYQ-based generation
+    - [x] AI weak-area generation
+    - [x] Custom (user selects topics + count)
+  - [x] Negative marking calculation (-0.33)
+- [x] Test session management (Redis for active tests)
+- [x] Test submission service
+  - [x] **POST /api/v1/tests/:id/submit** — Submit test
+  - [x] Calculate score with negative marking
+  - [x] Store responses in test_responses table
+- [x] Test retrieval
+  - [x] **GET /api/v1/tests/:id** — Get test (during/after)
+  - [x] **GET /api/v1/tests/:id/results** — Get results
+  - [x] **GET /api/v1/tests/history** — Test history
+- [x] Test state persistence (resume after disconnect)
+- [x] Unit tests for MCQ engine
+- [x] Integration tests for MCQ endpoints
 
 ### Week 6: MCQ Engine Frontend
 
-- [ ] Test generation page
-  - [ ] Subject/topic selection
-  - [ ] Test type selection (topic/mixed/PYQ/weak-area)
-  - [ ] Question count selector
-  - [ ] Time limit selector
-- [ ] Test interface
-  - [ ] Question display with options (A/B/C/D)
-  - [ ] Total timer + per-question timer
-  - [ ] Question navigation panel (numbered grid)
-  - [ ] Flag for review functionality
-  - [ ] Mark for doubt
-  - [ ] Next/Previous navigation
-  - [ ] Auto-submit on time expiry
-  - [ ] Submit confirmation modal
-- [ ] Results page
-  - [ ] Score display with breakdown
-  - [ ] Correct/Incorrect/Skipped summary
-  - [ ] Question-by-question review
-  - [ ] Explanation display for each question
-  - [ ] Correct answer highlighting
-- [ ] Test history page
-  - [ ] List of past tests with scores
-  - [ ] Filter by type, subject, date
-  - [ ] Performance trend chart
+- [x] Test generation page
+  - [x] Subject/topic selection
+  - [x] Test type selection (topic/mixed/PYQ/weak-area)
+  - [x] Question count selector
+  - [x] Time limit selector
+- [x] Test interface
+  - [x] Question display with options (A/B/C/D)
+  - [x] Total timer + per-question timer
+  - [x] Question navigation panel (numbered grid)
+  - [x] Flag for review functionality
+  - [x] Mark for doubt
+  - [x] Next/Previous navigation
+  - [x] Auto-submit on time expiry
+  - [x] Submit confirmation modal
+- [x] Results page
+  - [x] Score display with breakdown
+  - [x] Correct/Incorrect/Skipped summary
+  - [x] Question-by-question review
+  - [x] Explanation display for each question
+  - [x] Correct answer highlighting
+- [x] Test history page
+  - [x] List of past tests with scores
+  - [x] Filter by type, subject, date
+  - [x] Performance trend chart
 
 ### Week 7: Post-Test Analytics (AI)
 

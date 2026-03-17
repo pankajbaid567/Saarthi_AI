@@ -13,6 +13,7 @@ import { createAuthRouter } from './routes/auth.routes.js';
 import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
 import type { AnalyticsService } from './services/analytics.service.js';
+import { createTestsRouter } from './routes/tests.routes.js';
 import { echoRequestSchema } from './schemas/echo.schema.js';
 
 type CreateAppOptions = {
@@ -46,6 +47,7 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createAnalyticsRouter({ analyticsService: options.analyticsService }));
   app.use('/api/v1', createKnowledgeGraphRouter());
   app.use('/api/v1', createLearningRouter());
+  app.use('/api/v1', createTestsRouter());
 
   app.use((_req, _res, next) => {
     next(new AppError('Route not found', 404));
