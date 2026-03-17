@@ -8,13 +8,19 @@ import { errorHandler } from './middleware/error-handler.js';
 import { authRateLimiter } from './middleware/rate-limit.middleware.js';
 import { requireRole } from './middleware/rbac.middleware.js';
 import { validateRequest } from './middleware/request-validation.js';
+import { createAnalyticsRouter } from './routes/analytics.routes.js';
 import { createAuthRouter } from './routes/auth.routes.js';
 import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
+import type { AnalyticsService } from './services/analytics.service.js';
 import { createTestsRouter } from './routes/tests.routes.js';
 import { echoRequestSchema } from './schemas/echo.schema.js';
 
-export const createApp = () => {
+type CreateAppOptions = {
+  analyticsService?: AnalyticsService;
+};
+
+export const createApp = (options: CreateAppOptions = {}) => {
   const app = express();
 
   app.use(
@@ -38,6 +44,7 @@ export const createApp = () => {
   });
 
   app.use('/api/v1/auth', createAuthRouter());
+  app.use('/api/v1', createAnalyticsRouter({ analyticsService: options.analyticsService }));
   app.use('/api/v1', createKnowledgeGraphRouter());
   app.use('/api/v1', createLearningRouter());
   app.use('/api/v1', createTestsRouter());

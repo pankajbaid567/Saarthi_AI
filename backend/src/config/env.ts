@@ -31,4 +31,7 @@ export const env = {
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
   googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL ?? '',
+  llmProvider: process.env.LLM_PROVIDER ?? 'mock',
+  llmModel: process.env.LLM_MODEL ?? 'mock-llm',
+  llmApiKey: process.env.LLM_API_KEY ?? '',
 };
