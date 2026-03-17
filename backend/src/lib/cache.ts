@@ -15,9 +15,11 @@ export const cacheKeys = {
     subjectId ? `week24:subjects:${subjectId}:topic-hierarchy` : 'week24:subjects:topic-hierarchy',
   popularMcqs: (subjectId?: string) => (subjectId ? `week24:mcqs:popular:${subjectId}` : 'week24:mcqs:popular'),
   userPerformanceStats: (userId: string) => `week24:performance:${userId}:stats`,
+  userPerformancePredictions: (userId: string) => `week24:performance:${userId}:predictions`,
+  userPerformanceWeakAreas: (userId: string) => `week24:performance:${userId}:weak-areas`,
   retentionScores: (userId: string) => `week24:revision:${userId}:retention-scores`,
   syllabusProgress: (userId: string, subjectId?: string) =>
-    subjectId ? `week24:syllabus:${userId}:progress:${subjectId}` : `week24:syllabus:${userId}:progress`,
+    `week24:syllabus:${userId}:progress:${subjectId ?? 'all'}`,
   dailyPracticeQueue: (userId: string) => `week24:practice:${userId}:daily-queue`,
 } as const;
 

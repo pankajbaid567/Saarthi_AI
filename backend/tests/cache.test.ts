@@ -17,7 +17,10 @@ describe('week 24 cache strategy', () => {
     expect(cacheKeys.subjectTopicHierarchy('history')).toBe('week24:subjects:history:topic-hierarchy');
     expect(cacheKeys.popularMcqs('economy')).toBe('week24:mcqs:popular:economy');
     expect(cacheKeys.userPerformanceStats('user-1')).toBe('week24:performance:user-1:stats');
+    expect(cacheKeys.userPerformancePredictions('user-1')).toBe('week24:performance:user-1:predictions');
+    expect(cacheKeys.userPerformanceWeakAreas('user-1')).toBe('week24:performance:user-1:weak-areas');
     expect(cacheKeys.retentionScores('user-1')).toBe('week24:revision:user-1:retention-scores');
+    expect(cacheKeys.syllabusProgress('user-1')).toBe('week24:syllabus:user-1:progress:all');
     expect(cacheKeys.syllabusProgress('user-1', 'subject-1')).toBe('week24:syllabus:user-1:progress:subject-1');
     expect(cacheKeys.dailyPracticeQueue('user-1')).toBe('week24:practice:user-1:daily-queue');
   });

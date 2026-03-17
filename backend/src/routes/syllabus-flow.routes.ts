@@ -62,7 +62,7 @@ export const createSyllabusFlowRouter = (options: CreateSyllabusFlowRouterOption
       }
 
       const data = syllabusFlowService.getSubjectProgress(userId, req.params.subjectId);
-      await setCachedJson(cacheKey, data, cacheTtlSeconds.subjectTopicHierarchy);
+      await setCachedJson(cacheKey, data, cacheTtlSeconds.syllabusProgress);
       res.status(200).json(data);
     }),
   );

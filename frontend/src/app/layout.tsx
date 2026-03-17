@@ -19,7 +19,6 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href={apiOrigin} />
         <link rel="dns-prefetch" href={apiOrigin} />
-        <link rel="preload" href="/next.svg" as="image" />
       </head>
       <body className="bg-background text-foreground antialiased">
         <Providers>{children}</Providers>

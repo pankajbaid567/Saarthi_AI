@@ -34,7 +34,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, [fontSize, hydrated]);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'production' || typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    if (!('serviceWorker' in navigator) || window.location.hostname === 'localhost') {
       return;
     }
 

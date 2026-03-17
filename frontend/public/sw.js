@@ -18,7 +18,7 @@ self.addEventListener('activate', (event) => {
           if (key !== STATIC_CACHE && key !== RUNTIME_CACHE) {
             return caches.delete(key);
           }
-          return Promise.resolve(false);
+          return undefined;
         }),
       ),
     ),
@@ -37,7 +37,7 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
+        if (!response || response.status !== 200 || !['basic', 'cors'].includes(response.type)) {
           return response;
         }
         const responseToCache = response.clone();
