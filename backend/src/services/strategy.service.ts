@@ -54,12 +54,15 @@ type UserStrategyState = {
 };
 
 const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
+const BURNOUT_HISTORY_WINDOW = 3;
+const BURNOUT_COMPLETION_THRESHOLD = 45;
 
 const toDateKey = (value: Date): string => value.toISOString().slice(0, 10);
 
 const startOfWeek = (value: Date): Date => {
   const result = new Date(value);
   const day = result.getUTCDay();
+  // Weeks are Monday-first; shift Sunday (0) back by 6 days and other days to the previous Monday.
   const diff = day === 0 ? -6 : 1 - day;
   result.setUTCDate(result.getUTCDate() + diff);
   return result;
@@ -180,7 +183,9 @@ export class StrategyService {
   ): { today: DailyPlan; week: WeeklyPlan } {
     const now = new Date();
     const historyAverage = average(completionHistory);
-    const burnoutRisk = completionHistory.length >= 3 && completionHistory.slice(-3).every((value) => value < 45);
+    const burnoutRisk =
+      completionHistory.length >= BURNOUT_HISTORY_WINDOW &&
+      completionHistory.slice(-BURNOUT_HISTORY_WINDOW).every((value) => value < BURNOUT_COMPLETION_THRESHOLD);
     const overload = signals.timeAvailableMinutes < 180 || signals.weakAreas.length >= 4 || historyAverage < 55;
     const totalBudget = Math.floor(signals.timeAvailableMinutes * (overload || burnoutRisk ? 0.85 : 1));
 
@@ -254,7 +259,7 @@ export class StrategyService {
       {
         id: randomUUID(),
         type: 'revision',
-        title: `NeuroRevise retention sprint (${signals.retentionUrgencyCount} urgent cards)` ,
+        title: `NeuroRevise retention sprint (${signals.retentionUrgencyCount} urgent cards)`,
         estimatedMinutes: revisionMinutes,
         source: 'NeuroRevise',
         completed: false,

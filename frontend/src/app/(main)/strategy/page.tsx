@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
-import { strategyApi, type StrategyDailyPlan, type StrategyWeekPlan } from '@/lib/api-client';
-
-type LoadState = 'idle' | 'loading' | 'error';
+import { strategyApi } from '@/lib/api-client';
 
 const taskLabel: Record<string, string> = {
   study: 'Study',
@@ -15,73 +14,61 @@ const taskLabel: Record<string, string> = {
 };
 
 export default function StrategyPage() {
-  const [today, setToday] = useState<StrategyDailyPlan | null>(null);
-  const [week, setWeek] = useState<StrategyWeekPlan | null>(null);
-  const [state, setState] = useState<LoadState>('idle');
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [timeAvailableMinutes, setTimeAvailableMinutes] = useState<number>(240);
+  const [error, setError] = useState<string | null>(null);
 
-  const loadPlans = async () => {
-    setState('loading');
-    setError(null);
-    try {
-      const [todayResponse, weekResponse] = await Promise.all([strategyApi.getToday(), strategyApi.getWeek()]);
-      setToday(todayResponse.data);
-      setWeek(weekResponse.data);
-      setState('idle');
-    } catch {
-      setError('Unable to load strategy plans. Please login and try again.');
-      setState('error');
-    }
-  };
+  const todayQuery = useQuery({
+    queryKey: ['strategy', 'today'],
+    queryFn: async () => (await strategyApi.getToday()).data,
+  });
 
-  useEffect(() => {
-    void loadPlans();
-  }, []);
+  const weekQuery = useQuery({
+    queryKey: ['strategy', 'week'],
+    queryFn: async () => (await strategyApi.getWeek()).data,
+  });
 
-  const completeTask = async (taskId: string) => {
-    try {
-      const response = await strategyApi.completeTask(taskId, true);
-      setToday(response.data);
-      setWeek((current) => {
-        if (!current) {
-          return current;
-        }
-        return {
-          ...current,
-          plans: current.plans.map((plan) => (plan.date === response.data.date ? response.data : plan)),
-        };
-      });
-    } catch {
-      setError('Unable to mark task complete.');
-    }
-  };
+  const completeMutation = useMutation({
+    mutationFn: async (taskId: string) => (await strategyApi.completeTask(taskId, true)).data,
+    onSuccess: async (updatedToday) => {
+      queryClient.setQueryData(['strategy', 'today'], updatedToday);
+      await queryClient.invalidateQueries({ queryKey: ['strategy', 'week'] });
+      setError(null);
+    },
+    onError: () => setError('Unable to mark task complete.'),
+  });
 
-  const regenerate = async () => {
-    setState('loading');
-    setError(null);
-    try {
-      const response = await strategyApi.generate({ timeAvailableMinutes });
-      setToday(response.data.today);
-      setWeek(response.data.week);
-      setState('idle');
-    } catch {
-      setState('error');
-      setError('Unable to regenerate plan.');
-    }
-  };
+  const regenerateMutation = useMutation({
+    mutationFn: async () =>
+      (
+        await strategyApi.generate({
+          timeAvailableMinutes,
+        })
+      ).data,
+    onSuccess: (data) => {
+      queryClient.setQueryData(['strategy', 'today'], data.today);
+      queryClient.setQueryData(['strategy', 'week'], data.week);
+      setError(null);
+    },
+    onError: () => setError('Unable to regenerate plan.'),
+  });
+
+  const today = todayQuery.data;
+  const week = weekQuery.data;
+  const loading = todayQuery.isLoading || weekQuery.isLoading;
 
   const completionPercent = today?.summary.completionPercent ?? 0;
-  const countdownDays = useMemo(() => {
+  const countdownDays = (() => {
     if (!today?.summary.targetDate) {
       return null;
     }
     const target = new Date(today.summary.targetDate).getTime();
-    if (Number.isNaN(target)) {
+    const currentPlanDate = new Date(today.date).getTime();
+    if (Number.isNaN(target) || Number.isNaN(currentPlanDate)) {
       return null;
     }
-    return Math.max(0, Math.ceil((target - Date.now()) / (1000 * 60 * 60 * 24)));
-  }, [today?.summary.targetDate]);
+    return Math.max(0, Math.ceil((target - currentPlanDate) / (1000 * 60 * 60 * 24)));
+  })();
 
   return (
     <main className="space-y-6 p-4 md:p-6">
@@ -99,13 +86,17 @@ export default function StrategyPage() {
             onChange={(event) => setTimeAvailableMinutes(Number(event.target.value))}
             className="w-28 rounded-md border border-border bg-background px-2 py-1 text-sm"
           />
-          <button type="button" onClick={regenerate} className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground">
+          <button
+            type="button"
+            onClick={() => regenerateMutation.mutate()}
+            className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
+          >
             Regenerate
           </button>
         </div>
       </section>
 
-      {state === 'loading' ? <p className="text-sm text-muted-foreground">Loading strategy plan...</p> : null}
+      {loading ? <p className="text-sm text-muted-foreground">Loading strategy plan...</p> : null}
       {error ? <p className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
 
       {today ? (
@@ -114,10 +105,14 @@ export default function StrategyPage() {
             <p className="text-sm text-muted-foreground">Completion</p>
             <div className="mt-2 flex items-center gap-3">
               <div
-                className="grid h-16 w-16 place-items-center rounded-full border-4 border-primary"
-                style={{ clipPath: `inset(0 ${100 - completionPercent}% 0 0)` }}
+                className="grid h-16 w-16 place-items-center rounded-full"
+                style={{
+                  background: `conic-gradient(var(--primary) ${completionPercent}%, var(--muted) ${completionPercent}% 100%)`,
+                }}
               >
-                <span className="text-xs font-semibold">{Math.round(completionPercent)}%</span>
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-card text-xs font-semibold">
+                  {Math.round(completionPercent)}%
+                </span>
               </div>
               <p className="text-sm text-muted-foreground">Keep momentum: complete revision + mains tasks before evening.</p>
             </div>
@@ -147,8 +142,8 @@ export default function StrategyPage() {
                 </div>
                 <button
                   type="button"
-                  disabled={task.completed}
-                  onClick={() => completeTask(task.id)}
+                  disabled={task.completed || completeMutation.isPending}
+                  onClick={() => completeMutation.mutate(task.id)}
                   className="rounded border border-border px-2 py-1 text-xs disabled:opacity-50"
                 >
                   {task.completed ? 'Done' : 'Mark complete'}

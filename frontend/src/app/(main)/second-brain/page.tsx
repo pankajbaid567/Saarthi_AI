@@ -1,88 +1,108 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 import { secondBrainApi, type SecondBrainEntry } from '@/lib/api-client';
 
 export default function SecondBrainPage() {
-  const [entries, setEntries] = useState<SecondBrainEntry[]>([]);
-  const [connections, setConnections] = useState<Array<{ fromTag: string; toTag: string; strength: number }>>([]);
-  const [insights, setInsights] = useState<Array<{ id: string; insight: string; relatedTags: string[] }>>([]);
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
   const [query, setQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const [editingContent, setEditingContent] = useState('');
 
-  const load = async (search?: string) => {
-    setError(null);
-    try {
-      const [entriesResponse, connectionsResponse, insightsResponse] = await Promise.all([
-        secondBrainApi.listEntries(search ? { q: search } : undefined),
-        secondBrainApi.getConnections(),
-        secondBrainApi.getAutoInsights(),
-      ]);
-      setEntries(entriesResponse.data);
-      setConnections(connectionsResponse.data);
-      setInsights(insightsResponse.data);
-    } catch {
-      setError('Unable to load second brain data. Please login and try again.');
-    }
+  const entriesQuery = useQuery({
+    queryKey: ['second-brain', 'entries', query],
+    queryFn: async () => (await secondBrainApi.listEntries(query ? { q: query } : undefined)).data,
+  });
+
+  const connectionsQuery = useQuery({
+    queryKey: ['second-brain', 'connections'],
+    queryFn: async () => (await secondBrainApi.getConnections()).data,
+  });
+
+  const insightsQuery = useQuery({
+    queryKey: ['second-brain', 'insights'],
+    queryFn: async () => (await secondBrainApi.getAutoInsights()).data,
+  });
+
+  const refresh = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['second-brain', 'entries'] }),
+      queryClient.invalidateQueries({ queryKey: ['second-brain', 'connections'] }),
+      queryClient.invalidateQueries({ queryKey: ['second-brain', 'insights'] }),
+    ]);
   };
 
-  useEffect(() => {
-    void load();
-  }, []);
-
-  const submit = async () => {
-    if (!title.trim() || !content.trim()) {
-      return;
-    }
-
-    try {
-      await secondBrainApi.createEntry({
+  const createMutation = useMutation({
+    mutationFn: async () =>
+      secondBrainApi.createEntry({
         title: title.trim(),
         content: content.trim(),
         tags: tags
           .split(',')
           .map((tag) => tag.trim())
           .filter(Boolean),
-      });
+      }),
+    onSuccess: async () => {
       setTitle('');
       setContent('');
       setTags('');
-      await load(query);
-    } catch {
-      setError('Unable to create entry.');
-    }
-  };
+      setError(null);
+      await refresh();
+    },
+    onError: () => setError('Unable to create entry.'),
+  });
 
-  const remove = async (id: string) => {
-    try {
-      await secondBrainApi.deleteEntry(id);
-      await load(query);
-    } catch {
-      setError('Unable to delete entry.');
-    }
-  };
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => secondBrainApi.deleteEntry(id),
+    onSuccess: async () => {
+      setError(null);
+      await refresh();
+    },
+    onError: () => setError('Unable to delete entry.'),
+  });
 
-  const edit = async (entry: SecondBrainEntry) => {
-    const nextTitle = window.prompt('Edit title', entry.title);
-    if (!nextTitle) {
+  const editMutation = useMutation({
+    mutationFn: async ({ entry, nextTitle, nextContent }: { entry: SecondBrainEntry; nextTitle: string; nextContent: string }) =>
+      secondBrainApi.updateEntry(entry.id, { title: nextTitle, content: nextContent }),
+    onSuccess: async () => {
+      setError(null);
+      await refresh();
+    },
+    onError: () => setError('Unable to update entry.'),
+  });
+
+  const submit = () => {
+    if (!title.trim() || !content.trim()) {
       return;
     }
-    const nextContent = window.prompt('Edit content', entry.content);
-    if (!nextContent) {
+    createMutation.mutate();
+  };
+
+  const beginEdit = (entry: SecondBrainEntry) => {
+    setEditingEntryId(entry.id);
+    setEditingTitle(entry.title);
+    setEditingContent(entry.content);
+  };
+
+  const saveEdit = (entry: SecondBrainEntry) => {
+    if (!editingTitle.trim() || !editingContent.trim()) {
       return;
     }
 
-    try {
-      await secondBrainApi.updateEntry(entry.id, { title: nextTitle, content: nextContent });
-      await load(query);
-    } catch {
-      setError('Unable to update entry.');
-    }
+    editMutation.mutate({ entry, nextTitle: editingTitle.trim(), nextContent: editingContent.trim() });
+    setEditingEntryId(null);
   };
+
+  const entries = entriesQuery.data ?? [];
+  const connections = connectionsQuery.data ?? [];
+  const insights = insightsQuery.data ?? [];
 
   return (
     <main className="space-y-6 p-4 md:p-6">
@@ -112,7 +132,7 @@ export default function SecondBrainPage() {
             value={content}
             onChange={(event) => setContent(event.target.value)}
             placeholder="Write your cross-topic insight..."
-            className="md:col-span-2 min-h-24 rounded-md border border-border bg-background px-3 py-2 text-sm"
+            className="min-h-24 rounded-md border border-border bg-background px-3 py-2 text-sm md:col-span-2"
           />
         </div>
         <button type="button" onClick={submit} className="mt-3 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground">
@@ -130,9 +150,6 @@ export default function SecondBrainPage() {
               placeholder="Search insights"
               className="rounded-md border border-border bg-background px-3 py-1.5 text-sm"
             />
-            <button type="button" onClick={() => void load(query)} className="rounded border border-border px-3 py-1.5 text-sm">
-              Search
-            </button>
           </div>
         </div>
         <div className="mt-3 space-y-2">
@@ -140,8 +157,25 @@ export default function SecondBrainPage() {
             <article key={entry.id} className="rounded-md border border-border p-3">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-sm font-medium">{entry.title}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{entry.content}</p>
+                  {editingEntryId === entry.id ? (
+                    <div className="space-y-2">
+                      <input
+                        value={editingTitle}
+                        onChange={(event) => setEditingTitle(event.target.value)}
+                        className="w-full rounded border border-border bg-background px-2 py-1 text-sm"
+                      />
+                      <textarea
+                        value={editingContent}
+                        onChange={(event) => setEditingContent(event.target.value)}
+                        className="min-h-20 w-full rounded border border-border bg-background px-2 py-1 text-sm"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium">{entry.title}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{entry.content}</p>
+                    </>
+                  )}
                   <div className="mt-2 flex flex-wrap gap-1">
                     {entry.tags.map((tag) => (
                       <span key={`${entry.id}-${tag}`} className="rounded bg-muted px-2 py-0.5 text-xs">
@@ -151,10 +185,25 @@ export default function SecondBrainPage() {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <button type="button" onClick={() => void edit(entry)} className="rounded border border-border px-2 py-1 text-xs">
-                    Edit
-                  </button>
-                  <button type="button" onClick={() => void remove(entry.id)} className="rounded border border-border px-2 py-1 text-xs">
+                  {editingEntryId === entry.id ? (
+                    <>
+                      <button type="button" onClick={() => saveEdit(entry)} className="rounded border border-border px-2 py-1 text-xs">
+                        Save
+                      </button>
+                      <button type="button" onClick={() => setEditingEntryId(null)} className="rounded border border-border px-2 py-1 text-xs">
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button type="button" onClick={() => beginEdit(entry)} className="rounded border border-border px-2 py-1 text-xs">
+                      Edit
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => deleteMutation.mutate(entry.id)}
+                    className="rounded border border-border px-2 py-1 text-xs"
+                  >
                     Delete
                   </button>
                 </div>
