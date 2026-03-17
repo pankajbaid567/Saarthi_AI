@@ -273,82 +273,82 @@
 
 ### Week 10: AI Content Classification
 
-- [ ] Structure detection
-  - [ ] Heading hierarchy extraction
-  - [ ] Section boundary detection
-  - [ ] List/bullet point extraction
-  - [ ] Table structure preservation
-- [ ] Content classification (LLM)
-  - [ ] Prompt engineering for classification
-  - [ ] Classify sections: concept, fact, MCQ, mains_question, case_study
-  - [ ] Confidence scoring
-- [ ] MCQ extraction
-  - [ ] Detect question patterns
-  - [ ] Extract question text
-  - [ ] Extract options (A/B/C/D)
-  - [ ] Extract correct answer
-  - [ ] Extract explanation (if present)
-- [ ] Mains question extraction
-  - [ ] Detect essay/long-answer question patterns
-  - [ ] Extract question text + marks
-  - [ ] Extract model answer (if present)
-- [ ] Key facts extraction
-  - [ ] Important dates, numbers, names
-  - [ ] Constitutional articles
-  - [ ] Acts and amendments
-- [ ] Quality verification
-  - [ ] Confidence threshold for auto-approval
-  - [ ] Queue low-confidence items for human review
-- [ ] PDF extraction result storage
-  - [ ] **GET /api/v1/pdf/:id/extracted** — Get extracted content
+- [x] Structure detection
+  - [x] Heading hierarchy extraction
+  - [x] Section boundary detection
+  - [x] List/bullet point extraction
+  - [x] Table structure preservation
+- [x] Content classification (LLM)
+  - [x] Prompt engineering for classification
+  - [x] Classify sections: concept, fact, MCQ, mains_question, case_study
+  - [x] Confidence scoring
+- [x] MCQ extraction
+  - [x] Detect question patterns
+  - [x] Extract question text
+  - [x] Extract options (A/B/C/D)
+  - [x] Extract correct answer
+  - [x] Extract explanation (if present)
+- [x] Mains question extraction
+  - [x] Detect essay/long-answer question patterns
+  - [x] Extract question text + marks
+  - [x] Extract model answer (if present)
+- [x] Key facts extraction
+  - [x] Important dates, numbers, names
+  - [x] Constitutional articles
+  - [x] Acts and amendments
+- [x] Quality verification
+  - [x] Confidence threshold for auto-approval
+  - [x] Queue low-confidence items for human review
+- [x] PDF extraction result storage
+  - [x] **GET /api/v1/pdf/:id/extracted** — Get extracted content
 
 ### Week 11: Knowledge Graph Auto-Linking
 
-- [ ] Topic matching service
-  - [ ] Match extracted content to existing topics via:
-    - [ ] Keyword matching
-    - [ ] Semantic similarity (embeddings)
-    - [ ] LLM-based topic classification
-  - [ ] Suggest new topics when no match found
-- [ ] Auto-linking pipeline
-  - [ ] Link extracted MCQs to topics
-  - [ ] Link extracted concepts to topics
-  - [ ] Link extracted facts to topics
-  - [ ] Link extracted mains questions to topics
-- [ ] Admin review interface
-  - [ ] Review extracted content
-  - [ ] Approve/reject/edit links
-  - [ ] Merge duplicate content
-  - [ ] Create new topics from suggestions
-- [ ] Content enrichment
-  - [ ] Auto-generate smart highlights from content
-  - [ ] Auto-generate micro notes from concepts
-  - [ ] Tag difficulty levels on MCQs
+- [x] Topic matching service
+  - [x] Match extracted content to existing topics via:
+    - [x] Keyword matching
+    - [x] Semantic similarity (embeddings)
+    - [x] LLM-based topic classification
+  - [x] Suggest new topics when no match found
+- [x] Auto-linking pipeline
+  - [x] Link extracted MCQs to topics
+  - [x] Link extracted concepts to topics
+  - [x] Link extracted facts to topics
+  - [x] Link extracted mains questions to topics
+- [x] Admin review interface
+  - [x] Review extracted content
+  - [x] Approve/reject/edit links
+  - [x] Merge duplicate content
+  - [x] Create new topics from suggestions
+- [x] Content enrichment
+  - [x] Auto-generate smart highlights from content
+  - [x] Auto-generate micro notes from concepts
+  - [x] Tag difficulty levels on MCQs
 
 ### Week 12: RAG Pipeline
 
-- [ ] pgvector extension setup
-- [ ] Embedding generation service
-  - [ ] Generate embeddings for all content nodes
-  - [ ] Batch processing for existing content
-  - [ ] Auto-generate on new content creation
-- [ ] Vector search implementation
-  - [ ] Similarity search function
-  - [ ] Hybrid search (vector + BM25)
-  - [ ] Search result re-ranking
-- [ ] RAG context assembly
-  - [ ] Query understanding (intent + entities)
-  - [ ] Multi-source retrieval (notes + MCQs + PYQs)
-  - [ ] Context window management (token budget)
-  - [ ] Source attribution
-- [ ] Integration with existing features
-  - [ ] Quiz Chat uses RAG for context-aware responses
-  - [ ] Content search uses hybrid search
-  - [ ] Topic pages show related content via embeddings
-- [ ] Search frontend improvements
-  - [ ] Semantic search results page
-  - [ ] Highlighted search matches
-  - [ ] Faceted search (by type, subject, topic)
+- [x] pgvector extension setup
+- [x] Embedding generation service
+  - [x] Generate embeddings for all content nodes
+  - [x] Batch processing for existing content
+  - [x] Auto-generate on new content creation
+- [x] Vector search implementation
+  - [x] Similarity search function
+  - [x] Hybrid search (vector + BM25)
+  - [x] Search result re-ranking
+- [x] RAG context assembly
+  - [x] Query understanding (intent + entities)
+  - [x] Multi-source retrieval (notes + MCQs + PYQs)
+  - [x] Context window management (token budget)
+  - [x] Source attribution
+- [x] Integration with existing features
+  - [x] Quiz Chat uses RAG for context-aware responses
+  - [x] Content search uses hybrid search
+  - [x] Topic pages show related content via embeddings
+- [x] Search frontend improvements
+  - [x] Semantic search results page
+  - [x] Highlighted search matches
+  - [x] Faceted search (by type, subject, topic)
 
 ---
 
@@ -356,55 +356,55 @@
 
 ### Week 13: Mains Question Bank & Interface
 
-- [ ] Mains questions table (PostgreSQL)
-- [ ] Seed initial Mains questions (500+)
-  - [ ] PYQ mains questions (last 10 years)
-  - [ ] Coaching institute questions
-  - [ ] AI-generated questions
-- [ ] Mains endpoints
-  - [ ] **GET /api/v1/mains/questions** — List with filters
-  - [ ] **GET /api/v1/mains/questions/:id** — Get question detail
-  - [ ] **POST /api/v1/mains/questions** — Create (admin)
-- [ ] Mains frontend
-  - [ ] Question listing page (filter by topic, type, marks)
-  - [ ] Question detail page
-  - [ ] Rich text editor for answer writing (TipTap)
-  - [ ] Word count display
-  - [ ] Timer for answer writing
-  - [ ] Save draft functionality
-  - [ ] Submit for evaluation
+- [x] Mains questions table (PostgreSQL)
+- [x] Seed initial Mains questions (500+)
+  - [x] PYQ mains questions (last 10 years)
+  - [x] Coaching institute questions
+  - [x] AI-generated questions
+- [x] Mains endpoints
+  - [x] **GET /api/v1/mains/questions** — List with filters
+  - [x] **GET /api/v1/mains/questions/:id** — Get question detail
+  - [x] **POST /api/v1/mains/questions** — Create (admin)
+- [x] Mains frontend
+  - [x] Question listing page (filter by topic, type, marks)
+  - [x] Question detail page
+  - [x] Rich text editor for answer writing (TipTap)
+  - [x] Word count display
+  - [x] Timer for answer writing
+  - [x] Save draft functionality
+  - [x] Submit for evaluation
 
 ### Week 14: AI Answer Evaluation Engine
 
-- [ ] Evaluation service
-  - [ ] **POST /api/v1/mains/submit** — Submit answer
-  - [ ] Structure analysis (intro-body-conclusion detection)
-  - [ ] Content depth scoring
-  - [ ] Keyword presence check (from rubric)
-  - [ ] Missing dimensions identification
-  - [ ] Current affairs integration check
-  - [ ] Diagram/flowchart suggestion
-- [ ] Scoring system
-  - [ ] Overall score (X/10)
-  - [ ] Structure score breakdown
-  - [ ] Content score breakdown
-  - [ ] Keyword score breakdown
-  - [ ] Improvement suggestions (actionable list)
-- [ ] Model answer comparison
-  - [ ] Show model/topper answer alongside
-  - [ ] Highlight gaps
-  - [ ] Show what student missed
-- [ ] Submission management
-  - [ ] **GET /api/v1/mains/submissions** — List submissions
-  - [ ] **GET /api/v1/mains/submissions/:id** — Get submission detail
-  - [ ] Track improvement over time per topic
-- [ ] Evaluation frontend
-  - [ ] Score display with gauge/ring chart
-  - [ ] Detailed breakdown cards
-  - [ ] Side-by-side comparison view
-  - [ ] Improvement suggestions list
-  - [ ] Historical score trend chart
-- [ ] Prompt engineering for UPSC-specific evaluation
+- [x] Evaluation service
+  - [x] **POST /api/v1/mains/submit** — Submit answer
+  - [x] Structure analysis (intro-body-conclusion detection)
+  - [x] Content depth scoring
+  - [x] Keyword presence check (from rubric)
+  - [x] Missing dimensions identification
+  - [x] Current affairs integration check
+  - [x] Diagram/flowchart suggestion
+- [x] Scoring system
+  - [x] Overall score (X/10)
+  - [x] Structure score breakdown
+  - [x] Content score breakdown
+  - [x] Keyword score breakdown
+  - [x] Improvement suggestions (actionable list)
+- [x] Model answer comparison
+  - [x] Show model/topper answer alongside
+  - [x] Highlight gaps
+  - [x] Show what student missed
+- [x] Submission management
+  - [x] **GET /api/v1/mains/submissions** — List submissions
+  - [x] **GET /api/v1/mains/submissions/:id** — Get submission detail
+  - [x] Track improvement over time per topic
+- [x] Evaluation frontend
+  - [x] Score display with gauge/ring chart
+  - [x] Detailed breakdown cards
+  - [x] Side-by-side comparison view
+  - [x] Improvement suggestions list
+  - [x] Historical score trend chart
+- [x] Prompt engineering for UPSC-specific evaluation
 
 ### Week 15: NeuroRevise AI – Core Engine
 
