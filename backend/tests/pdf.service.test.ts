@@ -28,16 +28,17 @@ class MockExtractorService implements PdfExtractorService {
       pages: [
         {
           pageNumber: 1,
-          text: 'Page 1 text',
+          text: 'CONSTITUTION NOTES\nArticle 14 guarantees equality before law.',
           tables: [],
         },
         {
           pageNumber: 2,
-          text: 'Page 2 text | a | b | c',
-          tables: ['Page 2 text | a | b | c'],
+          text: 'What is Article 14?\nA) Equality before law\nB) Right to life\nC) Freedom of speech\nD) Right against exploitation\nCorrect Answer: A\nExplanation: Article 14 ensures equality.',
+          tables: ['| Question | Option |'],
         },
       ],
-      fullText: 'Page 1 text\nPage 2 text',
+      fullText:
+        'CONSTITUTION NOTES\nArticle 14 guarantees equality before law.\n\nWhat is Article 14?\nA) Equality before law\nB) Right to life\nC) Freedom of speech\nD) Right against exploitation\nCorrect Answer: A\nExplanation: Article 14 ensures equality.\n\nExplain the impact of the 42nd Amendment (15 marks).',
       usedOcr: false,
     };
   }
@@ -70,5 +71,11 @@ describe('pdf service', () => {
     const list = await service.list('user-1');
     expect(list).toHaveLength(1);
     expect(list[0]?.id).toBe(document.id);
+
+    const extracted = await service.getExtracted('user-1', document.id);
+    expect(extracted.structure.headings.length).toBeGreaterThan(0);
+    expect(extracted.mcqs[0]?.correctAnswer).toBe('A');
+    expect(extracted.mainsQuestions[0]?.marks).toBe(15);
+    expect(extracted.keyFacts.constitutionalArticles).toContain('Article 14');
   });
 });
