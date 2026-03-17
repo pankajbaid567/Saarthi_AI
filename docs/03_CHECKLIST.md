@@ -546,23 +546,23 @@
 
 ### Week 19: Performance Dashboard Backend
 
-- [ ] Performance snapshot service
-  - [ ] Calculate daily performance snapshot
-  - [ ] Subject-wise accuracy aggregation
-  - [ ] Topic-wise accuracy aggregation
-  - [ ] Time management metrics
-  - [ ] Improvement trajectory calculation
-  - [ ] NeuroRevise retention data integration (avg retention per subject)
-  - [ ] SyllabusFlow completion data integration (syllabus % in performance)
-- [ ] Performance endpoints
-  - [ ] **GET /api/v1/performance/overview** — Overall stats (incl. retention + syllabus)
-  - [ ] **GET /api/v1/performance/subject/:id** — Subject deep-dive
-  - [ ] **GET /api/v1/performance/topic/:id** — Topic deep-dive
-  - [ ] **GET /api/v1/performance/weak-areas** — Weak area analysis
-- [ ] Scheduled jobs
-  - [ ] Daily performance snapshot (cron)
-  - [ ] Weekly performance report generation
-  - [ ] Monthly trend analysis
+- [x] Performance snapshot service
+  - [x] Calculate daily performance snapshot
+  - [x] Subject-wise accuracy aggregation
+  - [x] Topic-wise accuracy aggregation
+  - [x] Time management metrics
+  - [x] Improvement trajectory calculation
+  - [x] NeuroRevise retention data integration (avg retention per subject)
+  - [x] SyllabusFlow completion data integration (syllabus % in performance)
+- [x] Performance endpoints
+  - [x] **GET /api/v1/performance/overview** — Overall stats (incl. retention + syllabus)
+  - [x] **GET /api/v1/performance/subject/:id** — Subject deep-dive
+  - [x] **GET /api/v1/performance/topic/:id** — Topic deep-dive
+  - [x] **GET /api/v1/performance/weak-areas** — Weak area analysis
+- [x] Scheduled jobs
+  - [x] Daily performance snapshot (cron)
+  - [x] Weekly performance report generation
+  - [x] Monthly trend analysis
 
 ### Week 20: AI Score Prediction & Current Affairs
 
