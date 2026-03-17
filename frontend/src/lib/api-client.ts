@@ -27,6 +27,7 @@ export const authApi = {
 export const knowledgeApi = {
   getSubjects: () => apiClient.get('/knowledge-graph/subjects'),
   getSubject: (id: string) => apiClient.get(`/knowledge-graph/subjects/${id}`),
+  getSubjectTopics: (id: string) => apiClient.get(`/knowledge-graph/subjects/${id}/topics`),
   getTopic: (id: string) => apiClient.get(`/knowledge-graph/topics/${id}`),
 };
 
@@ -67,6 +68,43 @@ export type TestAnalyticsResponse = {
 
 export const testsApi = {
   getAnalytics: (id: string) => apiClient.get<TestAnalyticsResponse>(`/tests/${id}/analytics`),
+};
+
+export type MainsQuestion = {
+  id: string;
+  topicId: string;
+  type: 'gs' | 'essay' | 'ethics' | 'optional';
+  source: 'pyq' | 'coaching' | 'ai_generated';
+  marks: number;
+  questionText: string;
+  modelAnswer: string | null;
+  suggestedWordLimit: number;
+  year: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MainsQuestionsListResponse = {
+  items: MainsQuestion[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export type MainsQuestionFilters = {
+  topicId?: string;
+  type?: MainsQuestion['type'];
+  source?: MainsQuestion['source'];
+  marks?: number;
+  search?: string;
+  limit?: number;
+  offset?: number;
+};
+
+export const mainsApi = {
+  listQuestions: (filters: MainsQuestionFilters = {}) =>
+    apiClient.get<MainsQuestionsListResponse>('/mains/questions', { params: filters }),
+  getQuestion: (id: string) => apiClient.get<MainsQuestion>(`/mains/questions/${id}`),
 };
 
 export default apiClient;
