@@ -44,8 +44,12 @@ export function Sidebar() {
         </Link>
         <Link href="/syllabus-flow" className="block rounded px-2 py-1.5 hover:bg-muted">
           SyllabusFlow
+        </Link>
         <Link href="/mains" className="block rounded px-2 py-1.5 hover:bg-muted">
           Mains Practice
+        </Link>
+        <Link href="/mains/evaluation" className="block rounded px-2 py-1.5 hover:bg-muted">
+          Mains Evaluation
         </Link>
         <Link href="/chat" className="block rounded px-2 py-1.5 hover:bg-muted">
           Quiz Chat
@@ -56,8 +60,6 @@ export function Sidebar() {
         <Link href="/second-brain" className="block rounded px-2 py-1.5 hover:bg-muted">
           Second Brain
         </Link>
-        <Link href="/mains/evaluation" className="block rounded px-2 py-1.5 hover:bg-muted">
-          Mains Evaluation
         <Link href="/admin/review" className="block rounded px-2 py-1.5 hover:bg-muted">
           Admin Review
         </Link>
@@ -81,7 +83,10 @@ export function Sidebar() {
                   <ul className="ml-6 space-y-1 py-1">
                     {subject.topics.map((topic) => (
                       <li key={topic.id}>
-                        <Link href={`/topics/${topic.id}`} className="block rounded px-2 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground">
+                        <Link
+                          href={`/topics/${topic.id}`}
+                          className="block rounded px-2 py-1 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                        >
                           {topic.name}
                         </Link>
                       </li>
