@@ -14,22 +14,22 @@
 
 - [x] Initialize monorepo structure (backend + frontend)
 - [x] Set up Node.js + Express + TypeScript backend
-- [ ] Set up Next.js + TypeScript frontend
-- [ ] Configure ESLint + Prettier for both
-- [ ] Set up Docker Compose (PostgreSQL, MongoDB, Redis, MinIO)
-- [ ] Configure environment variables (.env files)
-- [ ] Set up Prisma ORM with PostgreSQL
-- [ ] Set up Mongoose with MongoDB
-- [ ] Set up Redis client (ioredis)
-- [ ] Create database schemas (PostgreSQL migrations)
-- [ ] Create MongoDB schemas/models
-- [ ] Set up Winston logger
-- [ ] Set up error handling middleware
-- [ ] Set up request validation (Zod)
-- [ ] Set up CORS configuration
-- [ ] Initialize Git repo with .gitignore
-- [ ] Set up GitHub Actions CI (lint + test)
-- [ ] Write project README
+- [x] Set up Next.js + TypeScript frontend
+- [x] Configure ESLint + Prettier for both
+- [x] Set up Docker Compose (PostgreSQL, MongoDB, Redis, MinIO)
+- [x] Configure environment variables (.env files)
+- [x] Set up Prisma ORM with PostgreSQL
+- [x] Set up Mongoose with MongoDB
+- [x] Set up Redis client (ioredis)
+- [x] Create database schemas (PostgreSQL migrations)
+- [x] Create MongoDB schemas/models
+- [x] Set up Winston logger
+- [x] Set up error handling middleware
+- [x] Set up request validation (Zod)
+- [x] Set up CORS configuration
+- [x] Initialize Git repo with .gitignore
+- [x] Set up GitHub Actions CI (lint + test)
+- [x] Write project README
 
 ### Week 1: Authentication System
 
