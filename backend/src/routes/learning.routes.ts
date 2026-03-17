@@ -144,7 +144,31 @@ export const createLearningRouter = (options: CreateLearningRouterOptions = {}):
     '/content/search',
     validateRequest(searchContentSchema),
     asyncHandler(async (req, res) => {
-      res.status(200).json(learningService.searchContent(req.query.q as string));
+      const query = req.query.q as string;
+      const results = learningService.searchContent(query, {
+        type: req.query.type as string | undefined,
+        subject: req.query.subject as string | undefined,
+        topic: req.query.topic as string | undefined,
+      });
+
+      const includeContext = req.query.includeContext === 'true';
+      if (!includeContext) {
+        res.status(200).json(results);
+        return;
+      }
+
+      res.status(200).json({
+        results,
+        rag: learningService.getSearchContext(query),
+      });
+    }),
+  );
+
+  router.get(
+    '/topics/:id/related-content',
+    validateRequest(topicIdSchema),
+    asyncHandler(async (req, res) => {
+      res.status(200).json(learningService.getRelatedContent(req.params.id));
     }),
   );
 

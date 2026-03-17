@@ -7,6 +7,11 @@ import { AppError } from '../errors/app-error.js';
 import { PdfExtractedTextModel } from '../models/pdf-extracted-text.model.js';
 import { logger } from '../utils/logger.js';
 import {
+  createPdfContentClassifierService,
+  type PdfContentClassifierService,
+  type PdfExtractedContent,
+} from './pdf-content-classifier.service.js';
+import {
   createPdfExtractorService,
   type ExtractedPdfPage,
   type PdfExtractorService,
@@ -41,6 +46,7 @@ type PersistExtractedTextInput = {
   fullText: string;
   pages: ExtractedPdfPage[];
   usedOcr: boolean;
+  extractedContent: PdfExtractedContent;
 };
 
 export interface PdfDocumentRepository {
@@ -52,6 +58,7 @@ export interface PdfDocumentRepository {
 
 export interface PdfExtractedTextRepository {
   upsert(input: PersistExtractedTextInput): Promise<void>;
+  getByPdfDocumentId(pdfDocumentId: string): Promise<PersistExtractedTextInput | null>;
 }
 
 class InMemoryPdfDocumentRepository implements PdfDocumentRepository {
@@ -115,10 +122,35 @@ class MongoBackedPdfExtractedTextRepository implements PdfExtractedTextRepositor
           fullText: input.fullText,
           pages: input.pages,
           usedOcr: input.usedOcr,
+          extractedContent: input.extractedContent,
         },
       },
       { upsert: true },
     ).exec();
+  }
+
+  async getByPdfDocumentId(pdfDocumentId: string): Promise<PersistExtractedTextInput | null> {
+    const fromFallback = this.fallback.get(pdfDocumentId);
+    if (fromFallback) {
+      return fromFallback;
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      return null;
+    }
+
+    const stored = await PdfExtractedTextModel.findOne({ pdfDocumentId }).lean().exec();
+    if (!stored) {
+      return null;
+    }
+
+    return {
+      pdfDocumentId: stored.pdfDocumentId,
+      fullText: stored.fullText,
+      pages: stored.pages as ExtractedPdfPage[],
+      usedOcr: stored.usedOcr,
+      extractedContent: stored.extractedContent as PdfExtractedContent,
+    };
   }
 }
 
@@ -133,6 +165,7 @@ type PdfServiceOptions = {
   storageService?: StorageService;
   queueService?: PdfProcessingQueueService;
   extractorService?: PdfExtractorService;
+  classifierService?: PdfContentClassifierService;
   documentRepository?: PdfDocumentRepository;
   extractedTextRepository?: PdfExtractedTextRepository;
 };
@@ -143,6 +176,8 @@ export class PdfService {
   private readonly storageService: StorageService;
 
   private readonly extractorService: PdfExtractorService;
+
+  private readonly classifierService: PdfContentClassifierService;
 
   private readonly documentRepository: PdfDocumentRepository;
 
@@ -157,6 +192,7 @@ export class PdfService {
   constructor(options: PdfServiceOptions = {}) {
     this.storageService = options.storageService ?? createStorageService();
     this.extractorService = options.extractorService ?? createPdfExtractorService();
+    this.classifierService = options.classifierService ?? createPdfContentClassifierService();
     this.documentRepository = options.documentRepository ?? new InMemoryPdfDocumentRepository();
     this.extractedTextRepository = options.extractedTextRepository ?? new MongoBackedPdfExtractedTextRepository();
     this.queueService =
@@ -219,6 +255,20 @@ export class PdfService {
     return this.documentRepository.listByUser(userId);
   }
 
+  async getExtracted(userId: string, id: string): Promise<PdfExtractedContent> {
+    const document = await this.documentRepository.getById(id);
+    if (!document || document.userId !== userId) {
+      throw new AppError('PDF document not found', 404);
+    }
+
+    const extracted = await this.extractedTextRepository.getByPdfDocumentId(id);
+    if (!extracted) {
+      throw new AppError('Extracted PDF content not found', 404);
+    }
+
+    return extracted.extractedContent;
+  }
+
   subscribe(id: string, listener: (document: PdfDocument) => void): () => void {
     this.statusEvents.on(id, listener);
     return () => {
@@ -250,6 +300,7 @@ export class PdfService {
 
     try {
       const extracted = await this.extractorService.extract(source.buffer);
+      const extractedContent = this.classifierService.classify(extracted.fullText, extracted.pages);
       const totalPages = extracted.pages.length;
       await this.pushStatus(pdfDocumentId, { totalPages, pagesProcessed: 0 });
 
@@ -262,6 +313,7 @@ export class PdfService {
         fullText: extracted.fullText,
         pages: extracted.pages,
         usedOcr: extracted.usedOcr,
+        extractedContent,
       });
 
       await this.pushStatus(pdfDocumentId, {

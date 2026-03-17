@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import type { PdfExtractedContent } from '../services/pdf-content-classifier.service.js';
 
 export type PdfExtractedPage = {
   pageNumber: number;
@@ -11,6 +12,7 @@ export type PdfExtractedTextDocument = {
   fullText: string;
   pages: PdfExtractedPage[];
   usedOcr: boolean;
+  extractedContent: PdfExtractedContent;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -30,6 +32,7 @@ const pdfExtractedTextSchema = new Schema<PdfExtractedTextDocument>(
     fullText: { type: String, required: true },
     pages: { type: [pdfExtractedPageSchema], default: [] },
     usedOcr: { type: Boolean, default: false },
+    extractedContent: { type: Schema.Types.Mixed, required: true },
   },
   {
     timestamps: true,

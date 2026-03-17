@@ -105,6 +105,33 @@ export const mainsApi = {
   listQuestions: (filters: MainsQuestionFilters = {}) =>
     apiClient.get<MainsQuestionsListResponse>('/mains/questions', { params: filters }),
   getQuestion: (id: string) => apiClient.get<MainsQuestion>(`/mains/questions/${id}`),
+export type AutoLinkReviewItem = {
+  id: string;
+  type: 'mcq' | 'concept' | 'fact' | 'mains_question';
+  text: string;
+  status: 'pending' | 'approved' | 'rejected' | 'merged';
+  topicSuggestion: {
+    topicId: string | null;
+    confidence: number;
+    method: 'keyword' | 'semantic' | 'llm';
+    newTopicSuggestion: string | null;
+  };
+  smartHighlights: string[];
+  microNote: string | null;
+  difficulty: 'easy' | 'medium' | 'hard' | null;
+};
+
+export const week11Api = {
+  autoLink: (payload: {
+    mcqs?: Array<{ question: string; options: string[]; explanation?: string }>;
+    concepts?: Array<{ text: string }>;
+    facts?: Array<{ text: string }>;
+    mainsQuestions?: Array<{ question: string; marks?: number; modelAnswer?: string }>;
+  }) => apiClient.post<AutoLinkReviewItem[]>('/content/auto-link', payload),
+  listReviewItems: () => apiClient.get<AutoLinkReviewItem[]>('/admin/review/content'),
+  approveReviewItem: (id: string, payload: { topicId?: string; editedText?: string }) =>
+    apiClient.post<AutoLinkReviewItem>(`/admin/review/content/${id}/approve`, payload),
+  rejectReviewItem: (id: string) => apiClient.post<AutoLinkReviewItem>(`/admin/review/content/${id}/reject`, {}),
 };
 
 export default apiClient;

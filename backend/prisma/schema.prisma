@@ -126,6 +126,7 @@ model ContentNode {
   type      ContentNodeType
   title     String?
   body      String
+  embedding Float[]         @default([])
   topic     Topic           @relation(fields: [topicId], references: [id], onDelete: Cascade)
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
