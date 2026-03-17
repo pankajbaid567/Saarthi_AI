@@ -676,30 +676,30 @@
 
 ### Week 23: UX Polish
 
-- [ ] Notion-like smooth transitions
-- [ ] Page transition animations
-- [ ] Skeleton loading states (all pages)
-- [ ] Empty states with helpful CTAs
-- [ ] Onboarding flow (first-time user)
-  - [ ] Welcome screen
-  - [ ] Target exam date selection
-  - [ ] Optional subject selection
-  - [ ] Initial assessment quiz
-  - [ ] Syllabus progress initialization (SyllabusFlow)
-  - [ ] Dashboard tutorial
-- [ ] Keyboard shortcuts guide
-- [ ] Tooltip system for UI elements
-- [ ] Font size adjustment control
-- [ ] Focus mode (hide all navigation)
-- [ ] Print-friendly views for notes
-- [ ] Notification system (in-app)
-  - [ ] Revision reminders (NeuroRevise: "3 topics dropping retention!")
-  - [ ] Daily practice reminders (SyllabusFlow: "Today's practice ready")
-  - [ ] Mains gate status ("Complete 5 more MCQs to unlock Mains")
-  - [ ] Daily plan reminders
-  - [ ] Streak alerts (revision + practice streaks)
-  - [ ] New content alerts
-  - [ ] Weekly essay reminder
+- [x] Notion-like smooth transitions
+- [x] Page transition animations
+- [x] Skeleton loading states (all pages)
+- [x] Empty states with helpful CTAs
+- [x] Onboarding flow (first-time user)
+  - [x] Welcome screen
+  - [x] Target exam date selection
+  - [x] Optional subject selection
+  - [x] Initial assessment quiz
+  - [x] Syllabus progress initialization (SyllabusFlow)
+  - [x] Dashboard tutorial
+- [x] Keyboard shortcuts guide
+- [x] Tooltip system for UI elements
+- [x] Font size adjustment control
+- [x] Focus mode (hide all navigation)
+- [x] Print-friendly views for notes
+- [x] Notification system (in-app)
+  - [x] Revision reminders (NeuroRevise: "3 topics dropping retention!")
+  - [x] Daily practice reminders (SyllabusFlow: "Today's practice ready")
+  - [x] Mains gate status ("Complete 5 more MCQs to unlock Mains")
+  - [x] Daily plan reminders
+  - [x] Streak alerts (revision + practice streaks)
+  - [x] New content alerts
+  - [x] Weekly essay reminder
 
 ### Week 24: Performance Optimization
 

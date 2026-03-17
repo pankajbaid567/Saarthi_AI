@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { EmptyState } from '@/components/ui/empty-state';
 import { secondBrainApi, type SecondBrainEntry } from '@/lib/api-client';
 
 export default function SecondBrainPage() {
@@ -105,15 +106,20 @@ export default function SecondBrainPage() {
   const insights = insightsQuery.data ?? [];
 
   return (
-    <main className="space-y-6 p-4 md:p-6">
+    <main id="top" className="space-y-6 p-4 md:p-6">
       <section>
-        <h1 className="text-2xl font-semibold">Second Brain</h1>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-2xl font-semibold">Second Brain</h1>
+          <button type="button" onClick={() => window.print()} className="no-print rounded border border-border px-3 py-1.5 text-sm">
+            Print notes
+          </button>
+        </div>
         <p className="text-sm text-muted-foreground">Capture insights, connect topics, and review auto-generated cross-topic patterns.</p>
       </section>
 
       {error ? <p className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</p> : null}
 
-      <section className="rounded-lg border border-border bg-card p-4">
+      <section className="printable-notes rounded-lg border border-border bg-card p-4">
         <h2 className="text-lg font-semibold">Create insight</h2>
         <div className="mt-3 grid gap-2 md:grid-cols-2">
           <input
@@ -210,7 +216,9 @@ export default function SecondBrainPage() {
               </div>
             </article>
           ))}
-          {entries.length === 0 ? <p className="text-sm text-muted-foreground">No entries found.</p> : null}
+          {entries.length === 0 ? (
+            <EmptyState title="No entries found" description="Capture your first insight to build long-term memory links." ctaLabel="Create one now" ctaHref="#top" />
+          ) : null}
         </div>
       </section>
 
@@ -223,11 +231,15 @@ export default function SecondBrainPage() {
                 {connection.fromTag} ↔ {connection.toTag} <span className="text-muted-foreground">({connection.strength})</span>
               </li>
             ))}
-            {connections.length === 0 ? <li className="text-muted-foreground">No connections yet.</li> : null}
+            {connections.length === 0 ? (
+              <li>
+                <EmptyState title="No connections yet" description="Add tagged entries so Saarthi can auto-link your topics." ctaLabel="Create an entry" ctaHref="#top" />
+              </li>
+            ) : null}
           </ul>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-4">
+        <div className="printable-notes rounded-lg border border-border bg-card p-4">
           <h3 className="text-base font-semibold">Auto-generated insights</h3>
           <ul className="mt-2 space-y-2 text-sm">
             {insights.map((insight) => (
@@ -236,6 +248,11 @@ export default function SecondBrainPage() {
                 <p className="mt-1 text-xs text-muted-foreground">{insight.relatedTags.map((tag) => `#${tag}`).join(' ')}</p>
               </li>
             ))}
+            {insights.length === 0 ? (
+              <li>
+                <EmptyState title="No insights yet" description="Study more topics and save notes to unlock AI-generated insight suggestions." />
+              </li>
+            ) : null}
           </ul>
         </div>
       </section>

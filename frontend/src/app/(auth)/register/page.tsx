@@ -22,7 +22,7 @@ export default function RegisterPage() {
     try {
       await register({ name, email, password });
       toast.success('Registered successfully');
-      router.push('/dashboard');
+      router.push('/onboarding');
     } catch {
       toast.error('Unable to register.');
     }

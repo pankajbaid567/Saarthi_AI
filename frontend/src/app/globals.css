@@ -57,6 +57,34 @@ body {
   font-size: var(--font-size-base);
 }
 
+:root[data-font-size='sm'] {
+  --font-size-base: var(--font-size-sm);
+}
+
+:root[data-font-size='base'] {
+  --font-size-base: 1rem;
+}
+
+:root[data-font-size='lg'] {
+  --font-size-base: var(--font-size-lg);
+}
+
+.page-transition {
+  animation: page-enter 180ms ease-out;
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .prose {
   color: var(--foreground);
 }
@@ -71,4 +99,24 @@ body {
 .prose ul {
   list-style: disc;
   margin-left: 1.25rem;
+}
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  aside,
+  header,
+  nav,
+  .no-print {
+    display: none !important;
+  }
+
+  .printable-notes {
+    border: none !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
 }
