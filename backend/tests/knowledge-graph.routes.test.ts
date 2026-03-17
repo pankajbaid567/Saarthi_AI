@@ -124,6 +124,65 @@ describe('knowledge graph routes', () => {
 
     expect(updateContent.status).toBe(200);
 
+    const autoLinkResponse = await request(app)
+      .post('/api/v1/content/auto-link')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        concepts: [{ text: 'Ancient India includes Harappan and Vedic periods.' }],
+        facts: [{ text: 'Rig Veda is among the earliest Vedic texts.' }],
+        mcqs: [
+          {
+            question: 'Which civilization is associated with planned urban settlements?',
+            options: ['Vedic', 'Harappan', 'Mauryan', 'Gupta'],
+          },
+        ],
+      });
+
+    expect(autoLinkResponse.status).toBe(201);
+    expect(autoLinkResponse.body).toHaveLength(3);
+
+    const reviewList = await request(app)
+      .get('/api/v1/admin/review/content')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(reviewList.status).toBe(200);
+    expect(reviewList.body).toHaveLength(3);
+
+    const approveReview = await request(app)
+      .post(`/api/v1/admin/review/content/${reviewList.body[0].id}/approve`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ topicId: topicResponse.body.id });
+
+    expect(approveReview.status).toBe(200);
+    expect(approveReview.body.status).toBe('approved');
+
+    const rejectReview = await request(app)
+      .post(`/api/v1/admin/review/content/${reviewList.body[1].id}/reject`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({});
+
+    expect(rejectReview.status).toBe(200);
+    expect(rejectReview.body.status).toBe('rejected');
+
+    const mergeReview = await request(app)
+      .post('/api/v1/admin/review/content/merge')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        primaryId: reviewList.body[0].id,
+        duplicateId: reviewList.body[2].id,
+      });
+
+    expect(mergeReview.status).toBe(200);
+    expect(mergeReview.body.status).toBe('merged');
+
+    const createTopicFromSuggestion = await request(app)
+      .post(`/api/v1/admin/review/content/${reviewList.body[2].id}/create-topic`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ subjectId: subjectResponse.body.id, name: 'Indus Valley Civilization' });
+
+    expect(createTopicFromSuggestion.status).toBe(201);
+    expect(createTopicFromSuggestion.body.name).toBe('Indus Valley Civilization');
+
     const deleteContent = await request(app)
       .delete(`/api/v1/content/${contentResponse.body.id}`)
       .set('Authorization', `Bearer ${adminToken}`);
