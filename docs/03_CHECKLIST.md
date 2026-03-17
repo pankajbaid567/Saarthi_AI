@@ -655,20 +655,20 @@
 
 ### Week 22: Integration Testing & Cross-Module Polish
 
-- [ ] Cross-module integration
-  - [ ] NeuroRevise ↔ Strategy Engine (revision slots in daily plan)
-  - [ ] SyllabusFlow ↔ MCQ Engine (practice only from completed topics)
-  - [ ] SyllabusFlow ↔ Mains (daily gating integration)
-  - [ ] NeuroRevise ↔ Performance Dashboard (retention data)
-  - [ ] SyllabusFlow ↔ Performance Dashboard (syllabus data)
-  - [ ] Second Brain ↔ Study sessions (auto-generate during study)
-  - [ ] Current Affairs ↔ SyllabusFlow essays (linked prompts)
-- [ ] End-to-end user flow testing
-  - [ ] Complete student journey: register → study → practice → revise → evaluate
-  - [ ] SyllabusFlow flow: mark topic → generate practice → gate Mains → submit essay
-  - [ ] NeuroRevise flow: study → forgetting curve builds → due cards → review → retention improves
-- [ ] Bug fixing and edge case handling
-- [ ] Performance profiling for new modules
+- [x] Cross-module integration
+  - [x] NeuroRevise ↔ Strategy Engine (revision slots in daily plan)
+  - [x] SyllabusFlow ↔ MCQ Engine (practice only from completed topics)
+  - [x] SyllabusFlow ↔ Mains (daily gating integration)
+  - [x] NeuroRevise ↔ Performance Dashboard (retention data)
+  - [x] SyllabusFlow ↔ Performance Dashboard (syllabus data)
+  - [x] Second Brain ↔ Study sessions (auto-generate during study)
+  - [x] Current Affairs ↔ SyllabusFlow essays (linked prompts)
+- [x] End-to-end user flow testing
+  - [x] Complete student journey: register → study → practice → revise → evaluate
+  - [x] SyllabusFlow flow: mark topic → generate practice → gate Mains → submit essay
+  - [x] NeuroRevise flow: study → forgetting curve builds → due cards → review → retention improves
+- [x] Bug fixing and edge case handling
+- [x] Performance profiling for new modules
 
 ---
 
