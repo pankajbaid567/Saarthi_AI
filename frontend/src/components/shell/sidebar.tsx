@@ -63,6 +63,9 @@ export function Sidebar() {
         <Link href="/second-brain" className="block rounded px-2 py-1.5 hover:bg-muted">
           Second Brain
         </Link>
+        <Link href="/post-launch" className="block rounded px-2 py-1.5 hover:bg-muted">
+          Post-Launch Lab
+        </Link>
         <Link href="/admin/review" className="block rounded px-2 py-1.5 hover:bg-muted">
           Admin Review
         </Link>

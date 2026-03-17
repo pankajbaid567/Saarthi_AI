@@ -14,6 +14,7 @@ const commandItems = [
   { id: 'strategy', label: 'Strategy Engine', href: '/strategy' },
   { id: 'shortcuts', label: 'Keyboard Shortcuts Guide', href: '/shortcuts' },
   { id: 'second-brain', label: 'Second Brain', href: '/second-brain' },
+  { id: 'post-launch', label: 'Post-Launch Lab', href: '/post-launch' },
   { id: 'admin-review', label: 'Admin Review', href: '/admin/review' },
   { id: 'topic-biology', label: 'Cell Biology Topic', href: '/topics/cell-biology' },
 ];

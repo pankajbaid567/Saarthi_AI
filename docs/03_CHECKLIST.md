@@ -828,39 +828,40 @@
 ## 🎯 Post-Launch Features (Backlog)
 
 ### V1.1 — Community Features
-- [x] Discussion forums per topic
-- [x] Peer answer review
-- [x] Study groups
-- [x] Leaderboards (revision streaks, practice streaks, syllabus completion)
+- [x] Kickoff implementation slice (API + UI) started
+- [ ] Discussion forums per topic
+- [ ] Peer answer review
+- [ ] Study groups
+- [ ] Leaderboards (revision streaks, practice streaks, syllabus completion)
 
 ### V1.2 — Advanced AI
-- [x] "UPSC Thinking Mode" — AI teaches elimination like toppers
-- [x] "Topper Brain Simulation" — AI behaves like AIR < 50
-- [x] "Why You Got This Wrong" — deep error analysis with NeuroRevise context
-- [x] Socratic questioning (guided discovery)
-- [x] Voice-based quiz (speech-to-text)
-- [x] NeuroRevise: Group forgetting patterns (cross-user insights)
-- [x] SyllabusFlow: Peer-comparison practice difficulty calibration
+- [ ] "UPSC Thinking Mode" — AI teaches elimination like toppers
+- [ ] "Topper Brain Simulation" — AI behaves like AIR < 50
+- [ ] "Why You Got This Wrong" — deep error analysis with NeuroRevise context
+- [ ] Socratic questioning (guided discovery)
+- [ ] Voice-based quiz (speech-to-text)
+- [ ] NeuroRevise: Group forgetting patterns (cross-user insights)
+- [ ] SyllabusFlow: Peer-comparison practice difficulty calibration
 
 ### V1.3 — Content Expansion
-- [x] Optional subject modules
-- [x] Interview preparation module
-- [x] State PCS support
-- [x] Multi-language micro-notes (Hindi + English)
+- [ ] Optional subject modules
+- [ ] Interview preparation module
+- [ ] State PCS support
+- [ ] Multi-language micro-notes (Hindi + English)
 
 ### V1.4 — Mobile App
-- [x] React Native or Flutter app
-- [x] Offline mode (cached micro-notes + flashcards + daily practice)
-- [x] Push notifications (revision due, practice ready, streak at risk)
-- [x] Widget for daily revision + practice progress
+- [ ] React Native or Flutter app
+- [ ] Offline mode (cached micro-notes + flashcards + daily practice)
+- [ ] Push notifications (revision due, practice ready, streak at risk)
+- [ ] Widget for daily revision + practice progress
 
 ### V1.5 — Advanced Analytics
-- [x] AI-powered comparative analysis (vs previous year toppers)
-- [x] Custom report generation
-- [x] Parent/mentor dashboard
-- [x] Study pattern optimization
-- [x] NeuroRevise: Long-term retention trends (6-month view)
-- [x] SyllabusFlow: Predicted syllabus completion date
+- [ ] AI-powered comparative analysis (vs previous year toppers)
+- [ ] Custom report generation
+- [ ] Parent/mentor dashboard
+- [ ] Study pattern optimization
+- [ ] NeuroRevise: Long-term retention trends (6-month view)
+- [ ] SyllabusFlow: Predicted syllabus completion date
 
 ---
 
