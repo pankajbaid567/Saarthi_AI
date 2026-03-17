@@ -1,11 +1,16 @@
 import { createApp } from './app.js';
-
-const DEFAULT_PORT = 3001;
-const parsedPort = Number(process.env.PORT);
-const port = Number.isInteger(parsedPort) && parsedPort > 0 ? parsedPort : DEFAULT_PORT;
+import { env } from './config/env.js';
+import { connectMongo } from './lib/mongoose.js';
+import { redisClient } from './lib/redis.js';
+import { logger } from './utils/logger.js';
 
 const app = createApp();
 
-app.listen(port, () => {
-  console.log(`Backend server running on port ${port}`);
+void connectMongo();
+void redisClient.connect().catch((error) => {
+  logger.warn('Redis not reachable at startup', { message: error.message });
+});
+
+app.listen(env.port, () => {
+  logger.info(`Backend server running on port ${env.port}`);
 });
