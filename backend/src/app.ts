@@ -10,6 +10,7 @@ import { requireRole } from './middleware/rbac.middleware.js';
 import { validateRequest } from './middleware/request-validation.js';
 import { createAnalyticsRouter } from './routes/analytics.routes.js';
 import { createAuthRouter } from './routes/auth.routes.js';
+import { createChatRouter } from './routes/chat.routes.js';
 import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
 import type { AnalyticsService } from './services/analytics.service.js';
@@ -48,6 +49,7 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createKnowledgeGraphRouter());
   app.use('/api/v1', createLearningRouter());
   app.use('/api/v1', createTestsRouter());
+  app.use('/api/v1', createChatRouter());
 
   app.use((_req, _res, next) => {
     next(new AppError('Route not found', 404));

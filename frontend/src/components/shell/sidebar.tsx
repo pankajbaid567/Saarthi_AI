@@ -42,6 +42,9 @@ export function Sidebar() {
         <Link href="/tests/history" className="block rounded px-2 py-1.5 hover:bg-muted">
           Test History
         </Link>
+        <Link href="/chat" className="block rounded px-2 py-1.5 hover:bg-muted">
+          Quiz Chat
+        </Link>
       </nav>
       <div className="mt-6">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Subject tree</p>
