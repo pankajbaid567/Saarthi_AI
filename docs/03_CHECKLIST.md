@@ -555,10 +555,10 @@
   - [ ] NeuroRevise retention data integration (avg retention per subject)
   - [ ] SyllabusFlow completion data integration (syllabus % in performance)
 - [ ] Performance endpoints
-  - [ ] **GET /api/v1/performance/overview** — Overall stats (incl. retention + syllabus)
-  - [ ] **GET /api/v1/performance/subject/:id** — Subject deep-dive
-  - [ ] **GET /api/v1/performance/topic/:id** — Topic deep-dive
-  - [ ] **GET /api/v1/performance/weak-areas** — Weak area analysis
+  - [x] **GET /api/v1/performance/overview** — Overall stats (incl. retention + syllabus)
+  - [x] **GET /api/v1/performance/subject/:id** — Subject deep-dive
+  - [x] **GET /api/v1/performance/topic/:id** — Topic deep-dive
+  - [x] **GET /api/v1/performance/weak-areas** — Weak area analysis
 - [ ] Scheduled jobs
   - [ ] Daily performance snapshot (cron)
   - [ ] Weekly performance report generation
@@ -567,11 +567,11 @@
 ### Week 20: AI Score Prediction & Current Affairs
 
 - [ ] Prediction model
-  - [ ] Historical performance analysis
-  - [ ] Score prediction with confidence interval
-  - [ ] Rank range estimation
-  - [ ] Factor in retention scores + syllabus completion for better predictions
-  - [ ] **GET /api/v1/performance/predictions** — Get predictions
+  - [x] Historical performance analysis
+  - [x] Score prediction with confidence interval
+  - [x] Rank range estimation
+  - [x] Factor in retention scores + syllabus completion for better predictions
+  - [x] **GET /api/v1/performance/predictions** — Get predictions
 - [ ] Weak area deep analysis
   - [ ] Cluster errors by concept
   - [ ] Identify confusion patterns (e.g., DPSP vs FR)
@@ -594,7 +594,7 @@
   - [ ] Auto-tag date and source
   - [ ] Convert articles to structured notes → link to knowledge graph
   - [ ] Generate MCQs + Mains questions from articles
-  - [ ] Current affairs endpoints: list, monthly view, detail
+  - [x] Current affairs endpoints: list, monthly view, detail
   - [ ] Current affairs model (MongoDB)
   - [ ] Current affairs frontend: monthly compilation, article cards, linked MCQs/Mains
 
