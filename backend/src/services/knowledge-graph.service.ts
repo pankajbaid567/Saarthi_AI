@@ -73,6 +73,18 @@ const toSlug = (value: string): string => {
     .slice(0, 80);
 };
 
+const resolveSlug = (input: { providedSlug?: string; providedName?: string; fallbackSlug: string }): string => {
+  if (input.providedSlug) {
+    return toSlug(input.providedSlug);
+  }
+
+  if (input.providedName) {
+    return toSlug(input.providedName);
+  }
+
+  return input.fallbackSlug;
+};
+
 export type KnowledgeGraphServiceOptions = {
   seedData?: boolean;
 };
@@ -139,7 +151,11 @@ export class KnowledgeGraphService {
   updateSubject(id: string, input: UpdateSubjectInput): Subject {
     const current = this.getSubject(id);
     const nextName = input.name ?? current.name;
-    const nextSlug = input.slug ? toSlug(input.slug) : input.name ? toSlug(input.name) : current.slug;
+    const nextSlug = resolveSlug({
+      providedSlug: input.slug,
+      providedName: input.name,
+      fallbackSlug: current.slug,
+    });
 
     const hasConflict = [...this.subjects.values()].some(
       (subject) =>
@@ -274,7 +290,11 @@ export class KnowledgeGraphService {
       subjectId: nextSubjectId,
       parentTopicId: nextParentId ?? null,
       name: input.name ?? current.name,
-      slug: input.slug ? toSlug(input.slug) : input.name ? toSlug(input.name) : current.slug,
+      slug: resolveSlug({
+        providedSlug: input.slug,
+        providedName: input.name,
+        fallbackSlug: current.slug,
+      }),
       description: input.description ?? current.description,
       materializedPath: parentPath ? `${parentPath}.${id}` : `${nextSubjectId}.${id}`,
       updatedAt: new Date(),

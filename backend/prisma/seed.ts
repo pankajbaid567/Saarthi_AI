@@ -22,6 +22,8 @@ const subjectNames = [
   'Current Affairs',
 ];
 
+const MATERIALIZED_PATH_PENDING_SEGMENT = 'pending';
+
 const main = async () => {
   for (const subjectName of subjectNames) {
     const subject = await prisma.subject.upsert({
@@ -55,7 +57,7 @@ const main = async () => {
           name: `${subjectName} Topic ${index}`,
           slug: topicSlug,
           description: `Core ${subjectName} topic ${index}`,
-          materializedPath: `${subject.id}.pending`,
+          materializedPath: `${subject.id}.${MATERIALIZED_PATH_PENDING_SEGMENT}`,
         },
       });
 
@@ -84,7 +86,7 @@ const main = async () => {
             name: `${subjectName} Subtopic ${index}`,
             slug: subtopicSlug,
             description: `Detailed ${subjectName} subtopic ${index}`,
-            materializedPath: `${subject.id}.${rootTopic.id}.pending`,
+            materializedPath: `${subject.id}.${rootTopic.id}.${MATERIALIZED_PATH_PENDING_SEGMENT}`,
           },
         });
 
