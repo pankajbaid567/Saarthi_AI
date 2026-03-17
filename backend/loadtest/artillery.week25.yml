@@ -1,0 +1,42 @@
+config:
+  target: "http://localhost:4000"
+  phases:
+    - duration: 60
+      arrivalRate: 50
+      name: warmup
+    - duration: 180
+      arrivalRate: 1000
+      name: 1000-concurrent-users
+  defaults:
+    headers:
+      content-type: "application/json"
+
+scenarios:
+  - name: test-submission-burst
+    flow:
+      - post:
+          url: "/api/v1/tests/generate"
+          json:
+            type: "mixed"
+            questionCount: 20
+      - post:
+          url: "/api/v1/tests/{{ testId }}/submit"
+          json:
+            responses: []
+  - name: pdf-processing-load
+    flow:
+      - post:
+          url: "/api/v1/pdfs/upload"
+          formData:
+            topicId: "topic-load-test"
+            file: "@./fixtures/sample.pdf"
+  - name: revision-bulk-computation
+    flow:
+      - get:
+          url: "/api/v1/revision/forgetting-curves?subjectId=all"
+  - name: practice-dedup-load
+    flow:
+      - post:
+          url: "/api/v1/syllabus-flow/practice/daily/generate"
+          json:
+            questionCount: 20

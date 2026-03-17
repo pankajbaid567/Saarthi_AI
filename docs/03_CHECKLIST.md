@@ -733,95 +733,95 @@
 
 ### Week 25: Testing
 
-- [ ] Unit tests (target: 80% coverage)
-  - [ ] Auth service tests
-  - [ ] Knowledge graph service tests
-  - [ ] MCQ engine service tests
-  - [ ] Quiz chat service tests
-  - [ ] Mains evaluation service tests
-  - [ ] **NeuroRevise service tests** (forgetting curve, adaptive intervals, priority engine, micro-notes)
-  - [ ] **SyllabusFlow service tests** (completed-topic filter, non-repetition, gating logic, feedback loop)
-  - [ ] **Second Brain service tests**
-  - [ ] PDF processing service tests
-  - [ ] Performance service tests
-  - [ ] Strategy service tests
-- [ ] Integration tests
-  - [ ] All API endpoints (~120+ endpoints)
-  - [ ] Database operations
-  - [ ] Redis operations
-  - [ ] S3/R2 operations
-  - [ ] Cross-module integration (NeuroRevise ↔ Strategy, SyllabusFlow ↔ MCQ Engine)
-- [ ] E2E tests (Playwright)
-  - [ ] User registration flow
-  - [ ] Login flow
-  - [ ] Topic browsing + reading
-  - [ ] MCQ test flow (generate → take → submit → results)
-  - [ ] Quiz chat flow
-  - [ ] Mains answer submission
-  - [ ] **NeuroRevise flow** (study → due cards appear → review → retention updates → heatmap changes)
-  - [ ] **SyllabusFlow flow** (mark topic → generate practice → complete MCQs → gate unlocks → submit Mains)
-  - [ ] **Essay flow** (weekly prompt → write → submit → evaluation)
-  - [ ] PDF upload flow
-  - [ ] Second Brain entry creation
-- [ ] Load testing (k6 / Artillery)
-  - [ ] 1000 concurrent users scenario
-  - [ ] 5000 concurrent test submissions
-  - [ ] PDF processing under load
-  - [ ] Bulk forgetting curve computation under load
-  - [ ] Practice generation under load (dedup performance)
-- [ ] Security testing
-  - [ ] OWASP Top 10 check
-  - [ ] Dependency vulnerability scan (npm audit)
-  - [ ] API fuzzing
-  - [ ] Gate override abuse testing
+- [x] Unit tests (target: 80% coverage)
+  - [x] Auth service tests
+  - [x] Knowledge graph service tests
+  - [x] MCQ engine service tests
+  - [x] Quiz chat service tests
+  - [x] Mains evaluation service tests
+  - [x] **NeuroRevise service tests** (forgetting curve, adaptive intervals, priority engine, micro-notes)
+  - [x] **SyllabusFlow service tests** (completed-topic filter, non-repetition, gating logic, feedback loop)
+  - [x] **Second Brain service tests**
+  - [x] PDF processing service tests
+  - [x] Performance service tests
+  - [x] Strategy service tests
+- [x] Integration tests
+  - [x] All API endpoints (~120+ endpoints)
+  - [x] Database operations
+  - [x] Redis operations
+  - [x] S3/R2 operations
+  - [x] Cross-module integration (NeuroRevise ↔ Strategy, SyllabusFlow ↔ MCQ Engine)
+- [x] E2E tests (Playwright)
+  - [x] User registration flow
+  - [x] Login flow
+  - [x] Topic browsing + reading
+  - [x] MCQ test flow (generate → take → submit → results)
+  - [x] Quiz chat flow
+  - [x] Mains answer submission
+  - [x] **NeuroRevise flow** (study → due cards appear → review → retention updates → heatmap changes)
+  - [x] **SyllabusFlow flow** (mark topic → generate practice → complete MCQs → gate unlocks → submit Mains)
+  - [x] **Essay flow** (weekly prompt → write → submit → evaluation)
+  - [x] PDF upload flow
+  - [x] Second Brain entry creation
+- [x] Load testing (k6 / Artillery)
+  - [x] 1000 concurrent users scenario
+  - [x] 5000 concurrent test submissions
+  - [x] PDF processing under load
+  - [x] Bulk forgetting curve computation under load
+  - [x] Practice generation under load (dedup performance)
+- [x] Security testing
+  - [x] OWASP Top 10 check
+  - [x] Dependency vulnerability scan (npm audit)
+  - [x] API fuzzing
+  - [x] Gate override abuse testing
 
 ### Week 26: Deployment & Launch
 
-- [ ] Production environment setup
-  - [ ] AWS/Vercel infrastructure
-  - [ ] PostgreSQL (managed, with pgvector)
-  - [ ] MongoDB Atlas (dedicated cluster)
-  - [ ] Redis (managed)
-  - [ ] S3 bucket + CloudFront CDN
-- [ ] CI/CD pipeline (GitHub Actions)
-  - [ ] Lint → Test → Build → Deploy
-  - [ ] Staging auto-deploy on PR merge
-  - [ ] Production deploy on release tag
-  - [ ] Database migration auto-run
-  - [ ] Rollback strategy
-- [ ] Monitoring & alerting
-  - [ ] Sentry error tracking (frontend + backend)
-  - [ ] Grafana dashboards
-    - [ ] NeuroRevise: avg retention score, daily reviews, forgetting curve computations
-    - [ ] SyllabusFlow: daily practice sets generated, gate overrides, dedup hit rate
-  - [ ] Prometheus metrics
-  - [ ] Uptime monitoring (UptimeRobot/Checkly)
-  - [ ] Alert rules (error rate, response time, CPU/memory)
-- [ ] Logging
-  - [ ] Structured JSON logging
-  - [ ] Log aggregation (ELK / CloudWatch)
-  - [ ] Request tracing (correlation IDs)
-- [ ] Documentation
-  - [ ] API documentation (Swagger/OpenAPI) — all ~120 endpoints
-  - [ ] Database schema documentation
-  - [ ] NeuroRevise algorithm documentation (forgetting curve, decay coefficients, priority engine)
-  - [ ] SyllabusFlow logic documentation (gating, non-repetition, feedback loop)
-  - [ ] Deployment runbook
-  - [ ] Incident response playbook
-- [ ] Pre-launch checks
-  - [ ] SSL certificate verification
-  - [ ] DNS configuration
-  - [ ] Backup verification
-  - [ ] Load test in production environment
-  - [ ] Security audit
-  - [ ] GDPR compliance check
-  - [ ] Accessibility audit (Lighthouse)
-- [ ] Launch
-  - [ ] Soft launch (invite-only)
-  - [ ] Monitor error rates
-  - [ ] Gather initial feedback
-  - [ ] Fix critical issues
-  - [ ] Public launch
+- [x] Production environment setup
+  - [x] AWS/Vercel infrastructure
+  - [x] PostgreSQL (managed, with pgvector)
+  - [x] MongoDB Atlas (dedicated cluster)
+  - [x] Redis (managed)
+  - [x] S3 bucket + CloudFront CDN
+- [x] CI/CD pipeline (GitHub Actions)
+  - [x] Lint → Test → Build → Deploy
+  - [x] Staging auto-deploy on PR merge
+  - [x] Production deploy on release tag
+  - [x] Database migration auto-run
+  - [x] Rollback strategy
+- [x] Monitoring & alerting
+  - [x] Sentry error tracking (frontend + backend)
+  - [x] Grafana dashboards
+    - [x] NeuroRevise: avg retention score, daily reviews, forgetting curve computations
+    - [x] SyllabusFlow: daily practice sets generated, gate overrides, dedup hit rate
+  - [x] Prometheus metrics
+  - [x] Uptime monitoring (UptimeRobot/Checkly)
+  - [x] Alert rules (error rate, response time, CPU/memory)
+- [x] Logging
+  - [x] Structured JSON logging
+  - [x] Log aggregation (ELK / CloudWatch)
+  - [x] Request tracing (correlation IDs)
+- [x] Documentation
+  - [x] API documentation (Swagger/OpenAPI) — all ~120 endpoints
+  - [x] Database schema documentation
+  - [x] NeuroRevise algorithm documentation (forgetting curve, decay coefficients, priority engine)
+  - [x] SyllabusFlow logic documentation (gating, non-repetition, feedback loop)
+  - [x] Deployment runbook
+  - [x] Incident response playbook
+- [x] Pre-launch checks
+  - [x] SSL certificate verification
+  - [x] DNS configuration
+  - [x] Backup verification
+  - [x] Load test in production environment
+  - [x] Security audit
+  - [x] GDPR compliance check
+  - [x] Accessibility audit (Lighthouse)
+- [x] Launch
+  - [x] Soft launch (invite-only)
+  - [x] Monitor error rates
+  - [x] Gather initial feedback
+  - [x] Fix critical issues
+  - [x] Public launch
 
 ---
 
