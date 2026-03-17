@@ -76,26 +76,26 @@
 
 ### Week 3: Topic Learning Module (Backend)
 
-- [ ] Notes content model (MongoDB) — rich markdown storage
-- [ ] **GET /api/v1/topics/:id/notes** — Get concept notes
-- [ ] **GET /api/v1/topics/:id/pyqs** — Get PYQs for topic
-- [ ] **GET /api/v1/topics/:id/highlights** — Get smart highlights
-- [ ] **GET /api/v1/topics/:id/micro-notes** — Get micro revision notes
-- [ ] User progress tracking
-  - [ ] **POST /api/v1/progress/topic/:id** — Mark topic reading progress
-  - [ ] **GET /api/v1/progress** — Get overall progress
-- [ ] User highlights & notes
-  - [ ] **POST /api/v1/user/highlights** — Create highlight
-  - [ ] **GET /api/v1/user/highlights** — Get user highlights
-  - [ ] **DELETE /api/v1/user/highlights/:id** — Delete highlight
-- [ ] User bookmarks
-  - [ ] **POST /api/v1/user/bookmarks** — Create bookmark
-  - [ ] **GET /api/v1/user/bookmarks** — Get bookmarks
-  - [ ] **DELETE /api/v1/user/bookmarks/:id** — Delete bookmark
-- [ ] Full-text search endpoint
-  - [ ] **GET /api/v1/content/search?q=...** — Search content
-- [ ] Unit tests for learning module
-- [ ] Integration tests for learning endpoints
+- [x] Notes content model (MongoDB) — rich markdown storage
+- [x] **GET /api/v1/topics/:id/notes** — Get concept notes
+- [x] **GET /api/v1/topics/:id/pyqs** — Get PYQs for topic
+- [x] **GET /api/v1/topics/:id/highlights** — Get smart highlights
+- [x] **GET /api/v1/topics/:id/micro-notes** — Get micro revision notes
+- [x] User progress tracking
+  - [x] **POST /api/v1/progress/topic/:id** — Mark topic reading progress
+  - [x] **GET /api/v1/progress** — Get overall progress
+- [x] User highlights & notes
+  - [x] **POST /api/v1/user/highlights** — Create highlight
+  - [x] **GET /api/v1/user/highlights** — Get user highlights
+  - [x] **DELETE /api/v1/user/highlights/:id** — Delete highlight
+- [x] User bookmarks
+  - [x] **POST /api/v1/user/bookmarks** — Create bookmark
+  - [x] **GET /api/v1/user/bookmarks** — Get bookmarks
+  - [x] **DELETE /api/v1/user/bookmarks/:id** — Delete bookmark
+- [x] Full-text search endpoint
+  - [x] **GET /api/v1/content/search?q=...** — Search content
+- [x] Unit tests for learning module
+- [x] Integration tests for learning endpoints
 
 ### Week 4: Frontend Shell
 

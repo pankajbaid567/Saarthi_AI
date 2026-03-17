@@ -18,6 +18,7 @@ enum ContentNodeType {
   fact
   highlight
   micro_note
+  pyq
 }
 
 model User {

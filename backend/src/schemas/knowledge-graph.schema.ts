@@ -64,7 +64,7 @@ export const updateTopicSchema = z.object({
     }),
 });
 
-const contentNodeTypeSchema = z.enum(['concept', 'fact', 'highlight', 'micro_note']);
+const contentNodeTypeSchema = z.enum(['concept', 'fact', 'highlight', 'micro_note', 'pyq']);
 
 export const contentIdSchema = z.object({
   params: z.object({
