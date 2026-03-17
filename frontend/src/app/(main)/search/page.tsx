@@ -14,7 +14,7 @@ const highlightQuery = (text: string, query: string): string => {
     return escapeHtml(text);
   }
 
-  const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escaped = query.trim().replace(/[.*+?^${}()|[\\[\\]]/g, '\\$&');
   return escapeHtml(text).replace(new RegExp(`(${escaped})`, 'ig'), '<mark>$1</mark>');
 };
 

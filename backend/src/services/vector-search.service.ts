@@ -71,7 +71,7 @@ const buildHighlight = (query: string, text: string): string => {
   const end = Math.min(trimmed.length, index + firstMatch.length + 120);
   const snippet = trimmed.slice(start, end);
   const highlighted = snippet.replace(
-    new RegExp(`(${firstMatch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'i'),
+    new RegExp(`(${firstMatch.replace(/[.*+?^${}()|[\\[\\]]/g, '\\$&')})`, 'i'),
     '<mark>$1</mark>',
   );
   return `${start > 0 ? '...' : ''}${highlighted}${end < trimmed.length ? '...' : ''}`;
