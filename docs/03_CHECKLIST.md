@@ -139,29 +139,29 @@
 
 ### Week 5: MCQ Engine Backend
 
-- [ ] MCQ questions table (PostgreSQL)
-- [ ] Seed initial MCQ data (1000+ questions)
-- [ ] Test generation service
-  - [ ] **POST /api/v1/tests/generate** — Generate test
-    - [ ] Topic-wise generation
-    - [ ] Subtopic-wise generation
-    - [ ] Mixed (random across subjects)
-    - [ ] PYQ-based generation
-    - [ ] AI weak-area generation
-    - [ ] Custom (user selects topics + count)
-  - [ ] Negative marking calculation (-0.33)
-- [ ] Test session management (Redis for active tests)
-- [ ] Test submission service
-  - [ ] **POST /api/v1/tests/:id/submit** — Submit test
-  - [ ] Calculate score with negative marking
-  - [ ] Store responses in test_responses table
-- [ ] Test retrieval
-  - [ ] **GET /api/v1/tests/:id** — Get test (during/after)
-  - [ ] **GET /api/v1/tests/:id/results** — Get results
-  - [ ] **GET /api/v1/tests/history** — Test history
-- [ ] Test state persistence (resume after disconnect)
-- [ ] Unit tests for MCQ engine
-- [ ] Integration tests for MCQ endpoints
+- [x] MCQ questions table (PostgreSQL)
+- [x] Seed initial MCQ data (1000+ questions)
+- [x] Test generation service
+  - [x] **POST /api/v1/tests/generate** — Generate test
+    - [x] Topic-wise generation
+    - [x] Subtopic-wise generation
+    - [x] Mixed (random across subjects)
+    - [x] PYQ-based generation
+    - [x] AI weak-area generation
+    - [x] Custom (user selects topics + count)
+  - [x] Negative marking calculation (-0.33)
+- [x] Test session management (Redis for active tests)
+- [x] Test submission service
+  - [x] **POST /api/v1/tests/:id/submit** — Submit test
+  - [x] Calculate score with negative marking
+  - [x] Store responses in test_responses table
+- [x] Test retrieval
+  - [x] **GET /api/v1/tests/:id** — Get test (during/after)
+  - [x] **GET /api/v1/tests/:id/results** — Get results
+  - [x] **GET /api/v1/tests/history** — Test history
+- [x] Test state persistence (resume after disconnect)
+- [x] Unit tests for MCQ engine
+- [x] Integration tests for MCQ endpoints
 
 ### Week 6: MCQ Engine Frontend
 

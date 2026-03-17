@@ -21,6 +21,20 @@ enum ContentNodeType {
   pyq
 }
 
+enum TestType {
+  topic_wise
+  subtopic_wise
+  mixed
+  pyq
+  weak_area
+  custom
+}
+
+enum TestStatus {
+  active
+  submitted
+}
+
 model User {
   id           String       @id @default(uuid())
   email        String       @unique
@@ -62,6 +76,7 @@ model Topic {
   parentTopic      Topic?        @relation("TopicHierarchy", fields: [parentTopicId], references: [id], onDelete: Cascade)
   childTopics      Topic[]       @relation("TopicHierarchy")
   contentNodes     ContentNode[]
+  mcqQuestions     McqQuestion[]
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
@@ -82,4 +97,78 @@ model ContentNode {
   updatedAt DateTime        @updatedAt
 
   @@index([topicId])
+}
+
+model McqQuestion {
+  id           String         @id @default(uuid())
+  topicId      String
+  questionText String
+  optionA      String
+  optionB      String
+  optionC      String
+  optionD      String
+  correctOption String
+  explanation  String?
+  difficulty   Int            @default(2)
+  isPyq        Boolean        @default(false)
+  pyqYear      Int?
+  topic        Topic          @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  testQuestions TestQuestion[]
+  responses    TestResponse[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([topicId])
+  @@index([isPyq])
+}
+
+model Test {
+  id               String         @id @default(uuid())
+  userId           String
+  type             TestType
+  status           TestStatus     @default(active)
+  totalQuestions   Int
+  timeLimitMinutes Int
+  score            Float?
+  negativeMarks    Float          @default(0)
+  correctCount     Int            @default(0)
+  incorrectCount   Int            @default(0)
+  skippedCount     Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  submittedAt      DateTime?
+  testQuestions    TestQuestion[]
+  responses        TestResponse[]
+
+  @@index([userId, createdAt])
+}
+
+model TestQuestion {
+  id         String      @id @default(uuid())
+  testId     String
+  questionId String
+  sequence   Int
+  test       Test        @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question   McqQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, questionId])
+  @@unique([testId, sequence])
+  @@index([questionId])
+}
+
+model TestResponse {
+  id              String      @id @default(uuid())
+  testId          String
+  questionId      String
+  selectedOption  String?
+  isCorrect       Boolean
+  timeTakenSeconds Int        @default(0)
+  isFlagged       Boolean     @default(false)
+  test            Test        @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question        McqQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  createdAt       DateTime    @default(now())
+
+  @@unique([testId, questionId])
+  @@index([testId])
+  @@index([questionId])
 }
