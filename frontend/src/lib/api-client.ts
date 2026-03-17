@@ -69,4 +69,34 @@ export const testsApi = {
   getAnalytics: (id: string) => apiClient.get<TestAnalyticsResponse>(`/tests/${id}/analytics`),
 };
 
+export type MainsGateStatus = {
+  date: string;
+  requiredMcqs: number;
+  attemptedMcqs: number;
+  isUnlocked: boolean;
+  overrideApplied: boolean;
+};
+
+export type MainsDailyQuestionResponse = {
+  gateStatus: MainsGateStatus;
+  question: { id: string; prompt: string; focusAreas: string[] } | null;
+};
+
+export const mainsApi = {
+  getGateStatus: () => apiClient.get<MainsGateStatus>('/mains/daily/gate-status'),
+  getDailyQuestion: () => apiClient.get<MainsDailyQuestionResponse>('/mains/daily/question'),
+  submit: (answer: string) => apiClient.post('/mains/daily/submit', { answer }),
+};
+
+export const essaysApi = {
+  getWeeklyQuestion: () => apiClient.get<{ id: string; week: string; prompt: string; sourceTopics: string[] }>('/essays/weekly/question'),
+  submitWeeklyEssay: (answer: string) => apiClient.post('/essays/weekly/submit', { answer }),
+  getSubmissions: () => apiClient.get('/essays/submissions'),
+};
+
+export const practiceApi = {
+  getFeedbackLoop: () => apiClient.get('/practice/feedback-loop'),
+  getNonRepetitionStats: () => apiClient.get('/practice/non-repetition/stats'),
+};
+
 export default apiClient;

@@ -99,6 +99,13 @@ type TestSummary = {
   submittedAt: Date | null;
 };
 
+type TopicPerformance = {
+  topicId: string;
+  attemptedQuestions: number;
+  correctAnswers: number;
+  accuracy: number;
+};
+
 type TestHistoryFilter = {
   type?: TestType;
 };
@@ -418,6 +425,97 @@ export class TestEngineService {
         createdAt: test.createdAt,
         submittedAt: test.submittedAt,
       }));
+  }
+
+  getDailyAttemptedMcqCount(userId: string, date: Date = new Date()): number {
+    const targetDay = date.toISOString().slice(0, 10);
+    return this.getSubmittedTests(userId)
+      .filter((test) => test.submittedAt?.toISOString().slice(0, 10) === targetDay)
+      .reduce((total, test) => {
+        const attemptedInTest = (this.responsesByTestId.get(test.id) ?? []).filter(
+          (response) => response.selectedOption !== null,
+        ).length;
+        return total + attemptedInTest;
+      }, 0);
+  }
+
+  getRecentTopicPerformance(userId: string, days: number): TopicPerformance[] {
+    const windowStart = new Date();
+    windowStart.setDate(windowStart.getDate() - Math.max(0, days - 1));
+    windowStart.setHours(0, 0, 0, 0);
+
+    const statsByTopic = new Map<string, { attemptedQuestions: number; correctAnswers: number }>();
+    this.getSubmittedTests(userId)
+      .filter((test) => (test.submittedAt ? test.submittedAt >= windowStart : false))
+      .forEach((test) => {
+        (this.responsesByTestId.get(test.id) ?? []).forEach((response) => {
+          if (response.selectedOption === null) {
+            return;
+          }
+
+          const question = this.questionsById.get(response.questionId);
+          if (!question) {
+            return;
+          }
+
+          const current = statsByTopic.get(question.topicId) ?? { attemptedQuestions: 0, correctAnswers: 0 };
+          current.attemptedQuestions += 1;
+          if (response.isCorrect) {
+            current.correctAnswers += 1;
+          }
+          statsByTopic.set(question.topicId, current);
+        });
+      });
+
+    return [...statsByTopic.entries()]
+      .map(([topicId, stats]) => ({
+        topicId,
+        attemptedQuestions: stats.attemptedQuestions,
+        correctAnswers: stats.correctAnswers,
+        accuracy:
+          stats.attemptedQuestions === 0
+            ? 0
+            : roundToTwoDecimals((stats.correctAnswers / stats.attemptedQuestions) * 100),
+      }))
+      .sort((a, b) => a.accuracy - b.accuracy);
+  }
+
+  getNonRepetitionStats(userId: string, days: number): {
+    windowDays: number;
+    totalAttempts: number;
+    uniqueQuestionCount: number;
+    repeatAttempts: number;
+    repetitionRate: number;
+  } {
+    const windowStart = new Date();
+    windowStart.setDate(windowStart.getDate() - Math.max(0, days - 1));
+    windowStart.setHours(0, 0, 0, 0);
+
+    const attemptedQuestionIds = this.getSubmittedTests(userId)
+      .filter((test) => (test.submittedAt ? test.submittedAt >= windowStart : false))
+      .flatMap((test) =>
+        (this.responsesByTestId.get(test.id) ?? [])
+          .filter((response) => response.selectedOption !== null)
+          .map((response) => response.questionId),
+      );
+
+    const totalAttempts = attemptedQuestionIds.length;
+    const uniqueQuestionCount = new Set(attemptedQuestionIds).size;
+    const repeatAttempts = Math.max(0, totalAttempts - uniqueQuestionCount);
+    const repetitionRate =
+      totalAttempts === 0 ? 0 : roundToTwoDecimals((repeatAttempts / totalAttempts) * 100);
+
+    return {
+      windowDays: days,
+      totalAttempts,
+      uniqueQuestionCount,
+      repeatAttempts,
+      repetitionRate,
+    };
+  }
+
+  private getSubmittedTests(userId: string): TestRecord[] {
+    return [...this.testsById.values()].filter((test) => test.userId === userId && test.status === 'submitted');
   }
 
   private getOwnedTest(userId: string, testId: string): TestRecord {
