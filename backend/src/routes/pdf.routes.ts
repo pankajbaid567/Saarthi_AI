@@ -93,6 +93,17 @@ export const createPdfRouter = (options: CreatePdfRouterOptions = {}): Router =>
   );
 
   router.get(
+    '/pdf/:id/extracted',
+    authRateLimiter,
+    authMiddleware,
+    validateRequest(pdfIdSchema),
+    asyncHandler(async (req, res) => {
+      const extracted = await pdfService.getExtracted(req.authUser!.userId, req.params.id);
+      res.status(200).json(extracted);
+    }),
+  );
+
+  router.get(
     '/pdfs',
     authRateLimiter,
     authMiddleware,

@@ -273,57 +273,57 @@
 
 ### Week 10: AI Content Classification
 
-- [ ] Structure detection
-  - [ ] Heading hierarchy extraction
-  - [ ] Section boundary detection
-  - [ ] List/bullet point extraction
-  - [ ] Table structure preservation
-- [ ] Content classification (LLM)
-  - [ ] Prompt engineering for classification
-  - [ ] Classify sections: concept, fact, MCQ, mains_question, case_study
-  - [ ] Confidence scoring
-- [ ] MCQ extraction
-  - [ ] Detect question patterns
-  - [ ] Extract question text
-  - [ ] Extract options (A/B/C/D)
-  - [ ] Extract correct answer
-  - [ ] Extract explanation (if present)
-- [ ] Mains question extraction
-  - [ ] Detect essay/long-answer question patterns
-  - [ ] Extract question text + marks
-  - [ ] Extract model answer (if present)
-- [ ] Key facts extraction
-  - [ ] Important dates, numbers, names
-  - [ ] Constitutional articles
-  - [ ] Acts and amendments
-- [ ] Quality verification
-  - [ ] Confidence threshold for auto-approval
-  - [ ] Queue low-confidence items for human review
-- [ ] PDF extraction result storage
-  - [ ] **GET /api/v1/pdf/:id/extracted** — Get extracted content
+- [x] Structure detection
+  - [x] Heading hierarchy extraction
+  - [x] Section boundary detection
+  - [x] List/bullet point extraction
+  - [x] Table structure preservation
+- [x] Content classification (LLM)
+  - [x] Prompt engineering for classification
+  - [x] Classify sections: concept, fact, MCQ, mains_question, case_study
+  - [x] Confidence scoring
+- [x] MCQ extraction
+  - [x] Detect question patterns
+  - [x] Extract question text
+  - [x] Extract options (A/B/C/D)
+  - [x] Extract correct answer
+  - [x] Extract explanation (if present)
+- [x] Mains question extraction
+  - [x] Detect essay/long-answer question patterns
+  - [x] Extract question text + marks
+  - [x] Extract model answer (if present)
+- [x] Key facts extraction
+  - [x] Important dates, numbers, names
+  - [x] Constitutional articles
+  - [x] Acts and amendments
+- [x] Quality verification
+  - [x] Confidence threshold for auto-approval
+  - [x] Queue low-confidence items for human review
+- [x] PDF extraction result storage
+  - [x] **GET /api/v1/pdf/:id/extracted** — Get extracted content
 
 ### Week 11: Knowledge Graph Auto-Linking
 
-- [ ] Topic matching service
-  - [ ] Match extracted content to existing topics via:
-    - [ ] Keyword matching
-    - [ ] Semantic similarity (embeddings)
-    - [ ] LLM-based topic classification
-  - [ ] Suggest new topics when no match found
-- [ ] Auto-linking pipeline
-  - [ ] Link extracted MCQs to topics
-  - [ ] Link extracted concepts to topics
-  - [ ] Link extracted facts to topics
-  - [ ] Link extracted mains questions to topics
-- [ ] Admin review interface
-  - [ ] Review extracted content
-  - [ ] Approve/reject/edit links
-  - [ ] Merge duplicate content
-  - [ ] Create new topics from suggestions
-- [ ] Content enrichment
-  - [ ] Auto-generate smart highlights from content
-  - [ ] Auto-generate micro notes from concepts
-  - [ ] Tag difficulty levels on MCQs
+- [x] Topic matching service
+  - [x] Match extracted content to existing topics via:
+    - [x] Keyword matching
+    - [x] Semantic similarity (embeddings)
+    - [x] LLM-based topic classification
+  - [x] Suggest new topics when no match found
+- [x] Auto-linking pipeline
+  - [x] Link extracted MCQs to topics
+  - [x] Link extracted concepts to topics
+  - [x] Link extracted facts to topics
+  - [x] Link extracted mains questions to topics
+- [x] Admin review interface
+  - [x] Review extracted content
+  - [x] Approve/reject/edit links
+  - [x] Merge duplicate content
+  - [x] Create new topics from suggestions
+- [x] Content enrichment
+  - [x] Auto-generate smart highlights from content
+  - [x] Auto-generate micro notes from concepts
+  - [x] Tag difficulty levels on MCQs
 
 ### Week 12: RAG Pipeline
 
