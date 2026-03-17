@@ -48,11 +48,12 @@ class MockExtractorService implements PdfExtractorService {
       pages: [
         {
           pageNumber: 1,
-          text: 'Extracted page text',
+          text: '1. Constitutional Basics\nWhat is Article 21?\nA) Right to Equality\nB) Right to Life and Personal Liberty\nC) Right to Freedom\nD) Right against Exploitation\nAnswer: B\nExplanation: Article 21 protects life and personal liberty.',
           tables: [],
         },
       ],
-      fullText: 'Extracted page text',
+      fullText:
+        '1. Constitutional Basics\nWhat is Article 21?\nA) Right to Equality\nB) Right to Life and Personal Liberty\nC) Right to Freedom\nD) Right against Exploitation\nAnswer: B\nExplanation: Article 21 protects life and personal liberty.\n\nDiscuss the significance of the 44th Amendment (10 marks).',
       usedOcr: false,
     };
   }
@@ -76,7 +77,7 @@ const createTestApp = () => {
 };
 
 describe('pdf routes', () => {
-  it('supports upload, status lookup and list endpoints', async () => {
+  it('supports upload, status lookup, extracted-content, and list endpoints', async () => {
     const app = createTestApp();
     const token = issueAccessToken();
     const pdfBuffer = Buffer.from('%PDF-1.4 fake content');
@@ -98,6 +99,21 @@ describe('pdf routes', () => {
 
     expect(statusResponse.status).toBe(200);
     expect(statusResponse.body.totalPages).toBe(1);
+
+    const extractedResponse = await request(app)
+      .get(`/api/v1/pdf/${uploadResponse.body.id}/extracted`)
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(extractedResponse.status).toBe(200);
+    expect(extractedResponse.body.structure.sections.length).toBeGreaterThan(0);
+    expect(['concept', 'fact', 'mcq', 'mains_question', 'case_study']).toContain(
+      extractedResponse.body.structure.sections[0]?.type,
+    );
+    expect(typeof extractedResponse.body.structure.sections[0]?.confidence).toBe('number');
+    expect(typeof extractedResponse.body.structure.sections[0]?.requiresReview).toBe('boolean');
+    expect(extractedResponse.body.mcqs.length).toBe(1);
+    expect(extractedResponse.body.mainsQuestions.length).toBe(1);
+    expect(extractedResponse.body.keyFacts.constitutionalArticles).toContain('Article 21');
 
     const listResponse = await request(app).get('/api/v1/pdfs').set('Authorization', `Bearer ${token}`);
 

@@ -42,6 +42,7 @@ describe('chat service', () => {
     });
 
     expect(answered.response).toContain('Deep Concept insight');
+    expect(answered.response).toContain('RAG sources');
     expect(answered.session.performance.attempted).toBe(1);
     expect(answered.summary?.attempted).toBe(1);
     expect(answered.session.isComplete).toBe(true);

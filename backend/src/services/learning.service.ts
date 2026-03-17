@@ -1,8 +1,11 @@
 import { randomUUID } from 'crypto';
 
 import { AppError } from '../errors/app-error.js';
+import { createEmbeddingService, type EmbeddingService } from './embedding.service.js';
 import type { ContentNode, ContentNodeType, KnowledgeGraphService } from './knowledge-graph.service.js';
 import { createKnowledgeGraphService } from './knowledge-graph.service.js';
+import { RagService } from './rag.service.js';
+import { VectorSearchService, type VectorSearchDocument } from './vector-search.service.js';
 
 type TopicNote = {
   id: string;
@@ -66,13 +69,23 @@ type SearchResult = {
   topicId: string;
   source: 'content' | 'note';
   type: ContentNodeType | 'note';
+  subject: string;
+  topic: string;
   title: string | null;
   snippet: string;
+  score: number;
 };
 
 type LearningServiceOptions = {
   knowledgeGraphService?: KnowledgeGraphService;
+  embeddingService?: EmbeddingService;
   notes?: TopicNote[];
+};
+
+type SearchContentOptions = {
+  type?: string;
+  subject?: string;
+  topic?: string;
 };
 
 const contentTypesByLearningSection: Record<'pyqs' | 'highlights' | 'micro-notes', ContentNodeType> = {
@@ -81,16 +94,18 @@ const contentTypesByLearningSection: Record<'pyqs' | 'highlights' | 'micro-notes
   'micro-notes': 'micro_note',
 };
 
-const ensureContains = (value: string, query: string): boolean => {
-  return value.toLowerCase().includes(query.toLowerCase());
-};
-
 const toSnippet = (value: string): string => {
   return value.length > 240 ? `${value.slice(0, 240)}...` : value;
 };
 
 export class LearningService {
   private readonly knowledgeGraphService: KnowledgeGraphService;
+
+  private readonly embeddingService: EmbeddingService;
+
+  private readonly vectorSearchService: VectorSearchService;
+
+  private readonly ragService: RagService;
 
   private readonly notes = new Map<string, TopicNote>();
 
@@ -102,6 +117,9 @@ export class LearningService {
 
   constructor(options: LearningServiceOptions = {}) {
     this.knowledgeGraphService = options.knowledgeGraphService ?? createKnowledgeGraphService();
+    this.embeddingService = options.embeddingService ?? createEmbeddingService();
+    this.vectorSearchService = new VectorSearchService(this.embeddingService);
+    this.ragService = new RagService(this.vectorSearchService);
     (options.notes ?? []).forEach((note) => {
       this.notes.set(note.id, note);
     });
@@ -257,48 +275,98 @@ export class LearningService {
     this.bookmarks.delete(bookmarkId);
   }
 
-  searchContent(query: string): SearchResult[] {
+  searchContent(query: string, options: SearchContentOptions = {}): SearchResult[] {
     const normalizedQuery = query.trim();
     if (!normalizedQuery) {
       return [];
     }
 
-    const matchingContent = this.knowledgeGraphService.listAllContentNodes().flatMap((content) => {
-      const title = content.title ?? '';
-      if (!ensureContains(title, normalizedQuery) && !ensureContains(content.body, normalizedQuery)) {
-        return [];
-      }
-
-      return [
-        {
-          id: content.id,
-          topicId: content.topicId,
-          source: 'content' as const,
-          type: content.type,
-          title: content.title,
-          snippet: toSnippet(content.body),
-        },
-      ];
+    const documents = this.buildSearchDocuments();
+    const results = this.vectorSearchService.hybridSearch(normalizedQuery, documents, {
+      type: options.type,
+      subject: options.subject,
+      topic: options.topic,
+      limit: 30,
     });
 
-    const matchingNotes = [...this.notes.values()].flatMap((note) => {
-      if (!ensureContains(note.title, normalizedQuery) && !ensureContains(note.markdown, normalizedQuery)) {
-        return [];
-      }
+    return results.map((result) => ({
+      id: result.id,
+      topicId: result.topicId,
+      source: result.source,
+      type: result.type as ContentNodeType | 'note',
+      subject: result.subject,
+      topic: result.topic,
+      title: result.title,
+      snippet: toSnippet(result.highlight.replace(/<\/?mark>/g, '')),
+      score: result.score,
+    }));
+  }
 
-      return [
-        {
-          id: note.id,
-          topicId: note.topicId,
-          source: 'note' as const,
-          type: 'note' as const,
-          title: note.title,
-          snippet: toSnippet(note.markdown),
-        },
-      ];
+  getSearchContext(query: string): {
+    understanding: { intent: 'quiz' | 'search' | 'revise' | 'explain'; entities: string[] };
+    context: string;
+    sources: Array<{ id: string; source: 'content' | 'note'; type: string; title: string | null; topic: string; subject: string }>;
+  } {
+    const rag = this.ragService.assembleContext(query, this.buildSearchDocuments());
+    return {
+      understanding: rag.understanding,
+      context: rag.contextText,
+      sources: rag.sources.map((source) => ({
+        id: source.id,
+        source: source.source,
+        type: source.type,
+        title: source.title,
+        topic: source.topic,
+        subject: source.subject,
+      })),
+    };
+  }
+
+  getRelatedContent(topicId: string, limit = 5): SearchResult[] {
+    const topic = this.knowledgeGraphService.getTopic(topicId);
+    const query = topic.name;
+    return this.searchContent(query)
+      .filter((result) => result.topicId !== topicId)
+      .slice(0, limit);
+  }
+
+  private buildSearchDocuments(): VectorSearchDocument[] {
+    const topicsById = new Map(this.knowledgeGraphService.listAllTopics().map((topic) => [topic.id, topic]));
+    const subjectsById = new Map(this.knowledgeGraphService.listSubjects().map((subject) => [subject.id, subject]));
+    const contentNodes = this.knowledgeGraphService.listAllContentNodes();
+    this.embeddingService.generateEmbeddingsForAllContent(contentNodes);
+
+    const contentDocuments: VectorSearchDocument[] = contentNodes.map((content) => {
+      const topic = topicsById.get(content.topicId);
+      const subject = topic ? subjectsById.get(topic.subjectId) : null;
+      return {
+        id: content.id,
+        topicId: content.topicId,
+        source: 'content',
+        type: content.type,
+        title: content.title,
+        body: content.body,
+        topic: topic?.name ?? 'Unknown topic',
+        subject: subject?.name ?? 'Unknown subject',
+      };
     });
 
-    return [...matchingContent, ...matchingNotes];
+    const noteDocuments: VectorSearchDocument[] = [...this.notes.values()].map((note) => {
+      const topic = topicsById.get(note.topicId);
+      const subject = topic ? subjectsById.get(topic.subjectId) : null;
+      return {
+        id: note.id,
+        topicId: note.topicId,
+        source: 'note',
+        type: 'note',
+        title: note.title,
+        body: note.markdown,
+        topic: topic?.name ?? 'Unknown topic',
+        subject: subject?.name ?? 'Unknown subject',
+      };
+    });
+
+    return [...contentDocuments, ...noteDocuments];
   }
 }
 
