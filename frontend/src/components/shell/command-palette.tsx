@@ -12,6 +12,7 @@ const commandItems = [
   { id: 'mains-evaluation', label: 'Mains Evaluation', href: '/mains/evaluation' },
   { id: 'semantic-search', label: 'Semantic Search', href: '/search' },
   { id: 'strategy', label: 'Strategy Engine', href: '/strategy' },
+  { id: 'shortcuts', label: 'Keyboard Shortcuts Guide', href: '/shortcuts' },
   { id: 'second-brain', label: 'Second Brain', href: '/second-brain' },
   { id: 'admin-review', label: 'Admin Review', href: '/admin/review' },
   { id: 'topic-biology', label: 'Cell Biology Topic', href: '/topics/cell-biology' },
