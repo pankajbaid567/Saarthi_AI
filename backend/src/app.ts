@@ -13,6 +13,7 @@ import { createAuthRouter } from './routes/auth.routes.js';
 import { createChatRouter } from './routes/chat.routes.js';
 import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
+import { createPdfRouter } from './routes/pdf.routes.js';
 import type { AnalyticsService } from './services/analytics.service.js';
 import { createTestsRouter } from './routes/tests.routes.js';
 import { echoRequestSchema } from './schemas/echo.schema.js';
@@ -48,6 +49,7 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createAnalyticsRouter({ analyticsService: options.analyticsService }));
   app.use('/api/v1', createKnowledgeGraphRouter());
   app.use('/api/v1', createLearningRouter());
+  app.use('/api/v1', createPdfRouter());
   app.use('/api/v1', createTestsRouter());
   app.use('/api/v1', createChatRouter());
 
