@@ -12,7 +12,7 @@
 
 ### Week 1: Project Setup & Infrastructure
 
-- [ ] Initialize monorepo structure (backend + frontend)
+- [x] Initialize monorepo structure (backend + frontend)
 - [ ] Set up Node.js + Express + TypeScript backend
 - [ ] Set up Next.js + TypeScript frontend
 - [ ] Configure ESLint + Prettier for both
