@@ -69,4 +69,71 @@ export const testsApi = {
   getAnalytics: (id: string) => apiClient.get<TestAnalyticsResponse>(`/tests/${id}/analytics`),
 };
 
+export type MainsQuestion = {
+  id: string;
+  topicId: string;
+  topicName: string;
+  questionText: string;
+  marks: number;
+  wordLimit: number;
+  type: 'pyq' | 'coaching' | 'ai_generated';
+  evaluationRubric: {
+    keywords: string[];
+  };
+};
+
+export type MainsSubmissionResponse = {
+  submissionId: string;
+  overallScore: number;
+  maxScore: number;
+  breakdown: {
+    structure: { score: number; maxScore: number; feedback: string };
+    content: { score: number; maxScore: number; feedback: string; missingPoints: string[] };
+    keywords: { score: number; maxScore: number; present: string[]; missing: string[] };
+    presentation: { score: number; maxScore: number; feedback: string };
+  };
+  improvements: string[];
+  modelAnswer: string;
+  topperAnswer: string;
+  highlightedGaps: string[];
+};
+
+export type MainsSubmissionItem = {
+  id: string;
+  questionId: string;
+  topicId: string;
+  overallScore: number;
+  maxScore: number;
+  createdAt: string;
+};
+
+export type MainsSubmissionsListResponse = {
+  items: MainsSubmissionItem[];
+  improvementByTopic: Array<{ topicId: string; attempts: number; latestScore: number; improvement: number }>;
+};
+
+export type MainsSubmissionDetail = {
+  id: string;
+  questionId: string;
+  topicId: string;
+  answerText: string;
+  wordCount: number;
+  overallScore: number;
+  maxScore: number;
+  breakdown: MainsSubmissionResponse['breakdown'];
+  improvements: string[];
+  highlightedGaps: string[];
+  modelAnswer: string;
+  topperAnswer: string;
+  createdAt: string;
+};
+
+export const mainsApi = {
+  listQuestions: () => apiClient.get<{ items: MainsQuestion[] }>('/mains/questions'),
+  submitAnswer: (payload: { questionId: string; answerText: string; wordCount?: number }) =>
+    apiClient.post<MainsSubmissionResponse>('/mains/submit', payload),
+  listSubmissions: () => apiClient.get<MainsSubmissionsListResponse>('/mains/submissions'),
+  getSubmission: (id: string) => apiClient.get<MainsSubmissionDetail>(`/mains/submissions/${id}`),
+};
+
 export default apiClient;
