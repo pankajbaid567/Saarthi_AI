@@ -14,6 +14,8 @@ import { createChatRouter } from './routes/chat.routes.js';
 import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
 import { createPdfRouter } from './routes/pdf.routes.js';
+import { createSecondBrainRouter } from './routes/second-brain.routes.js';
+import { createStrategyRouter } from './routes/strategy.routes.js';
 import type { AnalyticsService } from './services/analytics.service.js';
 import { createTestsRouter } from './routes/tests.routes.js';
 import { echoRequestSchema } from './schemas/echo.schema.js';
@@ -52,6 +54,8 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createPdfRouter());
   app.use('/api/v1', createTestsRouter());
   app.use('/api/v1', createChatRouter());
+  app.use('/api/v1', createStrategyRouter());
+  app.use('/api/v1', createSecondBrainRouter());
 
   app.use((_req, _res, next) => {
     next(new AppError('Route not found', 404));

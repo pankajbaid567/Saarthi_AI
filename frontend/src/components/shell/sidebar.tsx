@@ -45,6 +45,12 @@ export function Sidebar() {
         <Link href="/chat" className="block rounded px-2 py-1.5 hover:bg-muted">
           Quiz Chat
         </Link>
+        <Link href="/strategy" className="block rounded px-2 py-1.5 hover:bg-muted">
+          Strategy
+        </Link>
+        <Link href="/second-brain" className="block rounded px-2 py-1.5 hover:bg-muted">
+          Second Brain
+        </Link>
         <Link href="/admin/review" className="block rounded px-2 py-1.5 hover:bg-muted">
           Admin Review
         </Link>
