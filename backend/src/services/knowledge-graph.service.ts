@@ -23,7 +23,7 @@ export type Topic = {
   updatedAt: Date;
 };
 
-export type ContentNodeType = 'concept' | 'fact' | 'highlight' | 'micro_note';
+export type ContentNodeType = 'concept' | 'fact' | 'highlight' | 'micro_note' | 'pyq';
 
 export type ContentNode = {
   id: string;
@@ -331,6 +331,18 @@ export class KnowledgeGraphService {
     return [...this.contentNodes.values()]
       .filter((content) => content.topicId === topicId)
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  }
+
+  listAllTopics(): Topic[] {
+    return [...this.topics.values()];
+  }
+
+  listAllContentNodes(): ContentNode[] {
+    return [...this.contentNodes.values()];
+  }
+
+  getContentNodeById(id: string): ContentNode {
+    return this.getContentNode(id);
   }
 
   createContentNode(input: CreateContentNodeInput): ContentNode {
