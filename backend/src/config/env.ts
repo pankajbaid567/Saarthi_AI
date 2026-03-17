@@ -31,4 +31,12 @@ export const env = {
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
   googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL ?? '',
+  pdfMaxFileSizeBytes: Number(process.env.PDF_MAX_FILE_SIZE_BYTES ?? 524288000),
+  s3BucketName: process.env.S3_BUCKET_NAME ?? '',
+  s3Region: process.env.S3_REGION ?? 'auto',
+  s3Endpoint: process.env.S3_ENDPOINT ?? '',
+  s3AccessKeyId: process.env.S3_ACCESS_KEY_ID ?? '',
+  s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? '',
+  pdfQueueAttempts: Number(process.env.PDF_QUEUE_ATTEMPTS ?? 3),
+  pdfQueueBackoffMs: Number(process.env.PDF_QUEUE_BACKOFF_MS ?? 1000),
 };
