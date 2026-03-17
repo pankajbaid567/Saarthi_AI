@@ -27,6 +27,7 @@ export const authApi = {
 export const knowledgeApi = {
   getSubjects: () => apiClient.get('/knowledge-graph/subjects'),
   getSubject: (id: string) => apiClient.get(`/knowledge-graph/subjects/${id}`),
+  getSubjectTopics: (id: string) => apiClient.get(`/knowledge-graph/subjects/${id}/topics`),
   getTopic: (id: string) => apiClient.get(`/knowledge-graph/topics/${id}`),
 };
 
@@ -67,6 +68,230 @@ export type TestAnalyticsResponse = {
 
 export const testsApi = {
   getAnalytics: (id: string) => apiClient.get<TestAnalyticsResponse>(`/tests/${id}/analytics`),
+};
+
+export type MainsGateStatus = {
+  date: string;
+  requiredMcqs: number;
+  attemptedMcqs: number;
+  isUnlocked: boolean;
+  overrideApplied: boolean;
+};
+
+export type MainsDailyQuestionResponse = {
+  gateStatus: MainsGateStatus;
+  question: { id: string; prompt: string; focusAreas: string[] } | null;
+};
+
+export const mainsApi = {
+  getGateStatus: () => apiClient.get<MainsGateStatus>('/mains/daily/gate-status'),
+  getDailyQuestion: () => apiClient.get<MainsDailyQuestionResponse>('/mains/daily/question'),
+  submit: (answer: string) => apiClient.post('/mains/daily/submit', { answer }),
+};
+
+export const essaysApi = {
+  getWeeklyQuestion: () => apiClient.get<{ id: string; week: string; prompt: string; sourceTopics: string[] }>('/essays/weekly/question'),
+  submitWeeklyEssay: (answer: string) => apiClient.post('/essays/weekly/submit', { answer }),
+  getSubmissions: () => apiClient.get('/essays/submissions'),
+};
+
+export const practiceApi = {
+  getFeedbackLoop: () => apiClient.get('/practice/feedback-loop'),
+  getNonRepetitionStats: () => apiClient.get('/practice/non-repetition/stats'),
+export type RevisionPrediction = {
+  topicId: string;
+  topicName: string;
+  currentRetention: number;
+  predictedRetentionIn7Days: number;
+  decayRate: number;
+  recommendation: string;
+  alert: 'high' | 'moderate';
+};
+
+export type FlashcardItem = {
+  id: string;
+  topicId: string;
+  front: string;
+  back: string;
+  source: 'auto' | 'manual';
+  nextReviewAt: string;
+  lastRating: 'easy' | 'good' | 'hard' | 'forgot' | null;
+};
+
+export type ActiveRecallQuestion = {
+  id: string;
+  topicId: string;
+  type: 'concept_recall' | 'comparison' | 'factual' | 'application';
+  questionText: string;
+  expectedAnswer: string;
+};
+
+export const revisionApi = {
+  getPredictions: () =>
+    apiClient.get<{
+      success: boolean;
+      data: {
+        predictedToForget: RevisionPrediction[];
+        alerts: Array<{ topicId: string; topicName: string; message: string; severity: 'high' | 'moderate' }>;
+      };
+    }>('/revision/predictions'),
+  getStreaks: () =>
+    apiClient.get<{
+      success: boolean;
+      data: {
+        current: number;
+        longest: number;
+        lastRevisionDate: string | null;
+        graceDaysRemaining: number;
+        history: string[];
+      };
+    }>('/revision/streaks'),
+  getFlashcards: (params?: { due?: boolean; limit?: number }) =>
+    apiClient.get<{ success: boolean; data: FlashcardItem[] }>('/revision/flashcards', {
+      params,
+    }),
+  startSprint: (payload: { durationMinutes: 15 | 30 | 45; crashMode?: boolean; daysRemaining?: number }) =>
+    apiClient.post<{
+      success: boolean;
+      data: { sprintId: string; dailyTargetTopics: number | null; totalTopics: number; topics: Array<{ topicName: string }> };
+    }>('/revision/sprint/start', payload),
+  startActiveRecall: (payload: { topicIds: string[]; questionCount: number }) =>
+    apiClient.post<{
+      success: boolean;
+      data: { sessionId: string; questions: ActiveRecallQuestion[]; totalQuestions: number };
+    }>('/revision/active-recall/start', payload),
+  submitActiveRecallAnswer: (
+    sessionId: string,
+    payload: { questionId: string; userAnswer: string; confidenceLevel?: number },
+  ) =>
+    apiClient.post<{ success: boolean; data: { questionId: string; score: number } }>(
+      `/revision/active-recall/${sessionId}/answer`,
+      payload,
+    ),
+export type MainsQuestion = {
+  id: string;
+  topicId: string;
+  topicName: string;
+  questionText: string;
+  marks: number;
+  wordLimit: number;
+  type: 'pyq' | 'coaching' | 'ai_generated';
+  evaluationRubric: {
+    keywords: string[];
+  };
+};
+
+export type MainsSubmissionResponse = {
+  submissionId: string;
+  overallScore: number;
+  maxScore: number;
+  breakdown: {
+    structure: { score: number; maxScore: number; feedback: string };
+    content: { score: number; maxScore: number; feedback: string; missingPoints: string[] };
+    keywords: { score: number; maxScore: number; present: string[]; missing: string[] };
+    presentation: { score: number; maxScore: number; feedback: string };
+  };
+  improvements: string[];
+  modelAnswer: string;
+  topperAnswer: string;
+  highlightedGaps: string[];
+};
+
+export type MainsSubmissionItem = {
+  id: string;
+  questionId: string;
+  topicId: string;
+  overallScore: number;
+  maxScore: number;
+  createdAt: string;
+};
+
+export type MainsSubmissionsListResponse = {
+  items: MainsSubmissionItem[];
+  improvementByTopic: Array<{ topicId: string; attempts: number; latestScore: number; improvement: number }>;
+};
+
+export type MainsSubmissionDetail = {
+  id: string;
+  questionId: string;
+  topicId: string;
+  answerText: string;
+  wordCount: number;
+  overallScore: number;
+  maxScore: number;
+  breakdown: MainsSubmissionResponse['breakdown'];
+  improvements: string[];
+  highlightedGaps: string[];
+  modelAnswer: string;
+  topperAnswer: string;
+  createdAt: string;
+};
+
+export const mainsApi = {
+  listQuestions: () => apiClient.get<{ items: MainsQuestion[] }>('/mains/questions'),
+  submitAnswer: (payload: { questionId: string; answerText: string; wordCount?: number }) =>
+    apiClient.post<MainsSubmissionResponse>('/mains/submit', payload),
+  listSubmissions: () => apiClient.get<MainsSubmissionsListResponse>('/mains/submissions'),
+  getSubmission: (id: string) => apiClient.get<MainsSubmissionDetail>(`/mains/submissions/${id}`),
+  type: 'gs' | 'essay' | 'ethics' | 'optional';
+  source: 'pyq' | 'coaching' | 'ai_generated';
+  marks: number;
+  questionText: string;
+  modelAnswer: string | null;
+  suggestedWordLimit: number;
+  year: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MainsQuestionsListResponse = {
+  items: MainsQuestion[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export type MainsQuestionFilters = {
+  topicId?: string;
+  type?: MainsQuestion['type'];
+  source?: MainsQuestion['source'];
+  marks?: number;
+  search?: string;
+  limit?: number;
+  offset?: number;
+};
+
+export const mainsApi = {
+  listQuestions: (filters: MainsQuestionFilters = {}) =>
+    apiClient.get<MainsQuestionsListResponse>('/mains/questions', { params: filters }),
+  getQuestion: (id: string) => apiClient.get<MainsQuestion>(`/mains/questions/${id}`),
+export type AutoLinkReviewItem = {
+  id: string;
+  type: 'mcq' | 'concept' | 'fact' | 'mains_question';
+  text: string;
+  status: 'pending' | 'approved' | 'rejected' | 'merged';
+  topicSuggestion: {
+    topicId: string | null;
+    confidence: number;
+    method: 'keyword' | 'semantic' | 'llm';
+    newTopicSuggestion: string | null;
+  };
+  smartHighlights: string[];
+  microNote: string | null;
+  difficulty: 'easy' | 'medium' | 'hard' | null;
+};
+
+export const week11Api = {
+  autoLink: (payload: {
+    mcqs?: Array<{ question: string; options: string[]; explanation?: string }>;
+    concepts?: Array<{ text: string }>;
+    facts?: Array<{ text: string }>;
+    mainsQuestions?: Array<{ question: string; marks?: number; modelAnswer?: string }>;
+  }) => apiClient.post<AutoLinkReviewItem[]>('/content/auto-link', payload),
+  listReviewItems: () => apiClient.get<AutoLinkReviewItem[]>('/admin/review/content'),
+  approveReviewItem: (id: string, payload: { topicId?: string; editedText?: string }) =>
+    apiClient.post<AutoLinkReviewItem>(`/admin/review/content/${id}/approve`, payload),
+  rejectReviewItem: (id: string) => apiClient.post<AutoLinkReviewItem>(`/admin/review/content/${id}/reject`, {}),
 };
 
 export default apiClient;

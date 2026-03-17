@@ -52,6 +52,11 @@ describe('learning routes', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ subjectId: subjectResponse.body.id, name: 'Monsoon' });
     expect(topicResponse.status).toBe(201);
+    const relatedTopicResponse = await request(app)
+      .post('/api/v1/topics')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ subjectId: subjectResponse.body.id, name: 'Climate Dynamics' });
+    expect(relatedTopicResponse.status).toBe(201);
 
     await request(app)
       .post('/api/v1/content')
@@ -91,6 +96,16 @@ describe('learning routes', () => {
         type: 'micro_note',
         title: 'Micro',
         body: 'SW monsoon + NE monsoon',
+      });
+
+    await request(app)
+      .post('/api/v1/content')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        topicId: relatedTopicResponse.body.id,
+        type: 'fact',
+        title: 'Monsoon circulation',
+        body: 'Monsoon wind reversal is governed by seasonal pressure shifts.',
       });
 
     const notes = await request(app).get(`/api/v1/topics/${topicResponse.body.id}/notes`);
@@ -154,9 +169,19 @@ describe('learning routes', () => {
     expect(bookmarkList.status).toBe(200);
     expect(bookmarkList.body).toHaveLength(1);
 
-    const search = await request(app).get('/api/v1/content/search').query({ q: 'Monsoon' });
+    const search = await request(app).get('/api/v1/content/search').query({
+      q: 'Monsoon',
+      type: 'pyq',
+      subject: 'Geography',
+      includeContext: true,
+    });
     expect(search.status).toBe(200);
-    expect(search.body.length).toBeGreaterThan(0);
+    expect(search.body.results.length).toBeGreaterThan(0);
+    expect(search.body.rag.sources.length).toBeGreaterThan(0);
+
+    const relatedContent = await request(app).get(`/api/v1/topics/${topicResponse.body.id}/related-content`);
+    expect(relatedContent.status).toBe(200);
+    expect(Array.isArray(relatedContent.body)).toBe(true);
 
     const deleteHighlight = await request(app)
       .delete(`/api/v1/user/highlights/${userHighlight.body.id}`)

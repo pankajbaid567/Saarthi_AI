@@ -11,10 +11,15 @@ import { validateRequest } from './middleware/request-validation.js';
 import { createAnalyticsRouter } from './routes/analytics.routes.js';
 import { createAuthRouter } from './routes/auth.routes.js';
 import { createChatRouter } from './routes/chat.routes.js';
+import { createEssaysRouter } from './routes/essays.routes.js';
 import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
 import { createPerformanceRouter } from './routes/performance.routes.js';
+import { createMainsRouter } from './routes/mains.routes.js';
 import { createPdfRouter } from './routes/pdf.routes.js';
+import { createPracticeRouter } from './routes/practice.routes.js';
+import { createSyllabusFlowRouter } from './routes/syllabus-flow.routes.js';
+import { createRevisionRouter } from './routes/revision.routes.js';
 import type { AnalyticsService } from './services/analytics.service.js';
 import type { PerformanceService } from './services/performance.service.js';
 import { createTestsRouter } from './routes/tests.routes.js';
@@ -53,8 +58,15 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createKnowledgeGraphRouter());
   app.use('/api/v1', createLearningRouter());
   app.use('/api/v1', createPerformanceRouter({ performanceService: options.performanceService }));
+  app.use('/api/v1', createRevisionRouter());
+  app.use('/api/v1', createMainsRouter());
   app.use('/api/v1', createPdfRouter());
   app.use('/api/v1', createTestsRouter());
+  app.use('/api/v1', createMainsRouter());
+  app.use('/api/v1', createEssaysRouter());
+  app.use('/api/v1', createPracticeRouter());
+  app.use('/api/v1', createSyllabusFlowRouter());
+  app.use('/api/v1', createMainsRouter());
   app.use('/api/v1', createChatRouter());
 
   app.use((_req, _res, next) => {
