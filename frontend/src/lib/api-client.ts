@@ -30,4 +30,43 @@ export const knowledgeApi = {
   getTopic: (id: string) => apiClient.get(`/knowledge-graph/topics/${id}`),
 };
 
+
+
+export type TestAnalyticsResponse = {
+  testId: string;
+  overall: {
+    totalQuestions: number;
+    attemptedQuestions: number;
+    correctAnswers: number;
+    incorrectAnswers: number;
+    skippedAnswers: number;
+    accuracy: number;
+  };
+  accuracyByTopic: Array<{ subject: string; topic: string; correct: number; total: number; accuracy: number }>;
+  timeAnalysis: {
+    averageSeconds: number;
+    medianSeconds: number;
+    distribution: Array<{ label: string; count: number }>;
+    questionTimes: Array<{ questionId: string; timeSpentSeconds: number }>;
+  };
+  sillyMistakes: Array<{ questionId: string; subject: string; topic: string; changedFromCorrectToWrong: boolean }>;
+  guessingPatterns: {
+    fastAnswerThresholdSeconds: number;
+    veryFastAnswers: number;
+    veryFastIncorrectAnswers: number;
+    randomGuessingLikely: boolean;
+  };
+  conceptGaps: Array<{ subject: string; topic: string; wrongCount: number; total: number; accuracy: number }>;
+  ai: {
+    weaknessAnalysisPrompt: string;
+    insights: string;
+    weakAreas: string[];
+    suggestedNextSteps: string[];
+  };
+};
+
+export const testsApi = {
+  getAnalytics: (id: string) => apiClient.get<TestAnalyticsResponse>(`/tests/${id}/analytics`),
+};
+
 export default apiClient;

@@ -8,6 +8,7 @@ import { errorHandler } from './middleware/error-handler.js';
 import { authRateLimiter } from './middleware/rate-limit.middleware.js';
 import { requireRole } from './middleware/rbac.middleware.js';
 import { validateRequest } from './middleware/request-validation.js';
+import { createAnalyticsRouter } from './routes/analytics.routes.js';
 import { createAuthRouter } from './routes/auth.routes.js';
 import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
@@ -37,6 +38,7 @@ export const createApp = () => {
   });
 
   app.use('/api/v1/auth', createAuthRouter());
+  app.use('/api/v1', createAnalyticsRouter());
   app.use('/api/v1', createKnowledgeGraphRouter());
   app.use('/api/v1', createLearningRouter());
 
