@@ -117,7 +117,7 @@ export default function DashboardPage() {
             {loading ? 'Loading...' : 'Load revision data'}
           </Button>
           <Button variant={crashMode ? 'default' : 'outline'} onClick={() => setCrashMode((value) => !value)}>
-            Last 30 Days crash mode: {crashMode ? 'On' : 'Off'}
+            Last 30 days crash mode: {crashMode ? 'On' : 'Off'}
           </Button>
           {crashMode ? (
             <Input

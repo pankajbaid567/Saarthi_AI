@@ -90,6 +90,8 @@ const addDays = (value: Date, days: number): Date => {
 };
 
 const dayKey = (value: Date): string => value.toISOString().slice(0, 10);
+const streakGraceDays = 1;
+const recallBaselineScore = 45;
 
 const compareDayKey = (first: string, second: string): number => {
   if (first < second) {
@@ -285,8 +287,7 @@ export class RevisionService {
     const scored = results.filter((result) => result.score !== null).map((result) => result.score as number);
     const answeredQuestions = scored.length;
     const averageScore = answeredQuestions === 0 ? 0 : Number((scored.reduce((sum, score) => sum + score, 0) / answeredQuestions).toFixed(2));
-    const baseline = 45;
-    const recallDelta = Number((averageScore - baseline).toFixed(2));
+    const recallDelta = Number((averageScore - recallBaselineScore).toFixed(2));
 
     if (answeredQuestions === results.length && session.completedAt === null) {
       session.completedAt = new Date();
@@ -508,7 +509,7 @@ export class RevisionService {
       .map((topic) => {
         const currentRetention = retentionFromTopic(topic.id);
         const decayRate = currentRetention < 40 ? 0.8 : currentRetention < 60 ? 0.65 : 0.45;
-        const predictedRetentionIn7Days = Math.max(0, Math.round(currentRetention - decayRate * 30));
+        const predictedRetentionIn7Days = Math.max(0, Math.round(currentRetention - decayRate * 7));
         const alert = predictedRetentionIn7Days < 35 ? ('high' as const) : ('moderate' as const);
         return {
           topicId: topic.id,
@@ -566,7 +567,7 @@ export class RevisionService {
     const lastDate = new Date(`${lastDay}T00:00:00.000Z`);
     const todayDate = new Date(`${currentDay}T00:00:00.000Z`);
     const gapDays = Math.floor((todayDate.getTime() - lastDate.getTime()) / 86_400_000);
-    const graceDaysRemaining = gapDays <= 1 ? 1 - gapDays : 0;
+    const graceDaysRemaining = gapDays <= streakGraceDays ? 1 : 0;
 
     let longest = 1;
     let running = 1;
@@ -574,7 +575,7 @@ export class RevisionService {
       const previous = new Date(`${activity[index - 1]}T00:00:00.000Z`);
       const current = new Date(`${activity[index]}T00:00:00.000Z`);
       const delta = Math.floor((current.getTime() - previous.getTime()) / 86_400_000);
-      if (delta <= 2) {
+      if (delta <= streakGraceDays + 1) {
         running += 1;
       } else {
         longest = Math.max(longest, running);
@@ -588,7 +589,7 @@ export class RevisionService {
       const date = new Date(`${activity[index]}T00:00:00.000Z`);
       const previous = new Date(`${activity[index - 1]}T00:00:00.000Z`);
       const delta = Math.floor((date.getTime() - previous.getTime()) / 86_400_000);
-      if (delta <= 2) {
+      if (delta <= streakGraceDays + 1) {
         current += 1;
       } else {
         break;
