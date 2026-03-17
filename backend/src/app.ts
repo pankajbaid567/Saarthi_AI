@@ -15,13 +15,23 @@ import { createCurrentAffairsRouter } from './routes/current-affairs.routes.js';
 import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
 import { createPerformanceRouter } from './routes/performance.routes.js';
+import { createEssaysRouter } from './routes/essays.routes.js';
+import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
+import { createLearningRouter } from './routes/learning.routes.js';
+import { createPerformanceRouter } from './routes/performance.routes.js';
+import { createMainsRouter } from './routes/mains.routes.js';
 import { createPdfRouter } from './routes/pdf.routes.js';
+import { createPracticeRouter } from './routes/practice.routes.js';
+import { createSyllabusFlowRouter } from './routes/syllabus-flow.routes.js';
+import { createRevisionRouter } from './routes/revision.routes.js';
 import type { AnalyticsService } from './services/analytics.service.js';
+import type { PerformanceService } from './services/performance.service.js';
 import { createTestsRouter } from './routes/tests.routes.js';
 import { echoRequestSchema } from './schemas/echo.schema.js';
 
 type CreateAppOptions = {
   analyticsService?: AnalyticsService;
+  performanceService?: PerformanceService;
 };
 
 export const createApp = (options: CreateAppOptions = {}) => {
@@ -52,9 +62,17 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createKnowledgeGraphRouter());
   app.use('/api/v1', createLearningRouter());
   app.use('/api/v1', createPerformanceRouter());
+  app.use('/api/v1', createPerformanceRouter({ performanceService: options.performanceService }));
+  app.use('/api/v1', createRevisionRouter());
+  app.use('/api/v1', createMainsRouter());
   app.use('/api/v1', createPdfRouter());
   app.use('/api/v1', createCurrentAffairsRouter());
   app.use('/api/v1', createTestsRouter());
+  app.use('/api/v1', createMainsRouter());
+  app.use('/api/v1', createEssaysRouter());
+  app.use('/api/v1', createPracticeRouter());
+  app.use('/api/v1', createSyllabusFlowRouter());
+  app.use('/api/v1', createMainsRouter());
   app.use('/api/v1', createChatRouter());
 
   app.use((_req, _res, next) => {
