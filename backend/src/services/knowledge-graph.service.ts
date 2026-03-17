@@ -35,6 +35,33 @@ export type ContentNode = {
   updatedAt: Date;
 };
 
+export type ExtractedContentType = 'mcq' | 'concept' | 'fact' | 'mains_question';
+
+export type TopicMatchMethod = 'keyword' | 'semantic' | 'llm';
+
+export type AutoLinkReviewStatus = 'pending' | 'approved' | 'rejected' | 'merged';
+
+export type AutoLinkReviewItem = {
+  id: string;
+  type: ExtractedContentType;
+  text: string;
+  topicSuggestion: {
+    topicId: string | null;
+    confidence: number;
+    method: TopicMatchMethod;
+    newTopicSuggestion: string | null;
+  };
+  status: AutoLinkReviewStatus;
+  linkedTopicId: string | null;
+  editedText: string | null;
+  smartHighlights: string[];
+  microNote: string | null;
+  difficulty: 'easy' | 'medium' | 'hard' | null;
+  mergedIntoId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 type CreateSubjectInput = {
   name: string;
   slug?: string;
@@ -63,6 +90,81 @@ type CreateContentNodeInput = {
 };
 
 type UpdateContentNodeInput = Partial<CreateContentNodeInput>;
+
+type ExtractedMcqInput = {
+  question: string;
+  options: string[];
+  explanation?: string;
+};
+
+type ExtractedTextContentInput = {
+  text: string;
+};
+
+type ExtractedMainsQuestionInput = {
+  question: string;
+  marks?: number;
+  modelAnswer?: string;
+};
+
+type AutoLinkInput = {
+  mcqs?: ExtractedMcqInput[];
+  concepts?: ExtractedTextContentInput[];
+  facts?: ExtractedTextContentInput[];
+  mainsQuestions?: ExtractedMainsQuestionInput[];
+};
+
+type ApproveAutoLinkInput = {
+  topicId?: string;
+  editedText?: string;
+};
+
+const STOP_WORDS = new Set([
+  'the',
+  'and',
+  'for',
+  'with',
+  'this',
+  'that',
+  'from',
+  'into',
+  'are',
+  'was',
+  'were',
+  'have',
+  'has',
+  'had',
+  'will',
+  'shall',
+  'their',
+  'there',
+  'about',
+  'what',
+  'which',
+  'when',
+  'where',
+  'who',
+  'whom',
+  'your',
+  'you',
+  'why',
+  'how',
+  'can',
+  'could',
+  'would',
+  'should',
+]);
+
+const MIN_TOKEN_LENGTH = 2;
+const TOPIC_MATCH_CONFIDENCE_THRESHOLD = 0.2;
+const LLM_KEYWORD_WEIGHT = 0.6;
+const LLM_SEMANTIC_WEIGHT = 0.4;
+const LLM_PHRASE_BOOST = 0.15;
+const MIN_HIGHLIGHT_LENGTH = 15;
+const MAX_HIGHLIGHTS = 3;
+const MAX_MICRO_NOTE_WORDS = 16;
+const EASY_DIFFICULTY_THRESHOLD = 25;
+const MEDIUM_DIFFICULTY_THRESHOLD = 45;
 
 const toSlug = (value: string): string => {
   return value
@@ -95,6 +197,8 @@ export class KnowledgeGraphService {
   private readonly topics = new Map<string, Topic>();
 
   private readonly contentNodes = new Map<string, ContentNode>();
+
+  private readonly autoLinkReviewItems = new Map<string, AutoLinkReviewItem>();
 
   constructor(options: KnowledgeGraphServiceOptions = {}) {
     const shouldSeed = options.seedData ?? true;
@@ -388,6 +492,106 @@ export class KnowledgeGraphService {
     this.contentNodes.delete(id);
   }
 
+  autoLinkExtractedContent(input: AutoLinkInput): AutoLinkReviewItem[] {
+    const created: AutoLinkReviewItem[] = [];
+
+    input.mcqs?.forEach((mcq) => {
+      const text = `${mcq.question}\n${mcq.options.join('\n')}\n${mcq.explanation ?? ''}`.trim();
+      created.push(this.createAutoLinkReviewItem('mcq', text));
+    });
+
+    input.concepts?.forEach((concept) => {
+      created.push(this.createAutoLinkReviewItem('concept', concept.text));
+    });
+
+    input.facts?.forEach((fact) => {
+      created.push(this.createAutoLinkReviewItem('fact', fact.text));
+    });
+
+    input.mainsQuestions?.forEach((question) => {
+      const text = `${question.question}${question.marks ? ` (${question.marks} marks)` : ''}${
+        question.modelAnswer ? `\n${question.modelAnswer}` : ''
+      }`;
+      created.push(this.createAutoLinkReviewItem('mains_question', text));
+    });
+
+    return created;
+  }
+
+  listAutoLinkReviewItems(status?: AutoLinkReviewStatus): AutoLinkReviewItem[] {
+    return [...this.autoLinkReviewItems.values()]
+      .filter((item) => (status ? item.status === status : true))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  approveAutoLinkReviewItem(id: string, input: ApproveAutoLinkInput = {}): AutoLinkReviewItem {
+    const current = this.getAutoLinkReviewItem(id);
+    const linkedTopicId = input.topicId ?? current.topicSuggestion.topicId;
+
+    if (!linkedTopicId) {
+      throw new AppError('Topic is required to approve the link', 400);
+    }
+
+    this.getTopic(linkedTopicId);
+
+    const approved: AutoLinkReviewItem = {
+      ...current,
+      status: 'approved',
+      linkedTopicId,
+      editedText: input.editedText ?? current.editedText,
+      updatedAt: new Date(),
+    };
+
+    this.autoLinkReviewItems.set(id, approved);
+    return approved;
+  }
+
+  rejectAutoLinkReviewItem(id: string): AutoLinkReviewItem {
+    const current = this.getAutoLinkReviewItem(id);
+    const rejected: AutoLinkReviewItem = {
+      ...current,
+      status: 'rejected',
+      linkedTopicId: null,
+      updatedAt: new Date(),
+    };
+    this.autoLinkReviewItems.set(id, rejected);
+    return rejected;
+  }
+
+  mergeAutoLinkReviewItems(primaryId: string, duplicateId: string): AutoLinkReviewItem {
+    if (primaryId === duplicateId) {
+      throw new AppError('Primary and duplicate items must be different', 400);
+    }
+
+    const primary = this.getAutoLinkReviewItem(primaryId);
+    const duplicate = this.getAutoLinkReviewItem(duplicateId);
+
+    if (primary.status === 'merged' || duplicate.status === 'merged') {
+      throw new AppError('Merged items cannot be merged again', 400);
+    }
+
+    const mergedDuplicate: AutoLinkReviewItem = {
+      ...duplicate,
+      status: 'merged',
+      mergedIntoId: primary.id,
+      updatedAt: new Date(),
+    };
+    this.autoLinkReviewItems.set(duplicateId, mergedDuplicate);
+
+    return mergedDuplicate;
+  }
+
+  createTopicFromSuggestion(reviewItemId: string, subjectId: string, name?: string): Topic {
+    this.getSubject(subjectId);
+    const reviewItem = this.getAutoLinkReviewItem(reviewItemId);
+    const fallbackName = this.suggestNewTopicName(reviewItem.text);
+    const topicName = name ?? reviewItem.topicSuggestion.newTopicSuggestion ?? fallbackName;
+    return this.createTopic({
+      subjectId,
+      name: topicName,
+    });
+  }
+
   private getContentNode(id: string): ContentNode {
     const contentNode = this.contentNodes.get(id);
 
@@ -396,6 +600,197 @@ export class KnowledgeGraphService {
     }
 
     return contentNode;
+  }
+
+  private createAutoLinkReviewItem(type: ExtractedContentType, text: string): AutoLinkReviewItem {
+    const match = this.matchTopic(text);
+    const now = new Date();
+    const item: AutoLinkReviewItem = {
+      id: randomUUID(),
+      type,
+      text,
+      topicSuggestion: {
+        topicId: match.topicId,
+        confidence: match.confidence,
+        method: match.method,
+        newTopicSuggestion: match.newTopicSuggestion,
+      },
+      status: 'pending',
+      linkedTopicId: null,
+      editedText: null,
+      smartHighlights: this.generateSmartHighlights(text),
+      microNote: type === 'concept' ? this.generateMicroNote(text) : null,
+      difficulty: type === 'mcq' ? this.tagMcqDifficulty(text) : null,
+      mergedIntoId: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.autoLinkReviewItems.set(item.id, item);
+    return item;
+  }
+
+  private matchTopic(
+    text: string,
+  ): { topicId: string | null; confidence: number; method: TopicMatchMethod; newTopicSuggestion: string | null } {
+    const topics = this.listAllTopics();
+
+    if (topics.length === 0) {
+      return {
+        topicId: null,
+        confidence: 0,
+        method: 'keyword',
+        newTopicSuggestion: this.suggestNewTopicName(text),
+      };
+    }
+
+    let best: { topicId: string | null; confidence: number; method: TopicMatchMethod } = {
+      topicId: null,
+      confidence: 0,
+      method: 'keyword',
+    };
+
+    topics.forEach((topic) => {
+      const topicText = `${topic.name} ${topic.description ?? ''}`;
+      const keywordScore = this.keywordSimilarity(text, topicText);
+      const semanticScore = this.semanticSimilarity(text, topicText);
+      const llmScore = this.llmStyleClassificationScore(text, topicText);
+      const candidateScores: Array<{ score: number; method: TopicMatchMethod }> = [
+        { score: keywordScore, method: 'keyword' },
+        { score: semanticScore, method: 'semantic' },
+        { score: llmScore, method: 'llm' },
+      ];
+      const bestCandidate = candidateScores.sort((a, b) => b.score - a.score)[0];
+
+      if (bestCandidate && bestCandidate.score > best.confidence) {
+        best = {
+          topicId: topic.id,
+          confidence: Number(bestCandidate.score.toFixed(2)),
+          method: bestCandidate.method,
+        };
+      }
+    });
+
+    if (best.confidence < TOPIC_MATCH_CONFIDENCE_THRESHOLD) {
+      return {
+        topicId: null,
+        confidence: best.confidence,
+        method: best.method,
+        newTopicSuggestion: this.suggestNewTopicName(text),
+      };
+    }
+
+    return {
+      topicId: best.topicId,
+      confidence: best.confidence,
+      method: best.method,
+      newTopicSuggestion: null,
+    };
+  }
+
+  private tokenize(value: string): string[] {
+    return value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter((token) => token.length > MIN_TOKEN_LENGTH && !STOP_WORDS.has(token));
+  }
+
+  private keywordSimilarity(left: string, right: string): number {
+    const leftTokens = new Set(this.tokenize(left));
+    const rightTokens = new Set(this.tokenize(right));
+    if (leftTokens.size === 0 || rightTokens.size === 0) {
+      return 0;
+    }
+
+    const overlapCount = [...leftTokens].filter((token) => rightTokens.has(token)).length;
+    return overlapCount / Math.max(leftTokens.size, rightTokens.size);
+  }
+
+  private semanticSimilarity(left: string, right: string): number {
+    const leftTokens = this.tokenize(left);
+    const rightTokens = this.tokenize(right);
+    if (leftTokens.length === 0 || rightTokens.length === 0) {
+      return 0;
+    }
+
+    const leftCounts = new Map<string, number>();
+    const rightCounts = new Map<string, number>();
+    leftTokens.forEach((token) => leftCounts.set(token, (leftCounts.get(token) ?? 0) + 1));
+    rightTokens.forEach((token) => rightCounts.set(token, (rightCounts.get(token) ?? 0) + 1));
+
+    const terms = new Set([...leftCounts.keys(), ...rightCounts.keys()]);
+    let dot = 0;
+    let leftMagnitude = 0;
+    let rightMagnitude = 0;
+
+    terms.forEach((term) => {
+      const leftValue = leftCounts.get(term) ?? 0;
+      const rightValue = rightCounts.get(term) ?? 0;
+      dot += leftValue * rightValue;
+      leftMagnitude += leftValue * leftValue;
+      rightMagnitude += rightValue * rightValue;
+    });
+
+    if (leftMagnitude === 0 || rightMagnitude === 0) {
+      return 0;
+    }
+
+    return dot / (Math.sqrt(leftMagnitude) * Math.sqrt(rightMagnitude));
+  }
+
+  private llmStyleClassificationScore(content: string, topicText: string): number {
+    const loweredContent = content.toLowerCase();
+    const loweredTopic = topicText.toLowerCase();
+    const topicFirstToken = loweredTopic.trim().split(/\s+/)[0];
+    const phraseBoost = topicFirstToken && loweredContent.includes(topicFirstToken) ? LLM_PHRASE_BOOST : 0;
+    return Math.min(
+      1,
+      this.keywordSimilarity(content, topicText) * LLM_KEYWORD_WEIGHT +
+        this.semanticSimilarity(content, topicText) * LLM_SEMANTIC_WEIGHT +
+        phraseBoost,
+    );
+  }
+
+  private suggestNewTopicName(text: string): string {
+    const tokens = this.tokenize(text).slice(0, 3);
+    if (tokens.length === 0) {
+      return 'New Topic';
+    }
+    return tokens.map((token) => token.charAt(0).toUpperCase() + token.slice(1)).join(' ');
+  }
+
+  private generateSmartHighlights(text: string): string[] {
+    return text
+      .split(/[.!?]\s+/)
+      .map((segment) => segment.trim())
+      .filter((segment) => segment.length > MIN_HIGHLIGHT_LENGTH)
+      .slice(0, MAX_HIGHLIGHTS);
+  }
+
+  private generateMicroNote(text: string): string {
+    const tokens = text.trim().split(/\s+/).filter((token) => token.length > 0);
+    const words = tokens.slice(0, MAX_MICRO_NOTE_WORDS).join(' ');
+    return words.length > 0 ? `${words}${tokens.length > MAX_MICRO_NOTE_WORDS ? '…' : ''}` : 'Quick concept recap';
+  }
+
+  private tagMcqDifficulty(text: string): 'easy' | 'medium' | 'hard' {
+    const length = text.split(/\s+/).length;
+    if (length <= EASY_DIFFICULTY_THRESHOLD) {
+      return 'easy';
+    }
+    if (length <= MEDIUM_DIFFICULTY_THRESHOLD) {
+      return 'medium';
+    }
+    return 'hard';
+  }
+
+  private getAutoLinkReviewItem(id: string): AutoLinkReviewItem {
+    const item = this.autoLinkReviewItems.get(id);
+    if (!item) {
+      throw new AppError('Auto-link review item not found', 404);
+    }
+    return item;
   }
 
   private rewriteDescendantPaths(topicId: string, oldPath: string, newPath: string, nextSubjectId: string): void {

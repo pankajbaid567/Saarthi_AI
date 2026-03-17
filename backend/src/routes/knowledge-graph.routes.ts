@@ -6,10 +6,16 @@ import { authRateLimiter } from '../middleware/rate-limit.middleware.js';
 import { requireRole } from '../middleware/rbac.middleware.js';
 import { validateRequest } from '../middleware/request-validation.js';
 import {
+  approveAutoLinkReviewItemSchema,
+  autoLinkExtractedContentSchema,
   contentIdSchema,
+  createTopicFromSuggestionSchema,
   createContentNodeSchema,
   createSubjectSchema,
   createTopicSchema,
+  listAutoLinkReviewItemsSchema,
+  mergeAutoLinkReviewItemsSchema,
+  rejectAutoLinkReviewItemSchema,
   subjectIdSchema,
   topicIdSchema,
   updateContentNodeSchema,
@@ -181,6 +187,80 @@ export const createKnowledgeGraphRouter = (options: CreateKnowledgeGraphRouterOp
     asyncHandler(async (req, res) => {
       knowledgeGraphService.deleteContentNode(req.params.id);
       res.status(204).send();
+    }),
+  );
+
+  router.post(
+    '/content/auto-link',
+    authRateLimiter,
+    authMiddleware,
+    requireRole('admin'),
+    validateRequest(autoLinkExtractedContentSchema),
+    asyncHandler(async (req, res) => {
+      res.status(201).json(knowledgeGraphService.autoLinkExtractedContent(req.body));
+    }),
+  );
+
+  router.get(
+    '/admin/review/content',
+    authRateLimiter,
+    authMiddleware,
+    requireRole('admin'),
+    validateRequest(listAutoLinkReviewItemsSchema),
+    asyncHandler(async (req, res) => {
+      const status =
+        typeof req.query.status === 'string'
+          ? (req.query.status as Parameters<KnowledgeGraphService['listAutoLinkReviewItems']>[0])
+          : undefined;
+      res.status(200).json(knowledgeGraphService.listAutoLinkReviewItems(status));
+    }),
+  );
+
+  router.post(
+    '/admin/review/content/:id/approve',
+    authRateLimiter,
+    authMiddleware,
+    requireRole('admin'),
+    validateRequest(approveAutoLinkReviewItemSchema),
+    asyncHandler(async (req, res) => {
+      res.status(200).json(knowledgeGraphService.approveAutoLinkReviewItem(req.params.id, req.body));
+    }),
+  );
+
+  router.post(
+    '/admin/review/content/:id/reject',
+    authRateLimiter,
+    authMiddleware,
+    requireRole('admin'),
+    validateRequest(rejectAutoLinkReviewItemSchema),
+    asyncHandler(async (req, res) => {
+      res.status(200).json(knowledgeGraphService.rejectAutoLinkReviewItem(req.params.id));
+    }),
+  );
+
+  router.post(
+    '/admin/review/content/merge',
+    authRateLimiter,
+    authMiddleware,
+    requireRole('admin'),
+    validateRequest(mergeAutoLinkReviewItemsSchema),
+    asyncHandler(async (req, res) => {
+      res
+        .status(200)
+        .json(knowledgeGraphService.mergeAutoLinkReviewItems(req.body.primaryId, req.body.duplicateId));
+    }),
+  );
+
+  router.post(
+    '/admin/review/content/:id/create-topic',
+    authRateLimiter,
+    authMiddleware,
+    requireRole('admin'),
+    validateRequest(createTopicFromSuggestionSchema),
+    asyncHandler(async (req, res) => {
+      res
+        .status(201)
+        .json(knowledgeGraphService.createTopicFromSuggestion(req.params.id, req.body.subjectId, req.body.name));
     }),
   );
 
