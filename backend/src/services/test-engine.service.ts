@@ -427,8 +427,8 @@ export class TestEngineService {
       }));
   }
 
-  getDailyAttemptedMcqCount(userId: string, date: Date = new Date()): number {
-    const targetDay = date.toISOString().slice(0, 10);
+  getDailyAttemptedMcqCount(userId: string, targetDate: Date = new Date()): number {
+    const targetDay = targetDate.toISOString().slice(0, 10);
     return this.getSubmittedTests(userId)
       .filter((test) => test.submittedAt?.toISOString().slice(0, 10) === targetDay)
       .reduce((total, test) => {

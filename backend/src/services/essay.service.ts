@@ -1,5 +1,7 @@
 import { randomUUID } from 'crypto';
 
+import { AppError } from '../errors/app-error.js';
+
 type EssayQuestion = {
   id: string;
   week: string;
@@ -46,11 +48,16 @@ const essayPromptBank: Array<Omit<EssayQuestion, 'week'>> = [
 ];
 
 const roundToTwo = (value: number): number => Number(value.toFixed(2));
+const millisecondsPerDay = 86400000;
 
 export class EssayService {
   private readonly submissions = new Map<string, EssaySubmission[]>();
 
   getWeeklyQuestion(now: Date = new Date()): EssayQuestion {
+    if (essayPromptBank.length === 0) {
+      throw new AppError('No essay prompts configured', 500);
+    }
+
     const week = this.getWeekKey(now);
     const weekIndex = this.getYearWeekNumber(now);
     const prompt = essayPromptBank[weekIndex % essayPromptBank.length]!;
@@ -124,7 +131,7 @@ export class EssayService {
     const dayNumber = working.getUTCDay() || 7;
     working.setUTCDate(working.getUTCDate() + 4 - dayNumber);
     const yearStart = new Date(Date.UTC(working.getUTCFullYear(), 0, 1));
-    const weekNumber = Math.ceil((((working.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    const weekNumber = Math.ceil((((working.getTime() - yearStart.getTime()) / millisecondsPerDay) + 1) / 7);
     return [working.getUTCFullYear(), weekNumber];
   }
 }

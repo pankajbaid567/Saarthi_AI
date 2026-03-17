@@ -52,6 +52,7 @@ const dailyQuestionBank: MainsDailyQuestion[] = [
 ];
 
 const toDateKey = (value: Date): string => value.toISOString().slice(0, 10);
+const millisecondsPerDay = 86400000;
 
 export class MainsService {
   private readonly requiredDailyMcqAttempts: number;
@@ -132,9 +133,13 @@ export class MainsService {
   }
 
   private resolveQuestionForToday(): MainsDailyQuestion {
+    if (dailyQuestionBank.length === 0) {
+      throw new AppError('No mains questions configured', 500);
+    }
+
     const now = new Date();
     const dayKey = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-    return dailyQuestionBank[Math.floor(dayKey / 86400000) % dailyQuestionBank.length]!;
+    return dailyQuestionBank[Math.floor(dayKey / millisecondsPerDay) % dailyQuestionBank.length]!;
   }
 }
 
