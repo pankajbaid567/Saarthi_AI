@@ -47,7 +47,7 @@ type PerformanceServiceOptions = {
   attempts?: PerformanceAttempt[];
 };
 
-const round = (value: number): number => Number(value.toFixed(2));
+const round = (value: number): number => Math.round(value * 100) / 100;
 
 const average = (values: number[]): number => {
   if (values.length === 0) {
