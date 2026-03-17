@@ -356,23 +356,23 @@
 
 ### Week 13: Mains Question Bank & Interface
 
-- [ ] Mains questions table (PostgreSQL)
-- [ ] Seed initial Mains questions (500+)
-  - [ ] PYQ mains questions (last 10 years)
-  - [ ] Coaching institute questions
-  - [ ] AI-generated questions
-- [ ] Mains endpoints
-  - [ ] **GET /api/v1/mains/questions** — List with filters
-  - [ ] **GET /api/v1/mains/questions/:id** — Get question detail
-  - [ ] **POST /api/v1/mains/questions** — Create (admin)
-- [ ] Mains frontend
-  - [ ] Question listing page (filter by topic, type, marks)
-  - [ ] Question detail page
-  - [ ] Rich text editor for answer writing (TipTap)
-  - [ ] Word count display
-  - [ ] Timer for answer writing
-  - [ ] Save draft functionality
-  - [ ] Submit for evaluation
+- [x] Mains questions table (PostgreSQL)
+- [x] Seed initial Mains questions (500+)
+  - [x] PYQ mains questions (last 10 years)
+  - [x] Coaching institute questions
+  - [x] AI-generated questions
+- [x] Mains endpoints
+  - [x] **GET /api/v1/mains/questions** — List with filters
+  - [x] **GET /api/v1/mains/questions/:id** — Get question detail
+  - [x] **POST /api/v1/mains/questions** — Create (admin)
+- [x] Mains frontend
+  - [x] Question listing page (filter by topic, type, marks)
+  - [x] Question detail page
+  - [x] Rich text editor for answer writing (TipTap)
+  - [x] Word count display
+  - [x] Timer for answer writing
+  - [x] Save draft functionality
+  - [x] Submit for evaluation
 
 ### Week 14: AI Answer Evaluation Engine
 

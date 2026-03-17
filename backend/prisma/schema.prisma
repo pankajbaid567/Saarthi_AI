@@ -35,6 +35,19 @@ enum TestStatus {
   submitted
 }
 
+enum MainsQuestionType {
+  gs
+  essay
+  ethics
+  optional
+}
+
+enum MainsQuestionSource {
+  pyq
+  coaching
+  ai_generated
+}
+
 model User {
   id           String       @id @default(uuid())
   email        String       @unique
@@ -77,6 +90,7 @@ model Topic {
   childTopics      Topic[]       @relation("TopicHierarchy")
   contentNodes     ContentNode[]
   mcqQuestions     McqQuestion[]
+  mainsQuestions   MainsQuestion[]
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
@@ -84,6 +98,26 @@ model Topic {
   @@index([subjectId])
   @@index([parentTopicId])
   @@index([materializedPath])
+}
+
+model MainsQuestion {
+  id                String              @id @default(uuid())
+  topicId           String
+  type              MainsQuestionType
+  source            MainsQuestionSource
+  marks             Int                 @default(10)
+  questionText      String
+  modelAnswer       String?
+  suggestedWordLimit Int                @default(250)
+  year              Int?
+  topic             Topic               @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([topicId])
+  @@index([type])
+  @@index([source])
+  @@index([marks])
 }
 
 model ContentNode {
