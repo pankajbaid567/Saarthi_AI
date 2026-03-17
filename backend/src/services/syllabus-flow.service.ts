@@ -84,8 +84,10 @@ type GeneratePracticeInput = {
   questionCount?: number;
 };
 
-const DAYS_30_MS = 30 * 24 * 60 * 60 * 1000;
-const DAYS_7_MS = 7 * 24 * 60 * 60 * 1000;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const DAYS_30_MS = 30 * MS_PER_DAY;
+const DAYS_7_MS = 7 * MS_PER_DAY;
+const WEAK_TOPIC_RATIO = 0.7;
 
 const shuffle = <T>(values: T[]): T[] => {
   const copied = [...values];
@@ -410,7 +412,7 @@ export class SyllabusFlowService {
     const weakQuestions = shuffle(availableQuestions.filter((question) => weakSet.has(question.topicId)));
     const strongQuestions = shuffle(availableQuestions.filter((question) => !weakSet.has(question.topicId)));
 
-    const targetWeakCount = Math.round(questionCount * 0.7);
+    const targetWeakCount = Math.round(questionCount * WEAK_TOPIC_RATIO);
     const selectedWeak = weakQuestions.slice(0, Math.min(targetWeakCount, weakQuestions.length));
     const remaining = questionCount - selectedWeak.length;
     const selectedStrong = strongQuestions.slice(0, Math.min(remaining, strongQuestions.length));
