@@ -304,26 +304,26 @@
 
 ### Week 11: Knowledge Graph Auto-Linking
 
-- [ ] Topic matching service
-  - [ ] Match extracted content to existing topics via:
-    - [ ] Keyword matching
-    - [ ] Semantic similarity (embeddings)
-    - [ ] LLM-based topic classification
-  - [ ] Suggest new topics when no match found
-- [ ] Auto-linking pipeline
-  - [ ] Link extracted MCQs to topics
-  - [ ] Link extracted concepts to topics
-  - [ ] Link extracted facts to topics
-  - [ ] Link extracted mains questions to topics
-- [ ] Admin review interface
-  - [ ] Review extracted content
-  - [ ] Approve/reject/edit links
-  - [ ] Merge duplicate content
-  - [ ] Create new topics from suggestions
-- [ ] Content enrichment
-  - [ ] Auto-generate smart highlights from content
-  - [ ] Auto-generate micro notes from concepts
-  - [ ] Tag difficulty levels on MCQs
+- [x] Topic matching service
+  - [x] Match extracted content to existing topics via:
+    - [x] Keyword matching
+    - [x] Semantic similarity (embeddings)
+    - [x] LLM-based topic classification
+  - [x] Suggest new topics when no match found
+- [x] Auto-linking pipeline
+  - [x] Link extracted MCQs to topics
+  - [x] Link extracted concepts to topics
+  - [x] Link extracted facts to topics
+  - [x] Link extracted mains questions to topics
+- [x] Admin review interface
+  - [x] Review extracted content
+  - [x] Approve/reject/edit links
+  - [x] Merge duplicate content
+  - [x] Create new topics from suggestions
+- [x] Content enrichment
+  - [x] Auto-generate smart highlights from content
+  - [x] Auto-generate micro notes from concepts
+  - [x] Tag difficulty levels on MCQs
 
 ### Week 12: RAG Pipeline
 
