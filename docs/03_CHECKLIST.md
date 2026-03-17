@@ -508,37 +508,37 @@
 
 ### Week 18: SyllabusFlow AI – Gating, Essays & Feedback Loop
 
-- [ ] Mains question gating system
-  - [ ] **GET /api/v1/mains/daily/question** — Today's daily Mains question
-  - [ ] **GET /api/v1/mains/daily/gate-status** — Has user completed required MCQs?
-  - [ ] Gate logic: unlock Mains Q only after user attempts ≥ X daily MCQs
-  - [ ] **POST /api/v1/mains/daily/override-gate** — Manual override with reason logging
-  - [ ] **POST /api/v1/mains/daily/submit** — Submit daily Mains answer (gated)
-- [ ] Weekly essay system
-  - [ ] LLM generates essay prompts from completed GS4 ethics + current affairs topics
-  - [ ] **GET /api/v1/essays/weekly/question** — This week's essay topic
-  - [ ] **POST /api/v1/essays/weekly/submit** — Submit essay
-  - [ ] **GET /api/v1/essays/submissions** — Past essay submissions with evaluations
-  - [ ] AI evaluation: structure, argument quality, language, coherence, total score
-  - [ ] Store in MongoDB `essay_submission`
-- [ ] Feedback Loop Engine
-  - [ ] Analyze rolling 7-day accuracy per topic
-  - [ ] Auto-adjust practice difficulty ± 1 tier based on accuracy
-  - [ ] Shift topic distribution: increase weak-area weighting if accuracy drops
-  - [ ] **GET /api/v1/practice/feedback-loop** — What's adapting & why
-  - [ ] **GET /api/v1/practice/non-repetition/stats** — Dedup effectiveness stats
-  - [ ] Log all adaptations in `practice_generation_log`
-- [ ] SyllabusFlow dashboard frontend
-  - [ ] Full syllabus tree view with color-coded completion (not_started → in_progress → completed)
-  - [ ] Subject-wise progress bars + overall completion ring
-  - [ ] Mark topic status UI (dropdown or quick-action buttons)
-  - [ ] Daily practice queue page (MCQ list + Mains gate + essay)
-  - [ ] Mains gate indicator (locked/unlocked) with override button
-  - [ ] Weekly essay page with rich text editor
-  - [ ] Practice history timeline with scores + topic breakdown
-  - [ ] Feedback loop transparency panel ("Why these questions?")
-  - [ ] Non-repetition stats display
-  - [ ] Weekly progress comparison (current vs last snapshot)
+- [x] Mains question gating system
+  - [x] **GET /api/v1/mains/daily/question** — Today's daily Mains question
+  - [x] **GET /api/v1/mains/daily/gate-status** — Has user completed required MCQs?
+  - [x] Gate logic: unlock Mains Q only after user attempts ≥ X daily MCQs
+  - [x] **POST /api/v1/mains/daily/override-gate** — Manual override with reason logging
+  - [x] **POST /api/v1/mains/daily/submit** — Submit daily Mains answer (gated)
+- [x] Weekly essay system
+  - [x] LLM generates essay prompts from completed GS4 ethics + current affairs topics
+  - [x] **GET /api/v1/essays/weekly/question** — This week's essay topic
+  - [x] **POST /api/v1/essays/weekly/submit** — Submit essay
+  - [x] **GET /api/v1/essays/submissions** — Past essay submissions with evaluations
+  - [x] AI evaluation: structure, argument quality, language, coherence, total score
+  - [x] Store in MongoDB `essay_submission`
+- [x] Feedback Loop Engine
+  - [x] Analyze rolling 7-day accuracy per topic
+  - [x] Auto-adjust practice difficulty ± 1 tier based on accuracy
+  - [x] Shift topic distribution: increase weak-area weighting if accuracy drops
+  - [x] **GET /api/v1/practice/feedback-loop** — What's adapting & why
+  - [x] **GET /api/v1/practice/non-repetition/stats** — Dedup effectiveness stats
+  - [x] Log all adaptations in `practice_generation_log`
+- [x] SyllabusFlow dashboard frontend
+  - [x] Full syllabus tree view with color-coded completion (not_started → in_progress → completed)
+  - [x] Subject-wise progress bars + overall completion ring
+  - [x] Mark topic status UI (dropdown or quick-action buttons)
+  - [x] Daily practice queue page (MCQ list + Mains gate + essay)
+  - [x] Mains gate indicator (locked/unlocked) with override button
+  - [x] Weekly essay page with rich text editor
+  - [x] Practice history timeline with scores + topic breakdown
+  - [x] Feedback loop transparency panel ("Why these questions?")
+  - [x] Non-repetition stats display
+  - [x] Weekly progress comparison (current vs last snapshot)
 
 ---
 

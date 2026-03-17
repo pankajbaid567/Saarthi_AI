@@ -3,6 +3,9 @@ import { Router } from 'express';
 
 import { authMiddleware } from '../middleware/auth.middleware.js';
 import { authRateLimiter } from '../middleware/rate-limit.middleware.js';
+import { requireRole } from '../middleware/rbac.middleware.js';
+import { validateRequest } from '../middleware/request-validation.js';
+import { overrideGateSchema, submitDailyMainsSchema } from '../schemas/mains.schema.js';
 import { validateRequest } from '../middleware/request-validation.js';
 import {
   getMainsQuestionSchema,
@@ -34,6 +37,14 @@ type CreateMainsRouterOptions = {
 
 export const createMainsRouter = (options: CreateMainsRouterOptions = {}): Router => {
   const router = Router();
+  const mainsService = options.mainsService ?? createMainsService();
+
+  router.get(
+    '/mains/daily/gate-status',
+    authRateLimiter,
+    authMiddleware,
+    asyncHandler(async (req, res) => {
+      res.status(200).json(mainsService.getGateStatus(req.authUser!.userId));
   const mainsEvaluationService = options.mainsEvaluationService ?? createMainsEvaluationService();
 
   router.get(
@@ -98,6 +109,24 @@ export const createMainsRouter = (options: CreateMainsRouterOptions = {}): Route
   );
 
   router.get(
+    '/mains/daily/question',
+    authRateLimiter,
+    authMiddleware,
+    asyncHandler(async (req, res) => {
+      res.status(200).json(mainsService.getDailyQuestion(req.authUser!.userId));
+    }),
+  );
+
+  router.post(
+    '/mains/daily/override-gate',
+    authRateLimiter,
+    authMiddleware,
+    requireRole('admin'),
+    validateRequest(overrideGateSchema),
+    asyncHandler(async (req, res) => {
+      const targetUserId = req.body.userId ?? req.authUser!.userId;
+      const override = mainsService.overrideGate(targetUserId, req.authUser!.userId, req.body.reason);
+      res.status(201).json(override);
     '/mains/submissions',
     authRateLimiter,
     authMiddleware,
@@ -124,6 +153,12 @@ export const createMainsRouter = (options: CreateMainsRouterOptions = {}): Route
   );
 
   router.post(
+    '/mains/daily/submit',
+    authRateLimiter,
+    authMiddleware,
+    validateRequest(submitDailyMainsSchema),
+    asyncHandler(async (req, res) => {
+      res.status(201).json(mainsService.submitDailyAnswer(req.authUser!.userId, req.body.answer));
     '/mains/questions',
     authRateLimiter,
     authMiddleware,
