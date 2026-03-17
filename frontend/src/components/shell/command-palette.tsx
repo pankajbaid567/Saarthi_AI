@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 const commandItems = [
   { id: 'dashboard', label: 'Dashboard', href: '/dashboard' },
   { id: 'subjects', label: 'Subjects', href: '/subjects' },
+  { id: 'syllabus-flow', label: 'SyllabusFlow', href: '/syllabus-flow' },
+  { id: 'mains-evaluation', label: 'Mains Evaluation', href: '/mains/evaluation' },
   { id: 'semantic-search', label: 'Semantic Search', href: '/search' },
   { id: 'strategy', label: 'Strategy Engine', href: '/strategy' },
   { id: 'second-brain', label: 'Second Brain', href: '/second-brain' },

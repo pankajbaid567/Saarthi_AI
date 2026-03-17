@@ -356,128 +356,128 @@
 
 ### Week 13: Mains Question Bank & Interface
 
-- [ ] Mains questions table (PostgreSQL)
-- [ ] Seed initial Mains questions (500+)
-  - [ ] PYQ mains questions (last 10 years)
-  - [ ] Coaching institute questions
-  - [ ] AI-generated questions
-- [ ] Mains endpoints
-  - [ ] **GET /api/v1/mains/questions** — List with filters
-  - [ ] **GET /api/v1/mains/questions/:id** — Get question detail
-  - [ ] **POST /api/v1/mains/questions** — Create (admin)
-- [ ] Mains frontend
-  - [ ] Question listing page (filter by topic, type, marks)
-  - [ ] Question detail page
-  - [ ] Rich text editor for answer writing (TipTap)
-  - [ ] Word count display
-  - [ ] Timer for answer writing
-  - [ ] Save draft functionality
-  - [ ] Submit for evaluation
+- [x] Mains questions table (PostgreSQL)
+- [x] Seed initial Mains questions (500+)
+  - [x] PYQ mains questions (last 10 years)
+  - [x] Coaching institute questions
+  - [x] AI-generated questions
+- [x] Mains endpoints
+  - [x] **GET /api/v1/mains/questions** — List with filters
+  - [x] **GET /api/v1/mains/questions/:id** — Get question detail
+  - [x] **POST /api/v1/mains/questions** — Create (admin)
+- [x] Mains frontend
+  - [x] Question listing page (filter by topic, type, marks)
+  - [x] Question detail page
+  - [x] Rich text editor for answer writing (TipTap)
+  - [x] Word count display
+  - [x] Timer for answer writing
+  - [x] Save draft functionality
+  - [x] Submit for evaluation
 
 ### Week 14: AI Answer Evaluation Engine
 
-- [ ] Evaluation service
-  - [ ] **POST /api/v1/mains/submit** — Submit answer
-  - [ ] Structure analysis (intro-body-conclusion detection)
-  - [ ] Content depth scoring
-  - [ ] Keyword presence check (from rubric)
-  - [ ] Missing dimensions identification
-  - [ ] Current affairs integration check
-  - [ ] Diagram/flowchart suggestion
-- [ ] Scoring system
-  - [ ] Overall score (X/10)
-  - [ ] Structure score breakdown
-  - [ ] Content score breakdown
-  - [ ] Keyword score breakdown
-  - [ ] Improvement suggestions (actionable list)
-- [ ] Model answer comparison
-  - [ ] Show model/topper answer alongside
-  - [ ] Highlight gaps
-  - [ ] Show what student missed
-- [ ] Submission management
-  - [ ] **GET /api/v1/mains/submissions** — List submissions
-  - [ ] **GET /api/v1/mains/submissions/:id** — Get submission detail
-  - [ ] Track improvement over time per topic
-- [ ] Evaluation frontend
-  - [ ] Score display with gauge/ring chart
-  - [ ] Detailed breakdown cards
-  - [ ] Side-by-side comparison view
-  - [ ] Improvement suggestions list
-  - [ ] Historical score trend chart
-- [ ] Prompt engineering for UPSC-specific evaluation
+- [x] Evaluation service
+  - [x] **POST /api/v1/mains/submit** — Submit answer
+  - [x] Structure analysis (intro-body-conclusion detection)
+  - [x] Content depth scoring
+  - [x] Keyword presence check (from rubric)
+  - [x] Missing dimensions identification
+  - [x] Current affairs integration check
+  - [x] Diagram/flowchart suggestion
+- [x] Scoring system
+  - [x] Overall score (X/10)
+  - [x] Structure score breakdown
+  - [x] Content score breakdown
+  - [x] Keyword score breakdown
+  - [x] Improvement suggestions (actionable list)
+- [x] Model answer comparison
+  - [x] Show model/topper answer alongside
+  - [x] Highlight gaps
+  - [x] Show what student missed
+- [x] Submission management
+  - [x] **GET /api/v1/mains/submissions** — List submissions
+  - [x] **GET /api/v1/mains/submissions/:id** — Get submission detail
+  - [x] Track improvement over time per topic
+- [x] Evaluation frontend
+  - [x] Score display with gauge/ring chart
+  - [x] Detailed breakdown cards
+  - [x] Side-by-side comparison view
+  - [x] Improvement suggestions list
+  - [x] Historical score trend chart
+- [x] Prompt engineering for UPSC-specific evaluation
 
 ### Week 15: NeuroRevise AI – Core Engine
 
-- [ ] Forgetting curve computation service
-  - [ ] Per-topic retention score (0-100) based on recall history
-  - [ ] Subject-aware decay coefficients (factual > conceptual > analytical)
-  - [ ] Retention prediction at any future date
-  - [ ] Store in `forgetting_curve_data` table + MongoDB `revision_session_log`
-- [ ] Adaptive spaced repetition (DYNAMIC intervals, NOT fixed SM-2)
-  - [ ] Interval calculation based on: recall quality (1-5), topic difficulty, subject decay, past history
-  - [ ] Ease factor dynamically adjusted per review
-  - [ ] Priority engine: urgent (retention < 40%) → due → upcoming
-  - [ ] Auto-schedule first review when topic is studied
-- [ ] Revision schedule management
-  - [ ] **GET /api/v1/revision/due** — Today's due cards (priority-sorted)
-  - [ ] **GET /api/v1/revision/due?tier=30sec|2min|5min** — Filter by micro-note tier
-  - [ ] **POST /api/v1/revision/:topicId/review** — Submit recall quality (1-5), recompute interval
-  - [ ] **GET /api/v1/revision/dashboard** — Retention heatmap, due counts, streak
-  - [ ] **GET /api/v1/revision/forgetting-curve/:topicId** — Retention curve data
-  - [ ] **GET /api/v1/revision/forgetting-curve/bulk** — Bulk curves per subject
-  - [ ] **GET /api/v1/revision/retention-scores** — All per-topic retention scores with decay
-- [ ] Multi-tier micro-revision notes
-  - [ ] LLM auto-generates 30-second tier (3-4 bullets)
-  - [ ] LLM auto-generates 2-minute tier (8-10 bullets + mnemonics)
-  - [ ] LLM auto-generates 5-minute tier (detailed with context + examples)
-  - [ ] **GET /api/v1/revision/micro-notes/:topicId** — Get all 3 tiers
-  - [ ] **POST /api/v1/revision/micro-notes/generate** — Auto-generate from content
-  - [ ] **PUT /api/v1/revision/micro-notes/:id** — Edit micro-note
-  - [ ] Store in MongoDB `micro_note_content`
-- [ ] Unit tests for forgetting curve computation
-- [ ] Unit tests for adaptive interval calculation
-- [ ] Integration tests for all NeuroRevise endpoints
+- [x] Forgetting curve computation service
+  - [x] Per-topic retention score (0-100) based on recall history
+  - [x] Subject-aware decay coefficients (factual > conceptual > analytical)
+  - [x] Retention prediction at any future date
+  - [x] Store in `forgetting_curve_data` table + MongoDB `revision_session_log`
+- [x] Adaptive spaced repetition (DYNAMIC intervals, NOT fixed SM-2)
+  - [x] Interval calculation based on: recall quality (1-5), topic difficulty, subject decay, past history
+  - [x] Ease factor dynamically adjusted per review
+  - [x] Priority engine: urgent (retention < 40%) → due → upcoming
+  - [x] Auto-schedule first review when topic is studied
+- [x] Revision schedule management
+  - [x] **GET /api/v1/revision/due** — Today's due cards (priority-sorted)
+  - [x] **GET /api/v1/revision/due?tier=30sec|2min|5min** — Filter by micro-note tier
+  - [x] **POST /api/v1/revision/:topicId/review** — Submit recall quality (1-5), recompute interval
+  - [x] **GET /api/v1/revision/dashboard** — Retention heatmap, due counts, streak
+  - [x] **GET /api/v1/revision/forgetting-curve/:topicId** — Retention curve data
+  - [x] **GET /api/v1/revision/forgetting-curve/bulk** — Bulk curves per subject
+  - [x] **GET /api/v1/revision/retention-scores** — All per-topic retention scores with decay
+- [x] Multi-tier micro-revision notes
+  - [x] LLM auto-generates 30-second tier (3-4 bullets)
+  - [x] LLM auto-generates 2-minute tier (8-10 bullets + mnemonics)
+  - [x] LLM auto-generates 5-minute tier (detailed with context + examples)
+  - [x] **GET /api/v1/revision/micro-notes/:topicId** — Get all 3 tiers
+  - [x] **POST /api/v1/revision/micro-notes/generate** — Auto-generate from content
+  - [x] **PUT /api/v1/revision/micro-notes/:id** — Edit micro-note
+  - [x] Store in MongoDB `micro_note_content`
+- [x] Unit tests for forgetting curve computation
+- [x] Unit tests for adaptive interval calculation
+- [x] Integration tests for all NeuroRevise endpoints
 
 ### Week 16: NeuroRevise AI – Active Recall & Sprints
 
-- [ ] Active Recall Booster
-  - [ ] LLM generates recall questions per topic (concept_recall, comparison, factual, application)
-  - [ ] Store in `active_recall_questions` table
-  - [ ] **POST /api/v1/revision/active-recall/start** — Begin session (select topics, question count)
-  - [ ] **POST /api/v1/revision/active-recall/:sessionId/answer** — Submit recall answer
-  - [ ] **GET /api/v1/revision/active-recall/:sessionId/results** — Session results with delta
-- [ ] Revision Sprint Modes
-  - [ ] **POST /api/v1/revision/sprint/start** — Start 15/30/45-min timed sprint
-  - [ ] Auto-select topics by priority (urgent first)
-  - [ ] **POST /api/v1/revision/sprint/:sprintId/complete** — End sprint + summary
-  - [ ] **GET /api/v1/revision/sprint/history** — Past sprints
-- [ ] Flashcard system
-  - [ ] Auto-generate flashcards from concept notes + key facts (LLM)
-  - [ ] **GET /api/v1/revision/flashcards** — Get flashcards (by topic/subject)
-  - [ ] **POST /api/v1/revision/flashcards** — Create manual flashcard
-  - [ ] Card flip UI with rate recall (easy/good/hard/forgot)
-  - [ ] Auto-schedule next review based on rating
-- [ ] Revision predictions
-  - [ ] **GET /api/v1/revision/predictions** — Topics you'll forget by next week
-  - [ ] Alert system for rapidly declining retention
-- [ ] Streak tracking
-  - [ ] **GET /api/v1/revision/streaks** — Streak data + history
-  - [ ] Daily revision streak counter with gamification
-  - [ ] Streak recovery grace period (1 day)
-- [ ] "Last 30 Days" crash revision mode
-  - [ ] Accelerated scheduling (compress all intervals)
-  - [ ] Priority: lowest retention topics first
-  - [ ] Daily targets based on remaining days
-- [ ] NeuroRevise dashboard frontend
-  - [ ] Retention heatmap (subject × topic matrix, color-coded 0-100)
-  - [ ] Today's due items (priority-sorted, filterable by tier)
-  - [ ] Forgetting curve chart per topic (interactive)
-  - [ ] Active recall session UI
-  - [ ] Sprint mode timer + card flow
-  - [ ] Flashcard practice UI (flip, rate, progress bar)
-  - [ ] Predictions panel ("About to forget" warnings)
-  - [ ] Streak display + calendar view
-  - [ ] Crash mode toggle + daily target display
+- [x] Active Recall Booster
+  - [x] LLM generates recall questions per topic (concept_recall, comparison, factual, application)
+  - [x] Store in `active_recall_questions` table
+  - [x] **POST /api/v1/revision/active-recall/start** — Begin session (select topics, question count)
+  - [x] **POST /api/v1/revision/active-recall/:sessionId/answer** — Submit recall answer
+  - [x] **GET /api/v1/revision/active-recall/:sessionId/results** — Session results with delta
+- [x] Revision Sprint Modes
+  - [x] **POST /api/v1/revision/sprint/start** — Start 15/30/45-min timed sprint
+  - [x] Auto-select topics by priority (urgent first)
+  - [x] **POST /api/v1/revision/sprint/:sprintId/complete** — End sprint + summary
+  - [x] **GET /api/v1/revision/sprint/history** — Past sprints
+- [x] Flashcard system
+  - [x] Auto-generate flashcards from concept notes + key facts (LLM)
+  - [x] **GET /api/v1/revision/flashcards** — Get flashcards (by topic/subject)
+  - [x] **POST /api/v1/revision/flashcards** — Create manual flashcard
+  - [x] Card flip UI with rate recall (easy/good/hard/forgot)
+  - [x] Auto-schedule next review based on rating
+- [x] Revision predictions
+  - [x] **GET /api/v1/revision/predictions** — Topics you'll forget by next week
+  - [x] Alert system for rapidly declining retention
+- [x] Streak tracking
+  - [x] **GET /api/v1/revision/streaks** — Streak data + history
+  - [x] Daily revision streak counter with gamification
+  - [x] Streak recovery grace period (1 day)
+- [x] "Last 30 Days" crash revision mode
+  - [x] Accelerated scheduling (compress all intervals)
+  - [x] Priority: lowest retention topics first
+  - [x] Daily targets based on remaining days
+- [x] NeuroRevise dashboard frontend
+  - [x] Retention heatmap (subject × topic matrix, color-coded 0-100)
+  - [x] Today's due items (priority-sorted, filterable by tier)
+  - [x] Forgetting curve chart per topic (interactive)
+  - [x] Active recall session UI
+  - [x] Sprint mode timer + card flow
+  - [x] Flashcard practice UI (flip, rate, progress bar)
+  - [x] Predictions panel ("About to forget" warnings)
+  - [x] Streak display + calendar view
+  - [x] Crash mode toggle + daily target display
 
 ### Week 17: SyllabusFlow AI – Tracker + Practice Generation
 
@@ -508,37 +508,37 @@
 
 ### Week 18: SyllabusFlow AI – Gating, Essays & Feedback Loop
 
-- [ ] Mains question gating system
-  - [ ] **GET /api/v1/mains/daily/question** — Today's daily Mains question
-  - [ ] **GET /api/v1/mains/daily/gate-status** — Has user completed required MCQs?
-  - [ ] Gate logic: unlock Mains Q only after user attempts ≥ X daily MCQs
-  - [ ] **POST /api/v1/mains/daily/override-gate** — Manual override with reason logging
-  - [ ] **POST /api/v1/mains/daily/submit** — Submit daily Mains answer (gated)
-- [ ] Weekly essay system
-  - [ ] LLM generates essay prompts from completed GS4 ethics + current affairs topics
-  - [ ] **GET /api/v1/essays/weekly/question** — This week's essay topic
-  - [ ] **POST /api/v1/essays/weekly/submit** — Submit essay
-  - [ ] **GET /api/v1/essays/submissions** — Past essay submissions with evaluations
-  - [ ] AI evaluation: structure, argument quality, language, coherence, total score
-  - [ ] Store in MongoDB `essay_submission`
-- [ ] Feedback Loop Engine
-  - [ ] Analyze rolling 7-day accuracy per topic
-  - [ ] Auto-adjust practice difficulty ± 1 tier based on accuracy
-  - [ ] Shift topic distribution: increase weak-area weighting if accuracy drops
-  - [ ] **GET /api/v1/practice/feedback-loop** — What's adapting & why
-  - [ ] **GET /api/v1/practice/non-repetition/stats** — Dedup effectiveness stats
-  - [ ] Log all adaptations in `practice_generation_log`
-- [ ] SyllabusFlow dashboard frontend
-  - [ ] Full syllabus tree view with color-coded completion (not_started → in_progress → completed)
-  - [ ] Subject-wise progress bars + overall completion ring
-  - [ ] Mark topic status UI (dropdown or quick-action buttons)
-  - [ ] Daily practice queue page (MCQ list + Mains gate + essay)
-  - [ ] Mains gate indicator (locked/unlocked) with override button
-  - [ ] Weekly essay page with rich text editor
-  - [ ] Practice history timeline with scores + topic breakdown
-  - [ ] Feedback loop transparency panel ("Why these questions?")
-  - [ ] Non-repetition stats display
-  - [ ] Weekly progress comparison (current vs last snapshot)
+- [x] Mains question gating system
+  - [x] **GET /api/v1/mains/daily/question** — Today's daily Mains question
+  - [x] **GET /api/v1/mains/daily/gate-status** — Has user completed required MCQs?
+  - [x] Gate logic: unlock Mains Q only after user attempts ≥ X daily MCQs
+  - [x] **POST /api/v1/mains/daily/override-gate** — Manual override with reason logging
+  - [x] **POST /api/v1/mains/daily/submit** — Submit daily Mains answer (gated)
+- [x] Weekly essay system
+  - [x] LLM generates essay prompts from completed GS4 ethics + current affairs topics
+  - [x] **GET /api/v1/essays/weekly/question** — This week's essay topic
+  - [x] **POST /api/v1/essays/weekly/submit** — Submit essay
+  - [x] **GET /api/v1/essays/submissions** — Past essay submissions with evaluations
+  - [x] AI evaluation: structure, argument quality, language, coherence, total score
+  - [x] Store in MongoDB `essay_submission`
+- [x] Feedback Loop Engine
+  - [x] Analyze rolling 7-day accuracy per topic
+  - [x] Auto-adjust practice difficulty ± 1 tier based on accuracy
+  - [x] Shift topic distribution: increase weak-area weighting if accuracy drops
+  - [x] **GET /api/v1/practice/feedback-loop** — What's adapting & why
+  - [x] **GET /api/v1/practice/non-repetition/stats** — Dedup effectiveness stats
+  - [x] Log all adaptations in `practice_generation_log`
+- [x] SyllabusFlow dashboard frontend
+  - [x] Full syllabus tree view with color-coded completion (not_started → in_progress → completed)
+  - [x] Subject-wise progress bars + overall completion ring
+  - [x] Mark topic status UI (dropdown or quick-action buttons)
+  - [x] Daily practice queue page (MCQ list + Mains gate + essay)
+  - [x] Mains gate indicator (locked/unlocked) with override button
+  - [x] Weekly essay page with rich text editor
+  - [x] Practice history timeline with scores + topic breakdown
+  - [x] Feedback loop transparency panel ("Why these questions?")
+  - [x] Non-repetition stats display
+  - [x] Weekly progress comparison (current vs last snapshot)
 
 ---
 
@@ -555,23 +555,36 @@
   - [ ] NeuroRevise retention data integration (avg retention per subject)
   - [ ] SyllabusFlow completion data integration (syllabus % in performance)
 - [ ] Performance endpoints
-  - [ ] **GET /api/v1/performance/overview** — Overall stats (incl. retention + syllabus)
-  - [ ] **GET /api/v1/performance/subject/:id** — Subject deep-dive
-  - [ ] **GET /api/v1/performance/topic/:id** — Topic deep-dive
-  - [ ] **GET /api/v1/performance/weak-areas** — Weak area analysis
+- [x] Performance snapshot service
+  - [x] Calculate daily performance snapshot
+  - [x] Subject-wise accuracy aggregation
+  - [x] Topic-wise accuracy aggregation
+  - [x] Time management metrics
+  - [x] Improvement trajectory calculation
+  - [x] NeuroRevise retention data integration (avg retention per subject)
+  - [x] SyllabusFlow completion data integration (syllabus % in performance)
+- [x] Performance endpoints
+  - [x] **GET /api/v1/performance/overview** — Overall stats (incl. retention + syllabus)
+  - [x] **GET /api/v1/performance/subject/:id** — Subject deep-dive
+  - [x] **GET /api/v1/performance/topic/:id** — Topic deep-dive
+  - [x] **GET /api/v1/performance/weak-areas** — Weak area analysis
 - [ ] Scheduled jobs
   - [ ] Daily performance snapshot (cron)
   - [ ] Weekly performance report generation
   - [ ] Monthly trend analysis
+- [x] Scheduled jobs
+  - [x] Daily performance snapshot (cron)
+  - [x] Weekly performance report generation
+  - [x] Monthly trend analysis
 
 ### Week 20: AI Score Prediction & Current Affairs
 
 - [ ] Prediction model
-  - [ ] Historical performance analysis
-  - [ ] Score prediction with confidence interval
-  - [ ] Rank range estimation
-  - [ ] Factor in retention scores + syllabus completion for better predictions
-  - [ ] **GET /api/v1/performance/predictions** — Get predictions
+  - [x] Historical performance analysis
+  - [x] Score prediction with confidence interval
+  - [x] Rank range estimation
+  - [x] Factor in retention scores + syllabus completion for better predictions
+  - [x] **GET /api/v1/performance/predictions** — Get predictions
 - [ ] Weak area deep analysis
   - [ ] Cluster errors by concept
   - [ ] Identify confusion patterns (e.g., DPSP vs FR)
@@ -594,7 +607,7 @@
   - [ ] Auto-tag date and source
   - [ ] Convert articles to structured notes → link to knowledge graph
   - [ ] Generate MCQs + Mains questions from articles
-  - [ ] Current affairs endpoints: list, monthly view, detail
+  - [x] Current affairs endpoints: list, monthly view, detail
   - [ ] Current affairs model (MongoDB)
   - [ ] Current affairs frontend: monthly compilation, article cards, linked MCQs/Mains
 
