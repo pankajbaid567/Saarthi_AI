@@ -39,4 +39,6 @@ export const env = {
   s3SecretAccessKey: process.env.S3_SECRET_ACCESS_KEY ?? '',
   pdfQueueAttempts: Number(process.env.PDF_QUEUE_ATTEMPTS ?? 3),
   pdfQueueBackoffMs: Number(process.env.PDF_QUEUE_BACKOFF_MS ?? 1000),
+  pdfBufferTtlMs: Number(process.env.PDF_BUFFER_TTL_MS ?? 900000),
+  pdfInMemoryBufferLimitBytes: Number(process.env.PDF_IN_MEMORY_BUFFER_LIMIT_BYTES ?? 536870912),
 };

@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import mongoose from 'mongoose';
 import { randomUUID } from 'crypto';
 
+import { env } from '../config/env.js';
 import { AppError } from '../errors/app-error.js';
 import { PdfExtractedTextModel } from '../models/pdf-extracted-text.model.js';
 import { logger } from '../utils/logger.js';
@@ -149,7 +150,9 @@ export class PdfService {
 
   private readonly queueService: PdfProcessingQueueService;
 
-  private readonly buffers = new Map<string, Buffer>();
+  private readonly buffers = new Map<string, { buffer: Buffer; size: number; timeout: NodeJS.Timeout }>();
+
+  private bufferedBytes = 0;
 
   constructor(options: PdfServiceOptions = {}) {
     this.storageService = options.storageService ?? createStorageService();
@@ -166,6 +169,10 @@ export class PdfService {
   async upload(userId: string, input: PdfUploadInput): Promise<PdfDocument> {
     if (input.mimeType !== 'application/pdf') {
       throw new AppError('Only PDF uploads are supported', 400);
+    }
+
+    if (this.bufferedBytes + input.size > env.pdfInMemoryBufferLimitBytes) {
+      throw new AppError('PDF processing queue is at capacity, please retry shortly', 503);
     }
 
     const stored = await this.storageService.upload({
@@ -186,7 +193,15 @@ export class PdfService {
       errorMessage: null,
     });
 
-    this.buffers.set(document.id, input.buffer);
+    const timeout = setTimeout(() => {
+      this.releaseBuffer(document.id);
+    }, env.pdfBufferTtlMs);
+    this.buffers.set(document.id, {
+      buffer: input.buffer,
+      size: input.size,
+      timeout,
+    });
+    this.bufferedBytes += input.size;
     await this.queueService.enqueue(document.id);
     return document;
   }
@@ -234,7 +249,7 @@ export class PdfService {
     }
 
     try {
-      const extracted = await this.extractorService.extract(source);
+      const extracted = await this.extractorService.extract(source.buffer);
       const totalPages = extracted.pages.length;
       await this.pushStatus(pdfDocumentId, { totalPages, pagesProcessed: 0 });
 
@@ -264,13 +279,24 @@ export class PdfService {
         message: error instanceof Error ? error.message : 'Unknown error',
       });
     } finally {
-      this.buffers.delete(pdfDocumentId);
+      this.releaseBuffer(pdfDocumentId);
     }
   }
 
   private async pushStatus(pdfDocumentId: string, update: Partial<PdfDocument>): Promise<void> {
     const nextDocument = await this.documentRepository.update(pdfDocumentId, update);
     this.statusEvents.emit(pdfDocumentId, nextDocument);
+  }
+
+  private releaseBuffer(pdfDocumentId: string): void {
+    const buffered = this.buffers.get(pdfDocumentId);
+    if (!buffered) {
+      return;
+    }
+
+    clearTimeout(buffered.timeout);
+    this.bufferedBytes = Math.max(0, this.bufferedBytes - buffered.size);
+    this.buffers.delete(pdfDocumentId);
   }
 }
 

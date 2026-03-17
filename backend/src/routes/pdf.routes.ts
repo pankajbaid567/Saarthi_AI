@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { Router } from 'express';
 
 import { authMiddleware } from '../middleware/auth.middleware.js';
+import { authRateLimiter } from '../middleware/rate-limit.middleware.js';
 import { createPdfUploadMiddleware } from '../middleware/upload.middleware.js';
 import { validateRequest } from '../middleware/request-validation.js';
 import { pdfIdSchema } from '../schemas/pdf.schema.js';
@@ -24,6 +25,7 @@ export const createPdfRouter = (options: CreatePdfRouterOptions = {}): Router =>
 
   router.post(
     '/pdf/upload',
+    authRateLimiter,
     authMiddleware,
     (req, res, next) => {
       uploadPdf(req, res, next);
@@ -31,6 +33,10 @@ export const createPdfRouter = (options: CreatePdfRouterOptions = {}): Router =>
     asyncHandler(async (req, res) => {
       if (!req.file) {
         res.status(400).json({ message: 'PDF file is required' });
+        return;
+      }
+      if (!req.file.buffer.subarray(0, 5).equals(Buffer.from('%PDF-'))) {
+        res.status(400).json({ message: 'Invalid PDF file signature' });
         return;
       }
 
@@ -46,6 +52,7 @@ export const createPdfRouter = (options: CreatePdfRouterOptions = {}): Router =>
 
   router.get(
     '/pdf/:id/status',
+    authRateLimiter,
     authMiddleware,
     validateRequest(pdfIdSchema),
     asyncHandler(async (req, res) => {
@@ -56,6 +63,7 @@ export const createPdfRouter = (options: CreatePdfRouterOptions = {}): Router =>
 
   router.get(
     '/pdf/:id/status/stream',
+    authRateLimiter,
     authMiddleware,
     validateRequest(pdfIdSchema),
     asyncHandler(async (req, res) => {
@@ -64,7 +72,11 @@ export const createPdfRouter = (options: CreatePdfRouterOptions = {}): Router =>
       res.setHeader('Connection', 'keep-alive');
 
       const writeStatus = (payload: unknown): void => {
-        res.write(`data: ${JSON.stringify(payload)}\n\n`);
+        try {
+          res.write(`data: ${JSON.stringify(payload)}\n\n`);
+        } catch {
+          res.write('event: error\ndata: {"message":"Unable to stream status payload"}\n\n');
+        }
       };
 
       const current = await pdfService.getStatus(req.authUser!.userId, req.params.id);
@@ -82,6 +94,7 @@ export const createPdfRouter = (options: CreatePdfRouterOptions = {}): Router =>
 
   router.get(
     '/pdfs',
+    authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
       const documents = await pdfService.list(req.authUser!.userId);

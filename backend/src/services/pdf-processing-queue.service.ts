@@ -25,7 +25,10 @@ class InMemoryPdfProcessingQueueService implements PdfProcessingQueueService {
         return;
       } catch (error) {
         if (attempt === env.pdfQueueAttempts) {
-          throw error;
+          const message = error instanceof Error ? error.message : 'Unknown queue processing error';
+          throw new Error(`PDF processing failed after ${env.pdfQueueAttempts} attempts: ${message}`, {
+            cause: error,
+          });
         }
 
         await new Promise((resolve) => {
@@ -47,6 +50,7 @@ class BullMqPdfProcessingQueueService implements PdfProcessingQueueService {
       username: redisUrl.username || undefined,
       password: redisUrl.password || undefined,
       db: Number.isNaN(db) ? undefined : db,
+      // BullMQ expects retry control at the job level; command retries can duplicate operations.
       maxRetriesPerRequest: null,
     };
   })();
@@ -72,7 +76,7 @@ class BullMqPdfProcessingQueueService implements PdfProcessingQueueService {
     );
 
     this.worker.on('error', (error) => {
-      logger.warn('PDF worker error; processing will fallback to retries in queue', {
+      logger.warn('PDF worker error; BullMQ configured retries will handle reprocessing', {
         message: error.message,
       });
     });

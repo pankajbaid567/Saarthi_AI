@@ -20,7 +20,7 @@ export interface StorageService {
 }
 
 const buildObjectKey = (fileName: string): string => {
-  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 200);
   return `pdfs/${new Date().toISOString().slice(0, 10)}/${randomUUID()}-${safeName}`;
 };
 
