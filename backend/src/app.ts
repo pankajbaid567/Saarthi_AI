@@ -15,6 +15,7 @@ import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
 import { createMainsRouter } from './routes/mains.routes.js';
 import { createPdfRouter } from './routes/pdf.routes.js';
+import { createSyllabusFlowRouter } from './routes/syllabus-flow.routes.js';
 import { createRevisionRouter } from './routes/revision.routes.js';
 import type { AnalyticsService } from './services/analytics.service.js';
 import { createTestsRouter } from './routes/tests.routes.js';
@@ -55,6 +56,7 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createMainsRouter());
   app.use('/api/v1', createPdfRouter());
   app.use('/api/v1', createTestsRouter());
+  app.use('/api/v1', createSyllabusFlowRouter());
   app.use('/api/v1', createMainsRouter());
   app.use('/api/v1', createChatRouter());
 
