@@ -3,8 +3,12 @@ import express from 'express';
 
 import { env } from './config/env.js';
 import { AppError } from './errors/app-error.js';
+import { authMiddleware } from './middleware/auth.middleware.js';
 import { errorHandler } from './middleware/error-handler.js';
+import { authRateLimiter } from './middleware/rate-limit.middleware.js';
+import { requireRole } from './middleware/rbac.middleware.js';
 import { validateRequest } from './middleware/request-validation.js';
+import { createAuthRouter } from './routes/auth.routes.js';
 import { echoRequestSchema } from './schemas/echo.schema.js';
 
 export const createApp = () => {
@@ -25,6 +29,12 @@ export const createApp = () => {
   app.post('/api/v1/system/echo', validateRequest(echoRequestSchema), (req, res) => {
     res.status(200).json({ message: req.body.message });
   });
+
+  app.get('/api/v1/system/admin/ping', authRateLimiter, authMiddleware, requireRole('admin'), (_req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+
+  app.use('/api/v1/auth', createAuthRouter());
 
   app.use((_req, _res, next) => {
     next(new AppError('Route not found', 404));
