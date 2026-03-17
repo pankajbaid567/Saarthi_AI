@@ -161,8 +161,9 @@ export default function MainsQuestionsPage() {
             <Link key={question.id} href={`/mains/${question.id}`} className="block rounded-md border border-border p-3 transition hover:bg-muted">
               <p className="text-sm font-medium">{question.questionText}</p>
               <p className="mt-2 text-xs text-muted-foreground">
-                {question.type.toUpperCase()} • {question.source.replace('_', ' ')} • {question.marks} marks •
-                Suggested {question.suggestedWordLimit} words
+                {question.type.toUpperCase()} • {(question.source ?? question.type).replace('_', ' ')} • {question.marks} marks
+                {' • '}
+                Suggested {question.suggestedWordLimit ?? question.wordLimit} words
               </p>
             </Link>
           ))}

@@ -1,6 +1,5 @@
 import { AppError } from '../errors/app-error.js';
 
-type PerformanceAttempt = {
 export type PerformanceQuestionAttempt = {
   id: string;
   userId: string;
@@ -8,48 +7,6 @@ export type PerformanceQuestionAttempt = {
   subjectName: string;
   topicId: string;
   topicName: string;
-  accuracy: number;
-  score: number;
-  attemptedAt: Date;
-  retentionScore: number;
-  syllabusCompletion: number;
-  confusionWithTopicId?: string;
-};
-
-type WeakArea = {
-  topicId: string;
-  topic: string;
-  accuracy: number;
-  severity: 'high' | 'medium' | 'low';
-  suggestion: string;
-  confusionPattern: string | null;
-};
-
-type PredictionResult = {
-  prelimsPrediction: {
-    score: number;
-    confidenceInterval: [number, number];
-    outOf: number;
-    category: 'Safe zone' | 'Borderline' | 'At risk';
-    trend: 'improving' | 'stable' | 'declining';
-  };
-  weakAreas: Array<Pick<WeakArea, 'topic' | 'accuracy' | 'severity' | 'suggestion'>>;
-  estimatedRank: {
-    range: string;
-    confidence: 'high' | 'moderate' | 'low';
-    note: string;
-  };
-  modelFactors: {
-    retentionScore: number;
-    syllabusCompletion: number;
-  };
-};
-
-type PerformanceServiceOptions = {
-  attempts?: PerformanceAttempt[];
-};
-
-const round = (value: number): number => Math.round(value * 100) / 100;
   isCorrect: boolean;
   timeSpentSeconds: number;
   completedAt: Date;
@@ -134,469 +91,248 @@ type PerformanceServiceOptions = {
 };
 
 const toPercentage = (value: number): number => Number((value * 100).toFixed(2));
-
-const average = (values: number[]): number => {
-  if (values.length === 0) {
-    return 0;
-  }
-
-  return round(values.reduce((sum, value) => sum + value, 0) / values.length);
-};
-
-export class PerformanceService {
-  private readonly attempts: PerformanceAttempt[];
-
-  constructor(options: PerformanceServiceOptions = {}) {
-    this.attempts = options.attempts ?? this.buildDefaultAttempts();
-  }
-
-  getOverview(userId: string) {
-    const userAttempts = this.getAttempts(userId);
-    const overallAccuracy = average(userAttempts.map((attempt) => attempt.accuracy));
-    const avgScore = average(userAttempts.map((attempt) => attempt.score));
-    const studyHours = round(userAttempts.length * 0.75);
-
-    const groupedBySubject = new Map<string, { subjectId: string; name: string; accuracy: number[]; testsAttempted: number }>();
-    userAttempts.forEach((attempt) => {
-      const current = groupedBySubject.get(attempt.subjectId) ?? {
-        subjectId: attempt.subjectId,
-        name: attempt.subjectName,
-        accuracy: [],
-        testsAttempted: 0,
-      };
-      current.accuracy.push(attempt.accuracy);
-      current.testsAttempted += 1;
-      groupedBySubject.set(attempt.subjectId, current);
-    });
-
-    return {
-      overall: {
-        testsAttempted: userAttempts.length,
-        totalQuestions: userAttempts.length * 25,
-        accuracy: overallAccuracy,
-        avgScore,
-      },
-      subjectWise: [...groupedBySubject.values()].map((item) => ({
-        subjectId: item.subjectId,
-        name: item.name,
-        accuracy: average(item.accuracy),
-        testsAttempted: item.testsAttempted,
-      })),
-      studyStreak: Math.min(30, userAttempts.length),
-      totalStudyHours: studyHours,
-    };
-  }
-
-  getSubject(userId: string, subjectId: string) {
-    const userAttempts = this.getAttempts(userId).filter((attempt) => attempt.subjectId === subjectId);
-    if (userAttempts.length === 0) {
-      throw new AppError('Subject performance not found', 404);
-    }
-
-    return {
-      subjectId,
-      subjectName: userAttempts[0]!.subjectName,
-      accuracy: average(userAttempts.map((attempt) => attempt.accuracy)),
-      retentionScore: average(userAttempts.map((attempt) => attempt.retentionScore)),
-      syllabusCompletion: average(userAttempts.map((attempt) => attempt.syllabusCompletion)),
-      attempts: userAttempts.length,
-    };
-  }
-
-  getTopic(userId: string, topicId: string) {
-    const userAttempts = this.getAttempts(userId).filter((attempt) => attempt.topicId === topicId);
-    if (userAttempts.length === 0) {
-      throw new AppError('Topic performance not found', 404);
-    }
-
-    const latest = userAttempts.sort((first, second) => second.attemptedAt.getTime() - first.attemptedAt.getTime())[0]!;
-    return {
-      topicId,
-      topicName: latest.topicName,
-      subjectId: latest.subjectId,
-      accuracy: average(userAttempts.map((attempt) => attempt.accuracy)),
-      retentionScore: average(userAttempts.map((attempt) => attempt.retentionScore)),
-      confusionWithTopicId: latest.confusionWithTopicId ?? null,
-      recommendation: `Revise ${latest.topicName} with focused active recall sessions.`,
-    };
-  }
-
-  getPredictions(userId: string): PredictionResult {
-    const userAttempts = this.getAttempts(userId);
-    const accuracies = userAttempts.map((attempt) => attempt.accuracy);
-    const baseAccuracy = average(accuracies);
-    const retentionScore = average(userAttempts.map((attempt) => attempt.retentionScore));
-    const syllabusCompletion = average(userAttempts.map((attempt) => attempt.syllabusCompletion));
-
-    const sorted = [...userAttempts].sort((first, second) => first.attemptedAt.getTime() - second.attemptedAt.getTime());
-    const midpoint = Math.max(1, Math.floor(sorted.length / 2));
-    const earlyAccuracy = average(sorted.slice(0, midpoint).map((attempt) => attempt.accuracy));
-    const lateAccuracy = average(sorted.slice(midpoint).map((attempt) => attempt.accuracy));
-    const delta = round(lateAccuracy - earlyAccuracy);
-
-    const trend: PredictionResult['prelimsPrediction']['trend'] = delta > 2 ? 'improving' : delta < -2 ? 'declining' : 'stable';
-    const weightedAccuracy = round(baseAccuracy * 0.7 + retentionScore * 0.15 + syllabusCompletion * 0.15);
-    const predictedScore = Math.min(200, Math.max(0, round((weightedAccuracy / 100) * 200)));
-    const spread = Math.max(4, Math.round(Math.max(0, 100 - userAttempts.length * 5) / 10));
-    const confidenceInterval: [number, number] = [
-      Math.max(0, predictedScore - spread),
-      Math.min(200, predictedScore + spread),
-    ];
-
-    const weakAreas = this.getWeakAreas(userId).slice(0, 3).map((item) => ({
-      topic: item.topic,
-      accuracy: item.accuracy,
-      severity: item.severity,
-      suggestion: item.suggestion,
-    }));
-
-    const category: PredictionResult['prelimsPrediction']['category'] =
-      predictedScore >= 95 ? 'Safe zone' : predictedScore >= 75 ? 'Borderline' : 'At risk';
-
-    const rankRange = predictedScore >= 95 ? '150-350' : predictedScore >= 75 ? '350-1200' : '1200+';
-    const confidence: PredictionResult['estimatedRank']['confidence'] =
-      userAttempts.length >= 8 ? 'high' : userAttempts.length >= 5 ? 'moderate' : 'low';
-
-    return {
-      prelimsPrediction: {
-        score: predictedScore,
-        confidenceInterval,
-        outOf: 200,
-        category,
-        trend,
-      },
-      weakAreas,
-      estimatedRank: {
-        range: rankRange,
-        confidence,
-        note: weakAreas.length > 0 ? `Improve ${weakAreas[0]!.topic} to tighten your rank range.` : 'Maintain momentum.',
-      },
-      modelFactors: {
-        retentionScore,
-        syllabusCompletion,
-      },
-    };
-  }
-
-  getWeakAreas(userId: string): WeakArea[] {
-    return this.getAttempts(userId)
-      .filter((attempt) => attempt.accuracy < 60)
-      .map((attempt) => {
-        const severity: WeakArea['severity'] =
-          attempt.accuracy < 40 ? 'high' : attempt.accuracy < 50 ? 'medium' : 'low';
-
-        return {
-          topicId: attempt.topicId,
-          topic: `${attempt.subjectName} - ${attempt.topicName}`,
-          accuracy: attempt.accuracy,
-          severity,
-          suggestion: `Practice 20 targeted questions on ${attempt.topicName} and revise error notes.`,
-          confusionPattern: attempt.confusionWithTopicId
-            ? `${attempt.topicName} is frequently confused with ${attempt.confusionWithTopicId}`
-            : null,
-        };
-      })
-      .sort((first, second) => first.accuracy - second.accuracy);
-  }
-
-  private getAttempts(userId: string): PerformanceAttempt[] {
-    const userAttempts = this.attempts.filter((attempt) => attempt.userId === userId);
-    if (userAttempts.length === 0) {
-      throw new AppError('Performance data not found', 404);
-    }
-
-    return userAttempts;
-  }
-
-  private buildDefaultAttempts(): PerformanceAttempt[] {
-    return [
-      {
-        userId: 'student-user-id',
-        subjectId: '11111111-1111-4111-8111-111111111111',
-        subjectName: 'Indian Polity',
-        topicId: '21111111-1111-4111-8111-111111111111',
-        topicName: 'Fundamental Rights',
-        accuracy: 68,
-        score: 66,
-        attemptedAt: new Date('2026-03-10T10:00:00.000Z'),
-        retentionScore: 62,
-        syllabusCompletion: 54,
-        confusionWithTopicId: 'Directive Principles',
-      },
-      {
-        userId: 'student-user-id',
-        subjectId: '11111111-1111-4111-8111-111111111111',
-        subjectName: 'Indian Polity',
-        topicId: '31111111-1111-4111-8111-111111111111',
-        topicName: 'Parliament',
-        accuracy: 74,
-        score: 72,
-        attemptedAt: new Date('2026-03-12T10:00:00.000Z'),
-        retentionScore: 69,
-        syllabusCompletion: 54,
-      },
-      {
-        userId: 'student-user-id',
-        subjectId: '41111111-1111-4111-8111-111111111111',
-        subjectName: 'Indian Economy',
-        topicId: '51111111-1111-4111-8111-111111111111',
-        topicName: 'External Sector',
-        accuracy: 46,
-        score: 44,
-        attemptedAt: new Date('2026-03-14T10:00:00.000Z'),
-        retentionScore: 52,
-        syllabusCompletion: 48,
-      },
-      {
-        userId: 'student-user-id',
-        subjectId: '41111111-1111-4111-8111-111111111111',
-        subjectName: 'Indian Economy',
-        topicId: '61111111-1111-4111-8111-111111111111',
-        topicName: 'Inflation',
-        accuracy: 58,
-        score: 56,
-        attemptedAt: new Date('2026-03-16T10:00:00.000Z'),
-        retentionScore: 57,
-        syllabusCompletion: 48,
-      },
-    ];
-  }
-}
-
-export const createPerformanceService = (options: PerformanceServiceOptions = {}) => new PerformanceService(options);
-  return Number((values.reduce((sum, value) => sum + value, 0) / values.length).toFixed(2));
-};
-
-const median = (values: number[]): number => {
-  if (values.length === 0) {
-    return 0;
-  }
-
-  const sorted = [...values].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  if (sorted.length % 2 === 0) {
-    const lower = sorted[middle - 1] ?? 0;
-    const upper = sorted[middle] ?? 0;
-    return Number(((lower + upper) / 2).toFixed(2));
-  }
-
-  return Number((sorted[middle] ?? 0).toFixed(2));
-};
-
-const normalizeDate = (date: Date): string => date.toISOString().slice(0, 10);
-const weakAreaTimeWeight = 0.5;
-const calculateWeakAreaSeverity = (accuracy: number, averageTimeSeconds: number): number =>
-  Number((100 - accuracy + averageTimeSeconds * weakAreaTimeWeight).toFixed(2));
+const average = (values: number[]): number => (values.length ? Number((values.reduce((s, v) => s + v, 0) / values.length).toFixed(2)) : 0);
+const dateKey = (value: Date): string => value.toISOString().slice(0, 10);
 
 export class PerformanceService {
   private readonly attempts: PerformanceQuestionAttempt[];
-
-  private readonly retentionBySubject = new Map<string, number>();
-
-  private readonly syllabusBySubject = new Map<string, number>();
+  private readonly subjectRetention: SubjectRetention[];
+  private readonly subjectSyllabusCompletion: SubjectSyllabusCompletion[];
 
   constructor(options: PerformanceServiceOptions = {}) {
-    this.attempts = options.attempts ?? [];
-
-    (options.subjectRetention ?? []).forEach((entry) => {
-      this.retentionBySubject.set(`${entry.userId}::${entry.subjectId}`, entry.averageRetention);
-    });
-
-    (options.subjectSyllabusCompletion ?? []).forEach((entry) => {
-      this.syllabusBySubject.set(`${entry.userId}::${entry.subjectId}`, entry.completionPercentage);
-    });
+    this.attempts = options.attempts ?? this.buildDefaultAttempts();
+    this.subjectRetention = options.subjectRetention ?? [];
+    this.subjectSyllabusCompletion = options.subjectSyllabusCompletion ?? [];
   }
 
-  private getUserAttempts(userId: string): PerformanceQuestionAttempt[] {
-    return this.attempts.filter((attempt) => attempt.userId === userId);
-  }
+  calculateDailySnapshot(userId: string, date: string): DailyPerformanceSnapshot {
+    const attempts = this.getAttempts(userId).filter((attempt) => dateKey(attempt.completedAt) === date);
 
-  private getAttemptsForDate(userId: string, date: string): PerformanceQuestionAttempt[] {
-    return this.getUserAttempts(userId).filter((attempt) => normalizeDate(attempt.completedAt) === date);
-  }
+    const accuracy = attempts.length ? toPercentage(attempts.filter((attempt) => attempt.isCorrect).length / attempts.length) : 0;
 
-  private buildSubjectBreakdown(userId: string, attempts: PerformanceQuestionAttempt[]): SubjectPerformanceSnapshot[] {
-    const grouped = new Map<
-      string,
-      { subjectId: string; subjectName: string; totalQuestions: number; correctAnswers: number; times: number[] }
-    >();
-
-    attempts.forEach((attempt) => {
-      const current = grouped.get(attempt.subjectId) ?? {
-        subjectId: attempt.subjectId,
-        subjectName: attempt.subjectName,
-        totalQuestions: 0,
-        correctAnswers: 0,
-        times: [],
+    const subjectBreakdown = this.groupBy(attempts, (attempt) => attempt.subjectId).map((group) => {
+      const first = group.items[0]!;
+      return {
+        subjectId: first.subjectId,
+        subjectName: first.subjectName,
+        accuracy: toPercentage(group.items.filter((item) => item.isCorrect).length / group.items.length),
+        averageTimeSeconds: average(group.items.map((item) => item.timeSpentSeconds)),
+        totalQuestions: group.items.length,
+        correctAnswers: group.items.filter((item) => item.isCorrect).length,
+        retentionAverage: this.getSubjectRetention(userId, first.subjectId),
+        syllabusCompletion: this.getSubjectCompletion(userId, first.subjectId),
       };
-      current.totalQuestions += 1;
-      if (attempt.isCorrect) {
-        current.correctAnswers += 1;
-      }
-      current.times.push(attempt.timeSpentSeconds);
-      grouped.set(attempt.subjectId, current);
     });
 
-    return [...grouped.values()]
-      .map((subject) => ({
-        subjectId: subject.subjectId,
-        subjectName: subject.subjectName,
-        accuracy: subject.totalQuestions === 0 ? 0 : toPercentage(subject.correctAnswers / subject.totalQuestions),
-        averageTimeSeconds: average(subject.times),
-        totalQuestions: subject.totalQuestions,
-        correctAnswers: subject.correctAnswers,
-        retentionAverage: this.retentionBySubject.get(`${userId}::${subject.subjectId}`) ?? 0,
-        syllabusCompletion: this.syllabusBySubject.get(`${userId}::${subject.subjectId}`) ?? 0,
-      }))
-      .sort((a, b) => a.accuracy - b.accuracy);
-  }
-
-  private buildTopicBreakdown(attempts: PerformanceQuestionAttempt[]): TopicPerformanceSnapshot[] {
-    const grouped = new Map<
-      string,
-      {
-        topicId: string;
-        topicName: string;
-        subjectId: string;
-        subjectName: string;
-        totalQuestions: number;
-        correctAnswers: number;
-        times: number[];
-      }
-    >();
-
-    attempts.forEach((attempt) => {
-      const current = grouped.get(attempt.topicId) ?? {
-        topicId: attempt.topicId,
-        topicName: attempt.topicName,
-        subjectId: attempt.subjectId,
-        subjectName: attempt.subjectName,
-        totalQuestions: 0,
-        correctAnswers: 0,
-        times: [],
+    const topicBreakdown = this.groupBy(attempts, (attempt) => `${attempt.subjectId}:${attempt.topicId}`).map((group) => {
+      const first = group.items[0]!;
+      return {
+        topicId: first.topicId,
+        topicName: first.topicName,
+        subjectId: first.subjectId,
+        subjectName: first.subjectName,
+        accuracy: toPercentage(group.items.filter((item) => item.isCorrect).length / group.items.length),
+        averageTimeSeconds: average(group.items.map((item) => item.timeSpentSeconds)),
+        totalQuestions: group.items.length,
+        correctAnswers: group.items.filter((item) => item.isCorrect).length,
       };
-      current.totalQuestions += 1;
-      if (attempt.isCorrect) {
-        current.correctAnswers += 1;
-      }
-      current.times.push(attempt.timeSpentSeconds);
-      grouped.set(attempt.topicId, current);
     });
 
-    return [...grouped.values()]
-      .map((topic) => ({
-        topicId: topic.topicId,
-        topicName: topic.topicName,
-        subjectId: topic.subjectId,
-        subjectName: topic.subjectName,
-        accuracy: topic.totalQuestions === 0 ? 0 : toPercentage(topic.correctAnswers / topic.totalQuestions),
-        averageTimeSeconds: average(topic.times),
-        totalQuestions: topic.totalQuestions,
-        correctAnswers: topic.correctAnswers,
-      }))
-      .sort((a, b) => a.accuracy - b.accuracy);
-  }
-
-  private buildTimeManagement(attempts: PerformanceQuestionAttempt[]): TimeManagementMetrics {
-    const times = attempts.map((attempt) => attempt.timeSpentSeconds);
-    const overSixty = attempts.filter((attempt) => attempt.timeSpentSeconds > 60).length;
-    return {
-      averageSecondsPerQuestion: average(times),
-      medianSecondsPerQuestion: median(times),
-      overSixtySecondsPercentage: attempts.length === 0 ? 0 : toPercentage(overSixty / attempts.length),
-    };
-  }
-
-  calculateDailySnapshot(userId: string, date = normalizeDate(new Date())): DailyPerformanceSnapshot {
-    const attempts = this.getAttemptsForDate(userId, date);
-    const totalQuestions = attempts.length;
-    const correctAnswers = attempts.filter((attempt) => attempt.isCorrect).length;
-    const accuracy = totalQuestions === 0 ? 0 : toPercentage(correctAnswers / totalQuestions);
+    const times = attempts.map((attempt) => attempt.timeSpentSeconds).sort((a, b) => a - b);
+    const median =
+      times.length === 0
+        ? 0
+        : times.length % 2 === 0
+          ? Number(((times[times.length / 2 - 1]! + times[times.length / 2]!) / 2).toFixed(2))
+          : times[Math.floor(times.length / 2)]!;
 
     return {
       date,
-      totalQuestions,
+      totalQuestions: attempts.length,
       accuracy,
-      subjectBreakdown: this.buildSubjectBreakdown(userId, attempts),
-      topicBreakdown: this.buildTopicBreakdown(attempts),
-      timeManagement: this.buildTimeManagement(attempts),
+      subjectBreakdown,
+      topicBreakdown,
+      timeManagement: {
+        averageSecondsPerQuestion: average(times),
+        medianSecondsPerQuestion: median,
+        overSixtySecondsPercentage: attempts.length
+          ? toPercentage(attempts.filter((attempt) => attempt.timeSpentSeconds > 60).length / attempts.length)
+          : 0,
+      },
     };
   }
 
-  getImprovementTrajectory(userId: string): PerformanceTrajectoryPoint[] {
-    const userAttempts = this.getUserAttempts(userId);
-    const dates = [...new Set(userAttempts.map((attempt) => normalizeDate(attempt.completedAt)))].sort();
-    return dates.map((date) => {
-      const snapshot = this.calculateDailySnapshot(userId, date);
-      return { date, accuracy: snapshot.accuracy };
-    });
-  }
-
   getOverview(userId: string): PerformanceOverview {
-    const trajectory = this.getImprovementTrajectory(userId);
-    const latestDate = trajectory.at(-1)?.date ?? normalizeDate(new Date());
-    const snapshot = this.calculateDailySnapshot(userId, latestDate);
+    const attempts = this.getAttempts(userId);
+    const dates = [...new Set(attempts.map((attempt) => dateKey(attempt.completedAt)))].sort();
+    const latestDate = dates.at(-1) ?? dateKey(new Date());
 
     return {
-      snapshot,
-      trajectory,
-      retentionAverage: average(snapshot.subjectBreakdown.map((subject) => subject.retentionAverage)),
-      syllabusCompletionAverage: average(snapshot.subjectBreakdown.map((subject) => subject.syllabusCompletion)),
+      snapshot: this.calculateDailySnapshot(userId, latestDate),
+      trajectory: dates.map((date) => ({ date, accuracy: this.calculateDailySnapshot(userId, date).accuracy })),
+      retentionAverage: average(this.subjectRetention.filter((item) => item.userId === userId).map((item) => item.averageRetention)),
+      syllabusCompletionAverage: average(
+        this.subjectSyllabusCompletion
+          .filter((item) => item.userId === userId)
+          .map((item) => item.completionPercentage),
+      ),
     };
   }
 
   getSubjectPerformance(userId: string, subjectId: string): SubjectPerformanceSnapshot {
-    const snapshot = this.getOverview(userId).snapshot.subjectBreakdown.find((subject) => subject.subjectId === subjectId);
-    if (!snapshot) {
-      throw new AppError('Subject performance not found', 404);
-    }
+    const attempts = this.getAttempts(userId).filter((attempt) => attempt.subjectId === subjectId);
+    if (attempts.length === 0) throw new AppError('Subject performance not found', 404);
 
-    return snapshot;
+    return {
+      subjectId,
+      subjectName: attempts[0]!.subjectName,
+      accuracy: toPercentage(attempts.filter((attempt) => attempt.isCorrect).length / attempts.length),
+      averageTimeSeconds: average(attempts.map((attempt) => attempt.timeSpentSeconds)),
+      totalQuestions: attempts.length,
+      correctAnswers: attempts.filter((attempt) => attempt.isCorrect).length,
+      retentionAverage: this.getSubjectRetention(userId, subjectId),
+      syllabusCompletion: this.getSubjectCompletion(userId, subjectId),
+    };
   }
 
   getTopicPerformance(userId: string, topicId: string): TopicPerformanceSnapshot {
-    const snapshot = this.getOverview(userId).snapshot.topicBreakdown.find((topic) => topic.topicId === topicId);
-    if (!snapshot) {
-      throw new AppError('Topic performance not found', 404);
-    }
+    const attempts = this.getAttempts(userId).filter((attempt) => attempt.topicId === topicId);
+    if (attempts.length === 0) throw new AppError('Topic performance not found', 404);
+    const first = attempts[0]!;
 
-    return snapshot;
+    return {
+      topicId,
+      topicName: first.topicName,
+      subjectId: first.subjectId,
+      subjectName: first.subjectName,
+      accuracy: toPercentage(attempts.filter((attempt) => attempt.isCorrect).length / attempts.length),
+      averageTimeSeconds: average(attempts.map((attempt) => attempt.timeSpentSeconds)),
+      totalQuestions: attempts.length,
+      correctAnswers: attempts.filter((attempt) => attempt.isCorrect).length,
+    };
   }
 
   getWeakAreas(userId: string): WeakArea[] {
-    const overview = this.getOverview(userId);
-    const weakSubjects: WeakArea[] = overview.snapshot.subjectBreakdown.map((subject) => ({
-      id: subject.subjectId,
-      name: subject.subjectName,
-      type: 'subject',
-      accuracy: subject.accuracy,
-      averageTimeSeconds: subject.averageTimeSeconds,
-      severity: calculateWeakAreaSeverity(subject.accuracy, subject.averageTimeSeconds),
-    }));
-
-    const weakTopics: WeakArea[] = overview.snapshot.topicBreakdown.map((topic) => ({
-      id: topic.topicId,
-      name: topic.topicName,
-      type: 'topic',
-      subjectId: topic.subjectId,
-      subjectName: topic.subjectName,
-      accuracy: topic.accuracy,
-      averageTimeSeconds: topic.averageTimeSeconds,
-      severity: calculateWeakAreaSeverity(topic.accuracy, topic.averageTimeSeconds),
-    }));
-
-    return [...weakSubjects, ...weakTopics]
-      .filter((area) => area.accuracy < 70)
+    const byTopic = this.groupBy(this.getAttempts(userId), (attempt) => `${attempt.subjectId}:${attempt.topicId}`);
+    return byTopic
+      .map((group) => {
+        const first = group.items[0]!;
+        const accuracy = toPercentage(group.items.filter((item) => item.isCorrect).length / group.items.length);
+        return {
+          id: first.topicId,
+          name: first.topicName,
+          type: 'topic' as const,
+          subjectId: first.subjectId,
+          subjectName: first.subjectName,
+          accuracy,
+          averageTimeSeconds: average(group.items.map((item) => item.timeSpentSeconds)),
+          severity: Number((100 - accuracy).toFixed(2)),
+        };
+      })
       .sort((a, b) => b.severity - a.severity);
+  }
+
+  getPredictions(userId: string) {
+    const overview = this.getOverview(userId);
+    const weakAreas = this.getWeakAreas(userId).slice(0, 3);
+    const score = Number(((overview.snapshot.accuracy / 100) * 200).toFixed(2));
+
+    return {
+      prelimsPrediction: {
+        score,
+        confidenceInterval: [Math.max(0, score - 8), Math.min(200, score + 8)] as [number, number],
+        outOf: 200,
+        category: score >= 95 ? 'Safe zone' : score >= 75 ? 'Borderline' : 'At risk',
+        trend: overview.trajectory.length > 1 && overview.trajectory.at(-1)!.accuracy > overview.trajectory[0]!.accuracy ? 'improving' : 'stable',
+      },
+      weakAreas: weakAreas.map((item) => ({
+        topic: `${item.subjectName} - ${item.name}`,
+        accuracy: item.accuracy,
+        severity: item.severity >= 60 ? 'high' : item.severity >= 40 ? 'medium' : 'low',
+        suggestion: `Practice focused MCQs on ${item.name}`,
+      })),
+      estimatedRank: {
+        range: score >= 95 ? '150-350' : score >= 75 ? '350-1200' : '1200+',
+        confidence: overview.trajectory.length >= 5 ? 'high' : 'moderate',
+        note: 'Improve weak topics to tighten prediction range.',
+      },
+      modelFactors: {
+        retentionScore: overview.retentionAverage,
+        syllabusCompletion: overview.syllabusCompletionAverage,
+      },
+    };
+  }
+
+  getSubject(userId: string, subjectId: string): SubjectPerformanceSnapshot {
+    return this.getSubjectPerformance(userId, subjectId);
+  }
+
+  getTopic(userId: string, topicId: string): TopicPerformanceSnapshot {
+    return this.getTopicPerformance(userId, topicId);
+  }
+
+  private getAttempts(userId: string): PerformanceQuestionAttempt[] {
+    const attempts = this.attempts.filter((attempt) => attempt.userId === userId);
+    if (attempts.length === 0) throw new AppError('Performance data not found', 404);
+    return attempts;
+  }
+
+  private getSubjectRetention(userId: string, subjectId: string): number {
+    return average(
+      this.subjectRetention
+        .filter((item) => item.userId === userId && item.subjectId === subjectId)
+        .map((item) => item.averageRetention),
+    );
+  }
+
+  private getSubjectCompletion(userId: string, subjectId: string): number {
+    return average(
+      this.subjectSyllabusCompletion
+        .filter((item) => item.userId === userId && item.subjectId === subjectId)
+        .map((item) => item.completionPercentage),
+    );
+  }
+
+  private groupBy<T>(items: T[], keyFn: (item: T) => string): Array<{ key: string; items: T[] }> {
+    const map = new Map<string, T[]>();
+    items.forEach((item) => {
+      const key = keyFn(item);
+      map.set(key, [...(map.get(key) ?? []), item]);
+    });
+    return [...map.entries()].map(([key, grouped]) => ({ key, items: grouped }));
+  }
+
+  private buildDefaultAttempts(): PerformanceQuestionAttempt[] {
+    return [
+      {
+        id: 'default-1',
+        userId: 'student-user-id',
+        subjectId: 'history',
+        subjectName: 'History',
+        topicId: 'modern',
+        topicName: 'Modern India',
+        isCorrect: false,
+        timeSpentSeconds: 75,
+        completedAt: new Date('2026-03-16T09:00:00.000Z'),
+      },
+      {
+        id: 'default-2',
+        userId: 'student-user-id',
+        subjectId: 'polity',
+        subjectName: 'Polity',
+        topicId: 'fr',
+        topicName: 'Fundamental Rights',
+        isCorrect: true,
+        timeSpentSeconds: 42,
+        completedAt: new Date('2026-03-16T09:05:00.000Z'),
+      },
+    ];
   }
 }
 
 const defaultPerformanceService = new PerformanceService();
 
 export const createPerformanceService = (options: PerformanceServiceOptions = {}): PerformanceService => {
-  if (Object.keys(options).length === 0) {
-    return defaultPerformanceService;
-  }
-
+  if (Object.keys(options).length === 0) return defaultPerformanceService;
   return new PerformanceService(options);
 };

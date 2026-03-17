@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 const idSchema = z.string().uuid();
-
 const recallQuestionTypeSchema = z.enum(['concept_recall', 'comparison', 'factual', 'application']);
+const microNoteTierSchema = z.enum(['30sec', '2min', '5min']);
 
 export const startActiveRecallSchema = z.object({
   body: z.object({
@@ -67,7 +67,8 @@ export const createFlashcardSchema = z.object({
     topicId: idSchema,
     front: z.string().min(1).max(500),
     back: z.string().min(1).max(5000),
-const microNoteTierSchema = z.enum(['30sec', '2min', '5min']);
+  }),
+});
 
 export const revisionDueQuerySchema = z.object({
   query: z.object({
@@ -100,12 +101,6 @@ export const microNotesGenerateSchema = z.object({
   body: z.object({
     topicId: idSchema,
     sourceContent: z.string().min(1).max(25000).optional(),
-  }),
-});
-
-export const microNotesIdSchema = z.object({
-  params: z.object({
-    id: idSchema,
   }),
 });
 

@@ -26,11 +26,8 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      res.status(200).json({
-        success: true,
-        data: performanceService.getOverview(req.authUser!.userId),
-      });
-      res.status(200).json(performanceService.getOverview(req.authUser!.userId));
+      const data = performanceService.getOverview(req.authUser!.userId);
+      res.status(200).json({ success: true, data, ...data });
     }),
   );
 
@@ -40,11 +37,8 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     authMiddleware,
     validateRequest(performanceSubjectSchema),
     asyncHandler(async (req, res) => {
-      res.status(200).json({
-        success: true,
-        data: performanceService.getSubject(req.authUser!.userId, req.params.id),
-      });
-      res.status(200).json(performanceService.getSubjectPerformance(req.authUser!.userId, req.params.id));
+      const data = performanceService.getSubject(req.authUser!.userId, req.params.id);
+      res.status(200).json({ success: true, data, ...data });
     }),
   );
 
@@ -54,10 +48,8 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     authMiddleware,
     validateRequest(performanceTopicSchema),
     asyncHandler(async (req, res) => {
-      res.status(200).json({
-        success: true,
-        data: performanceService.getTopic(req.authUser!.userId, req.params.id),
-      });
+      const data = performanceService.getTopic(req.authUser!.userId, req.params.id);
+      res.status(200).json({ success: true, data, ...data });
     }),
   );
 
@@ -70,7 +62,6 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
         success: true,
         data: performanceService.getPredictions(req.authUser!.userId),
       });
-      res.status(200).json(performanceService.getTopicPerformance(req.authUser!.userId, req.params.id));
     }),
   );
 
@@ -79,14 +70,10 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      res.status(200).json({
-        success: true,
-        data: performanceService.getWeakAreas(req.authUser!.userId),
-      });
-      res.status(200).json({ weakAreas: performanceService.getWeakAreas(req.authUser!.userId) });
+      const data = performanceService.getWeakAreas(req.authUser!.userId);
+      res.status(200).json({ success: true, data, weakAreas: data });
     }),
   );
 
   return router;
 };
-
