@@ -408,35 +408,35 @@
 
 ### Week 15: NeuroRevise AI – Core Engine
 
-- [ ] Forgetting curve computation service
-  - [ ] Per-topic retention score (0-100) based on recall history
-  - [ ] Subject-aware decay coefficients (factual > conceptual > analytical)
-  - [ ] Retention prediction at any future date
-  - [ ] Store in `forgetting_curve_data` table + MongoDB `revision_session_log`
-- [ ] Adaptive spaced repetition (DYNAMIC intervals, NOT fixed SM-2)
-  - [ ] Interval calculation based on: recall quality (1-5), topic difficulty, subject decay, past history
-  - [ ] Ease factor dynamically adjusted per review
-  - [ ] Priority engine: urgent (retention < 40%) → due → upcoming
-  - [ ] Auto-schedule first review when topic is studied
-- [ ] Revision schedule management
-  - [ ] **GET /api/v1/revision/due** — Today's due cards (priority-sorted)
-  - [ ] **GET /api/v1/revision/due?tier=30sec|2min|5min** — Filter by micro-note tier
-  - [ ] **POST /api/v1/revision/:topicId/review** — Submit recall quality (1-5), recompute interval
-  - [ ] **GET /api/v1/revision/dashboard** — Retention heatmap, due counts, streak
-  - [ ] **GET /api/v1/revision/forgetting-curve/:topicId** — Retention curve data
-  - [ ] **GET /api/v1/revision/forgetting-curve/bulk** — Bulk curves per subject
-  - [ ] **GET /api/v1/revision/retention-scores** — All per-topic retention scores with decay
-- [ ] Multi-tier micro-revision notes
-  - [ ] LLM auto-generates 30-second tier (3-4 bullets)
-  - [ ] LLM auto-generates 2-minute tier (8-10 bullets + mnemonics)
-  - [ ] LLM auto-generates 5-minute tier (detailed with context + examples)
-  - [ ] **GET /api/v1/revision/micro-notes/:topicId** — Get all 3 tiers
-  - [ ] **POST /api/v1/revision/micro-notes/generate** — Auto-generate from content
-  - [ ] **PUT /api/v1/revision/micro-notes/:id** — Edit micro-note
-  - [ ] Store in MongoDB `micro_note_content`
-- [ ] Unit tests for forgetting curve computation
-- [ ] Unit tests for adaptive interval calculation
-- [ ] Integration tests for all NeuroRevise endpoints
+- [x] Forgetting curve computation service
+  - [x] Per-topic retention score (0-100) based on recall history
+  - [x] Subject-aware decay coefficients (factual > conceptual > analytical)
+  - [x] Retention prediction at any future date
+  - [x] Store in `forgetting_curve_data` table + MongoDB `revision_session_log`
+- [x] Adaptive spaced repetition (DYNAMIC intervals, NOT fixed SM-2)
+  - [x] Interval calculation based on: recall quality (1-5), topic difficulty, subject decay, past history
+  - [x] Ease factor dynamically adjusted per review
+  - [x] Priority engine: urgent (retention < 40%) → due → upcoming
+  - [x] Auto-schedule first review when topic is studied
+- [x] Revision schedule management
+  - [x] **GET /api/v1/revision/due** — Today's due cards (priority-sorted)
+  - [x] **GET /api/v1/revision/due?tier=30sec|2min|5min** — Filter by micro-note tier
+  - [x] **POST /api/v1/revision/:topicId/review** — Submit recall quality (1-5), recompute interval
+  - [x] **GET /api/v1/revision/dashboard** — Retention heatmap, due counts, streak
+  - [x] **GET /api/v1/revision/forgetting-curve/:topicId** — Retention curve data
+  - [x] **GET /api/v1/revision/forgetting-curve/bulk** — Bulk curves per subject
+  - [x] **GET /api/v1/revision/retention-scores** — All per-topic retention scores with decay
+- [x] Multi-tier micro-revision notes
+  - [x] LLM auto-generates 30-second tier (3-4 bullets)
+  - [x] LLM auto-generates 2-minute tier (8-10 bullets + mnemonics)
+  - [x] LLM auto-generates 5-minute tier (detailed with context + examples)
+  - [x] **GET /api/v1/revision/micro-notes/:topicId** — Get all 3 tiers
+  - [x] **POST /api/v1/revision/micro-notes/generate** — Auto-generate from content
+  - [x] **PUT /api/v1/revision/micro-notes/:id** — Edit micro-note
+  - [x] Store in MongoDB `micro_note_content`
+- [x] Unit tests for forgetting curve computation
+- [x] Unit tests for adaptive interval calculation
+- [x] Integration tests for all NeuroRevise endpoints
 
 ### Week 16: NeuroRevise AI – Active Recall & Sprints
 
