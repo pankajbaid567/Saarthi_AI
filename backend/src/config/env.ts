@@ -41,4 +41,7 @@ export const env = {
   pdfQueueBackoffMs: Number(process.env.PDF_QUEUE_BACKOFF_MS ?? 1000),
   pdfBufferTtlMs: Number(process.env.PDF_BUFFER_TTL_MS ?? 900000),
   pdfInMemoryBufferLimitBytes: Number(process.env.PDF_IN_MEMORY_BUFFER_LIMIT_BYTES ?? 536870912),
+  llmProvider: process.env.LLM_PROVIDER ?? 'mock',
+  llmModel: process.env.LLM_MODEL ?? 'mock-llm',
+  llmApiKey: process.env.LLM_API_KEY ?? '',
 };

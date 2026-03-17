@@ -165,51 +165,51 @@
 
 ### Week 6: MCQ Engine Frontend
 
-- [ ] Test generation page
-  - [ ] Subject/topic selection
-  - [ ] Test type selection (topic/mixed/PYQ/weak-area)
-  - [ ] Question count selector
-  - [ ] Time limit selector
-- [ ] Test interface
-  - [ ] Question display with options (A/B/C/D)
-  - [ ] Total timer + per-question timer
-  - [ ] Question navigation panel (numbered grid)
-  - [ ] Flag for review functionality
-  - [ ] Mark for doubt
-  - [ ] Next/Previous navigation
-  - [ ] Auto-submit on time expiry
-  - [ ] Submit confirmation modal
-- [ ] Results page
-  - [ ] Score display with breakdown
-  - [ ] Correct/Incorrect/Skipped summary
-  - [ ] Question-by-question review
-  - [ ] Explanation display for each question
-  - [ ] Correct answer highlighting
-- [ ] Test history page
-  - [ ] List of past tests with scores
-  - [ ] Filter by type, subject, date
-  - [ ] Performance trend chart
+- [x] Test generation page
+  - [x] Subject/topic selection
+  - [x] Test type selection (topic/mixed/PYQ/weak-area)
+  - [x] Question count selector
+  - [x] Time limit selector
+- [x] Test interface
+  - [x] Question display with options (A/B/C/D)
+  - [x] Total timer + per-question timer
+  - [x] Question navigation panel (numbered grid)
+  - [x] Flag for review functionality
+  - [x] Mark for doubt
+  - [x] Next/Previous navigation
+  - [x] Auto-submit on time expiry
+  - [x] Submit confirmation modal
+- [x] Results page
+  - [x] Score display with breakdown
+  - [x] Correct/Incorrect/Skipped summary
+  - [x] Question-by-question review
+  - [x] Explanation display for each question
+  - [x] Correct answer highlighting
+- [x] Test history page
+  - [x] List of past tests with scores
+  - [x] Filter by type, subject, date
+  - [x] Performance trend chart
 
 ### Week 7: Post-Test Analytics (AI)
 
-- [ ] Analytics service backend
-  - [ ] **GET /api/v1/tests/:id/analytics** — Detailed analytics
-  - [ ] Accuracy by subject/topic
-  - [ ] Time per question analysis
-  - [ ] Silly mistakes detection (changed from right to wrong)
-  - [ ] Guessing pattern detection (very fast answers, random patterns)
-  - [ ] Concept gap identification (cluster wrong answers by topic)
-- [ ] AI analysis generation
-  - [ ] LLM-powered weakness analysis prompt
-  - [ ] Generate natural language insights
-  - [ ] Suggest topics for improvement
-- [ ] Analytics frontend
-  - [ ] Accuracy pie chart
-  - [ ] Time distribution histogram
-  - [ ] Topic-wise performance bar chart
-  - [ ] AI insights card (natural language)
-  - [ ] "Weak areas" section
-  - [ ] "Suggested next steps" section
+- [x] Analytics service backend
+  - [x] **GET /api/v1/tests/:id/analytics** — Detailed analytics
+  - [x] Accuracy by subject/topic
+  - [x] Time per question analysis
+  - [x] Silly mistakes detection (changed from right to wrong)
+  - [x] Guessing pattern detection (very fast answers, random patterns)
+  - [x] Concept gap identification (cluster wrong answers by topic)
+- [x] AI analysis generation
+  - [x] LLM-powered weakness analysis prompt
+  - [x] Generate natural language insights
+  - [x] Suggest topics for improvement
+- [x] Analytics frontend
+  - [x] Accuracy pie chart
+  - [x] Time distribution histogram
+  - [x] Topic-wise performance bar chart
+  - [x] AI insights card (natural language)
+  - [x] "Weak areas" section
+  - [x] "Suggested next steps" section
 
 ### Week 8: Quiz Chat System
 
