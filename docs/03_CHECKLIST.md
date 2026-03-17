@@ -613,45 +613,45 @@
 
 ### Week 21: Strategy Engine + Second Brain
 
-- [ ] Study plan generation service
-  - [ ] Daily plan algorithm
-    - [ ] Input: syllabus coverage (SyllabusFlow), weak areas, retention urgency (NeuroRevise), time available, target date
-    - [ ] Output: specific tasks (study X, practice Y MCQs, write Z answers, revise N topics)
-  - [ ] Weekly target generation
-  - [ ] Prelims vs Mains balance logic
-  - [ ] Include NeuroRevise revision slots in daily plan
-  - [ ] Include SyllabusFlow practice sets in daily plan
-- [ ] Strategy endpoints
-  - [ ] **GET /api/v1/strategy/today** — Today's plan (unified: study + practice + revision)
-  - [ ] **GET /api/v1/strategy/week** — Weekly plan
-  - [ ] **POST /api/v1/strategy/generate** — Force re-generate
-  - [ ] **PUT /api/v1/strategy/:id/complete** — Mark task complete
-- [ ] Adaptive logic
-  - [ ] Adjust based on completion rates
-  - [ ] Increase weak area focus
-  - [ ] Detect overload and reduce
-  - [ ] Burnout detection (declining engagement)
-- [ ] Second Brain module
-  - [ ] Auto-generate cross-topic insights from studied content (LLM)
-  - [ ] **GET /api/v1/second-brain/entries** — List entries
-  - [ ] **POST /api/v1/second-brain/entries** — Create manual entry
-  - [ ] **PUT /api/v1/second-brain/entries/:id** — Edit entry
-  - [ ] **DELETE /api/v1/second-brain/entries/:id** — Delete entry
-  - [ ] **GET /api/v1/second-brain/connections** — Cross-topic connections
-  - [ ] **GET /api/v1/second-brain/insights/auto-generated** — AI-generated insights
-  - [ ] Store in MongoDB `second_brain_entries`
-- [ ] Strategy frontend
-  - [ ] Daily plan page (unified task list: study + practice + revision + mains + essay)
-  - [ ] Weekly view (calendar-style)
-  - [ ] Completion percentage ring
-  - [ ] AI mentor suggestions card
-  - [ ] Target exam countdown
-  - [ ] Plan customization (adjust time available)
-- [ ] Second Brain frontend
-  - [ ] Feed view of cross-topic connections
-  - [ ] Create/edit insight entries
-  - [ ] Search within Second Brain
-  - [ ] Topic tags + importance indicators
+- [x] Study plan generation service
+  - [x] Daily plan algorithm
+    - [x] Input: syllabus coverage (SyllabusFlow), weak areas, retention urgency (NeuroRevise), time available, target date
+    - [x] Output: specific tasks (study X, practice Y MCQs, write Z answers, revise N topics)
+  - [x] Weekly target generation
+  - [x] Prelims vs Mains balance logic
+  - [x] Include NeuroRevise revision slots in daily plan
+  - [x] Include SyllabusFlow practice sets in daily plan
+- [x] Strategy endpoints
+  - [x] **GET /api/v1/strategy/today** — Today's plan (unified: study + practice + revision)
+  - [x] **GET /api/v1/strategy/week** — Weekly plan
+  - [x] **POST /api/v1/strategy/generate** — Force re-generate
+  - [x] **PUT /api/v1/strategy/:id/complete** — Mark task complete
+- [x] Adaptive logic
+  - [x] Adjust based on completion rates
+  - [x] Increase weak area focus
+  - [x] Detect overload and reduce
+  - [x] Burnout detection (declining engagement)
+- [x] Second Brain module
+  - [x] Auto-generate cross-topic insights from studied content (LLM)
+  - [x] **GET /api/v1/second-brain/entries** — List entries
+  - [x] **POST /api/v1/second-brain/entries** — Create manual entry
+  - [x] **PUT /api/v1/second-brain/entries/:id** — Edit entry
+  - [x] **DELETE /api/v1/second-brain/entries/:id** — Delete entry
+  - [x] **GET /api/v1/second-brain/connections** — Cross-topic connections
+  - [x] **GET /api/v1/second-brain/insights/auto-generated** — AI-generated insights
+  - [x] Store in MongoDB `second_brain_entries`
+- [x] Strategy frontend
+  - [x] Daily plan page (unified task list: study + practice + revision + mains + essay)
+  - [x] Weekly view (calendar-style)
+  - [x] Completion percentage ring
+  - [x] AI mentor suggestions card
+  - [x] Target exam countdown
+  - [x] Plan customization (adjust time available)
+- [x] Second Brain frontend
+  - [x] Feed view of cross-topic connections
+  - [x] Create/edit insight entries
+  - [x] Search within Second Brain
+  - [x] Topic tags + importance indicators
 
 ### Week 22: Integration Testing & Cross-Module Polish
 

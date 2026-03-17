@@ -294,4 +294,75 @@ export const week11Api = {
   rejectReviewItem: (id: string) => apiClient.post<AutoLinkReviewItem>(`/admin/review/content/${id}/reject`, {}),
 };
 
+export type StrategyTask = {
+  id: string;
+  type: 'study' | 'practice' | 'revision' | 'mains' | 'essay';
+  title: string;
+  estimatedMinutes: number;
+  source: 'SyllabusFlow' | 'NeuroRevise' | 'StrategyEngine';
+  completed: boolean;
+};
+
+export type StrategyDailyPlan = {
+  id: string;
+  date: string;
+  generatedAt: string;
+  tasks: StrategyTask[];
+  summary: {
+    completionPercent: number;
+    weakAreaFocus: string[];
+    overloadAdjusted: boolean;
+    burnoutRisk: boolean;
+    targetDate: string | null;
+  };
+};
+
+export type StrategyWeekPlan = {
+  weekStart: string;
+  plans: StrategyDailyPlan[];
+  targets: {
+    weeklyStudyMinutes: number;
+    weeklyPracticeQuestions: number;
+    mainsAnswers: number;
+    essayCount: number;
+  };
+};
+
+export type SecondBrainEntry = {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  importance: 'low' | 'medium' | 'high';
+  source: 'manual' | 'auto';
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const strategyApi = {
+  getToday: () => apiClient.get<StrategyDailyPlan>('/strategy/today'),
+  getWeek: () => apiClient.get<StrategyWeekPlan>('/strategy/week'),
+  generate: (payload?: {
+    syllabusCoveragePercent?: number;
+    weakAreas?: string[];
+    retentionUrgencyCount?: number;
+    timeAvailableMinutes?: number;
+    targetDate?: string;
+    prelimsFocusPercent?: number;
+  }) => apiClient.post<{ today: StrategyDailyPlan; week: StrategyWeekPlan }>('/strategy/generate', payload ?? {}),
+  completeTask: (taskId: string, completed = true) => apiClient.put<StrategyDailyPlan>(`/strategy/${taskId}/complete`, { completed }),
+};
+
+export const secondBrainApi = {
+  listEntries: (params?: { q?: string; tag?: string }) => apiClient.get<SecondBrainEntry[]>('/second-brain/entries', { params }),
+  createEntry: (payload: { title: string; content: string; tags?: string[]; importance?: 'low' | 'medium' | 'high' }) =>
+    apiClient.post<SecondBrainEntry>('/second-brain/entries', payload),
+  updateEntry: (id: string, payload: Partial<Pick<SecondBrainEntry, 'title' | 'content' | 'tags' | 'importance'>>) =>
+    apiClient.put<SecondBrainEntry>(`/second-brain/entries/${id}`, payload),
+  deleteEntry: (id: string) => apiClient.delete(`/second-brain/entries/${id}`),
+  getConnections: () =>
+    apiClient.get<Array<{ fromTag: string; toTag: string; strength: number; entryIds: string[] }>>('/second-brain/connections'),
+  getAutoInsights: () => apiClient.get<Array<{ id: string; insight: string; relatedTags: string[] }>>('/second-brain/insights/auto-generated'),
+};
+
 export default apiClient;
