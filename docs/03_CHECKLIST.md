@@ -642,7 +642,6 @@
 
 ### Week 22: Integration Testing & Cross-Module Polish
 
-- [x] Current-module integration baseline (Auth ↔ Learning ↔ MCQ Engine) with end-to-end backend tests
 - [ ] Cross-module integration
   - [ ] NeuroRevise ↔ Strategy Engine (revision slots in daily plan)
   - [ ] SyllabusFlow ↔ MCQ Engine (practice only from completed topics)
@@ -652,7 +651,7 @@
   - [ ] Second Brain ↔ Study sessions (auto-generate during study)
   - [ ] Current Affairs ↔ SyllabusFlow essays (linked prompts)
 - [ ] End-to-end user flow testing
-  - [x] Complete student journey: register → study → practice → evaluate
+  - [ ] Complete student journey: register → study → practice → revise → evaluate
   - [ ] SyllabusFlow flow: mark topic → generate practice → gate Mains → submit essay
   - [ ] NeuroRevise flow: study → forgetting curve builds → due cards → review → retention improves
 - [ ] Bug fixing and edge case handling
