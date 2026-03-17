@@ -15,6 +15,8 @@ const modes: Array<{ value: ChatMode; label: string }> = [
   { value: 'trap_questions', label: 'Trap Questions' },
 ];
 
+const formatMode = (mode: ChatMode): string => mode.replaceAll('_', ' ');
+
 export default function ChatPage() {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
@@ -89,7 +91,7 @@ export default function ChatPage() {
             >
               <p className="font-medium">{session.title}</p>
               <p className="text-xs text-muted-foreground">
-                {session.mode.replaceAll('_', ' ')} · {session.topic}
+                {formatMode(session.mode)} · {session.topic}
               </p>
             </button>
           ))}

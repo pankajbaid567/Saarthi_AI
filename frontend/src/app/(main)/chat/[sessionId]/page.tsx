@@ -56,7 +56,7 @@ export default function ChatSessionPage() {
     setStreamDraft('');
     try {
       await chatApi.sendMessageStream(params.sessionId, message, (chunk) => {
-        setStreamDraft((prev) => `${prev}${prev ? ' ' : ''}${chunk}`);
+        setStreamDraft((prev) => `${prev}${chunk}`);
       });
       await refreshSession();
       setInputValue('');

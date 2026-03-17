@@ -77,6 +77,7 @@ const MODE_HINTS: Record<ChatMode, string> = {
 };
 
 const OPTION_KEYS = ['A', 'B', 'C', 'D'] as const;
+const STREAM_CHUNK_SIZE = 8;
 
 const toDifficulty = (difficultyLevel: number): 'easy' | 'medium' | 'hard' => {
   if (difficultyLevel <= 1) {
@@ -256,8 +257,8 @@ export class ChatService {
     }
 
     const chunks: string[] = [];
-    for (let i = 0; i < words.length; i += 8) {
-      chunks.push(words.slice(i, i + 8).join(' '));
+    for (let i = 0; i < words.length; i += STREAM_CHUNK_SIZE) {
+      chunks.push(words.slice(i, i + STREAM_CHUNK_SIZE).join(' '));
     }
 
     return chunks;
@@ -275,7 +276,7 @@ export class ChatService {
 
     const difficulty = toDifficulty(session.difficultyLevel);
     const options = buildOptions(contentPool);
-    const correctIndex = Math.min(session.performance.attempted % OPTION_KEYS.length, OPTION_KEYS.length - 1);
+    const correctIndex = Math.floor(Math.random() * OPTION_KEYS.length);
     const correctAnswer = OPTION_KEYS[correctIndex];
     const selected = options[correctIndex]?.text ?? options[0]?.text ?? 'Correct option';
 
