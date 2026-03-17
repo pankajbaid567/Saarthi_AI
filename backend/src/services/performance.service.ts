@@ -236,6 +236,11 @@ export class PerformanceService {
     const overview = this.getOverview(userId);
     const weakAreas = this.getWeakAreas(userId).slice(0, 3);
     const score = Number(((overview.snapshot.accuracy / 100) * 200).toFixed(2));
+    const firstAccuracy = overview.trajectory[0]?.accuracy ?? overview.snapshot.accuracy;
+    const lastAccuracy = overview.trajectory.at(-1)?.accuracy ?? overview.snapshot.accuracy;
+    const trendDelta = Number((lastAccuracy - firstAccuracy).toFixed(2));
+    const trend: 'improving' | 'stable' | 'declining' =
+      trendDelta > 2 ? 'improving' : trendDelta < -2 ? 'declining' : 'stable';
 
     return {
       prelimsPrediction: {
@@ -243,7 +248,7 @@ export class PerformanceService {
         confidenceInterval: [Math.max(0, score - 8), Math.min(200, score + 8)] as [number, number],
         outOf: 200,
         category: score >= 95 ? 'Safe zone' : score >= 75 ? 'Borderline' : 'At risk',
-        trend: overview.trajectory.length > 1 && overview.trajectory.at(-1)!.accuracy > overview.trajectory[0]!.accuracy ? 'improving' : 'stable',
+        trend,
       },
       weakAreas: weakAreas.map((item) => ({
         topic: `${item.subjectName} - ${item.name}`,

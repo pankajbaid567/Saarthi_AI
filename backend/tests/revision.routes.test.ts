@@ -127,11 +127,13 @@ describe('revision routes', () => {
       .post('/api/v1/subjects')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ name: 'History' });
+    expect(subjectResponse.status).toBe(201);
 
     const topicResponse = await request(app)
       .post('/api/v1/topics')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ subjectId: subjectResponse.body.id, name: 'Non-Cooperation Movement' });
+    expect(topicResponse.status).toBe(201);
 
     await request(app)
       .post('/api/v1/content')

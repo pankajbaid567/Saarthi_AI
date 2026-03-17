@@ -119,7 +119,7 @@ const addDays = (value: Date, days: number): Date => {
   return next;
 };
 
-const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
+const clamp = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
 const dayKey = (value: Date): string => value.toISOString().slice(0, 10);
 
 const inferDecayProfile = (subjectName: string): DecayProfile => {
@@ -158,11 +158,17 @@ const toQuestionText = (topicName: string, type: RecallQuestionType): string => 
 const scoreAnswer = (userAnswer: string, expectedAnswer: string, confidenceLevel: number | null): number => {
   const answer = userAnswer.trim().toLowerCase();
   if (!answer) return 0;
+  const answerWords = new Set(
+    answer
+      .split(/\W+/)
+      .map((word) => word.trim())
+      .filter((word) => word.length >= 3),
+  );
   const expectedWords = expectedAnswer
     .toLowerCase()
     .split(/\W+/)
     .filter((word) => word.length >= 5);
-  const overlap = expectedWords.filter((word) => answer.includes(word)).length;
+  const overlap = expectedWords.filter((word) => answerWords.has(word)).length;
   const lexicalScore = expectedWords.length === 0 ? 50 : Math.round((overlap / expectedWords.length) * 100);
   const confidenceBoost = confidenceLevel === null ? 0 : (confidenceLevel - 3) * 4;
   return clamp(lexicalScore + confidenceBoost, 0, 100);
@@ -170,7 +176,7 @@ const scoreAnswer = (userAnswer: string, expectedAnswer: string, confidenceLevel
 
 const buildMicroNoteFromContent = (content: string, tier: MicroNoteTier): string => {
   const lines = content
-    .split(/\n|\./)
+    .split('\n')
     .map((line) => line.trim())
     .filter(Boolean);
   const count = tier === '30sec' ? 4 : tier === '2min' ? 10 : 16;
@@ -459,8 +465,16 @@ export class RevisionService {
     }
     longest = Math.max(longest, running);
 
+    let current = 1;
+    for (let i = history.length - 1; i > 0; i -= 1) {
+      const delta =
+        (new Date(`${history[i]}T00:00:00.000Z`).getTime() - new Date(`${history[i - 1]}T00:00:00.000Z`).getTime()) / dayMs;
+      if (delta <= streakGraceDays + 1) current += 1;
+      else break;
+    }
+
     return {
-      current: running,
+      current,
       longest,
       lastRevisionDate: history.at(-1) ?? null,
       graceDaysRemaining: 1,

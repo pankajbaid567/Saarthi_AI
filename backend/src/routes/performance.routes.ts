@@ -27,7 +27,7 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     authMiddleware,
     asyncHandler(async (req, res) => {
       const data = performanceService.getOverview(req.authUser!.userId);
-      res.status(200).json({ success: true, data, ...data });
+      res.status(200).json({ success: true, data });
     }),
   );
 
@@ -38,7 +38,7 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     validateRequest(performanceSubjectSchema),
     asyncHandler(async (req, res) => {
       const data = performanceService.getSubject(req.authUser!.userId, req.params.id);
-      res.status(200).json({ success: true, data, ...data });
+      res.status(200).json({ success: true, data });
     }),
   );
 
@@ -49,7 +49,7 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     validateRequest(performanceTopicSchema),
     asyncHandler(async (req, res) => {
       const data = performanceService.getTopic(req.authUser!.userId, req.params.id);
-      res.status(200).json({ success: true, data, ...data });
+      res.status(200).json({ success: true, data });
     }),
   );
 
@@ -71,7 +71,7 @@ export const createPerformanceRouter = (options: CreatePerformanceRouterOptions 
     authMiddleware,
     asyncHandler(async (req, res) => {
       const data = performanceService.getWeakAreas(req.authUser!.userId);
-      res.status(200).json({ success: true, data, weakAreas: data });
+      res.status(200).json({ success: true, data });
     }),
   );
 
