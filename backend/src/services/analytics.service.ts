@@ -97,10 +97,12 @@ const median = (values: number[]): number => {
   const sorted = [...values].sort((a, b) => a - b);
   const middle = Math.floor(sorted.length / 2);
   if (sorted.length % 2 === 0) {
-    return Number(((sorted[middle - 1]! + sorted[middle]!) / 2).toFixed(2));
+    const lower = sorted[middle - 1] ?? 0;
+    const upper = sorted[middle] ?? 0;
+    return Number(((lower + upper) / 2).toFixed(2));
   }
 
-  return sorted[middle]!;
+  return sorted[middle] ?? 0;
 };
 
 export type AnalyticsServiceOptions = {

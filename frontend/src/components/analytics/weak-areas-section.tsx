@@ -12,8 +12,8 @@ export function WeakAreasSection({ weakAreas }: WeakAreasSectionProps) {
       </CardHeader>
       <CardContent>
         <ul className="list-disc space-y-1 pl-6 text-sm text-muted-foreground">
-          {weakAreas.map((item) => (
-            <li key={item}>{item}</li>
+          {weakAreas.map((item, index) => (
+            <li key={`${item}-${index}`}>{item}</li>
           ))}
         </ul>
       </CardContent>

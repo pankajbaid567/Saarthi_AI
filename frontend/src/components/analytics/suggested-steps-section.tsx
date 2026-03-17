@@ -12,8 +12,8 @@ export function SuggestedStepsSection({ steps }: SuggestedStepsSectionProps) {
       </CardHeader>
       <CardContent>
         <ol className="list-decimal space-y-1 pl-6 text-sm text-muted-foreground">
-          {steps.map((item) => (
-            <li key={item}>{item}</li>
+          {steps.map((item, index) => (
+            <li key={`${item}-${index}`}>{item}</li>
           ))}
         </ol>
       </CardContent>
