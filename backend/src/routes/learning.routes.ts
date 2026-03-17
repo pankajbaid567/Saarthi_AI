@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { Router } from 'express';
 
 import { authMiddleware } from '../middleware/auth.middleware.js';
+import { authRateLimiter } from '../middleware/rate-limit.middleware.js';
 import { validateRequest } from '../middleware/request-validation.js';
 import {
   createUserBookmarkSchema,
@@ -62,6 +63,7 @@ export const createLearningRouter = (options: CreateLearningRouterOptions = {}):
 
   router.post(
     '/progress/topic/:id',
+    authRateLimiter,
     authMiddleware,
     validateRequest(markTopicProgressSchema),
     asyncHandler(async (req, res) => {
@@ -71,6 +73,7 @@ export const createLearningRouter = (options: CreateLearningRouterOptions = {}):
 
   router.get(
     '/progress',
+    authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
       res.status(200).json(learningService.getOverallProgress(req.authUser!.userId));
@@ -79,6 +82,7 @@ export const createLearningRouter = (options: CreateLearningRouterOptions = {}):
 
   router.post(
     '/user/highlights',
+    authRateLimiter,
     authMiddleware,
     validateRequest(createUserHighlightSchema),
     asyncHandler(async (req, res) => {
@@ -88,6 +92,7 @@ export const createLearningRouter = (options: CreateLearningRouterOptions = {}):
 
   router.get(
     '/user/highlights',
+    authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
       res.status(200).json(learningService.listUserHighlights(req.authUser!.userId));
@@ -96,6 +101,7 @@ export const createLearningRouter = (options: CreateLearningRouterOptions = {}):
 
   router.delete(
     '/user/highlights/:id',
+    authRateLimiter,
     authMiddleware,
     validateRequest(deleteUserHighlightSchema),
     asyncHandler(async (req, res) => {
@@ -106,6 +112,7 @@ export const createLearningRouter = (options: CreateLearningRouterOptions = {}):
 
   router.post(
     '/user/bookmarks',
+    authRateLimiter,
     authMiddleware,
     validateRequest(createUserBookmarkSchema),
     asyncHandler(async (req, res) => {
@@ -115,6 +122,7 @@ export const createLearningRouter = (options: CreateLearningRouterOptions = {}):
 
   router.get(
     '/user/bookmarks',
+    authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
       res.status(200).json(learningService.listUserBookmarks(req.authUser!.userId));
@@ -123,6 +131,7 @@ export const createLearningRouter = (options: CreateLearningRouterOptions = {}):
 
   router.delete(
     '/user/bookmarks/:id',
+    authRateLimiter,
     authMiddleware,
     validateRequest(deleteUserBookmarkSchema),
     asyncHandler(async (req, res) => {
