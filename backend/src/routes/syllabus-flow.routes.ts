@@ -4,6 +4,7 @@ import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 import { authRateLimiter } from '../middleware/rate-limit.middleware.js';
 import { validateRequest } from '../middleware/request-validation.js';
+import { cacheKeys, cacheTtlSeconds, getCachedJson, setCachedJson } from '../lib/cache.js';
 import {
   generatePracticeSchema,
   getSubjectProgressSchema,
@@ -32,7 +33,17 @@ export const createSyllabusFlowRouter = (options: CreateSyllabusFlowRouterOption
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      res.status(200).json(syllabusFlowService.getProgress(req.authUser!.userId));
+      const userId = req.authUser!.userId;
+      const cacheKey = cacheKeys.syllabusProgress(userId);
+      const cachedData = await getCachedJson<ReturnType<SyllabusFlowService['getProgress']>>(cacheKey);
+      if (cachedData) {
+        res.status(200).json(cachedData);
+        return;
+      }
+
+      const data = syllabusFlowService.getProgress(userId);
+      await setCachedJson(cacheKey, data, cacheTtlSeconds.syllabusProgress);
+      res.status(200).json(data);
     }),
   );
 
@@ -42,7 +53,17 @@ export const createSyllabusFlowRouter = (options: CreateSyllabusFlowRouterOption
     authMiddleware,
     validateRequest(getSubjectProgressSchema),
     asyncHandler(async (req, res) => {
-      res.status(200).json(syllabusFlowService.getSubjectProgress(req.authUser!.userId, req.params.subjectId));
+      const userId = req.authUser!.userId;
+      const cacheKey = cacheKeys.syllabusProgress(userId, req.params.subjectId);
+      const cachedData = await getCachedJson<ReturnType<SyllabusFlowService['getSubjectProgress']>>(cacheKey);
+      if (cachedData) {
+        res.status(200).json(cachedData);
+        return;
+      }
+
+      const data = syllabusFlowService.getSubjectProgress(userId, req.params.subjectId);
+      await setCachedJson(cacheKey, data, cacheTtlSeconds.syllabusProgress);
+      res.status(200).json(data);
     }),
   );
 
@@ -81,7 +102,17 @@ export const createSyllabusFlowRouter = (options: CreateSyllabusFlowRouterOption
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      res.status(200).json(syllabusFlowService.getDailyPracticeQueue(req.authUser!.userId));
+      const userId = req.authUser!.userId;
+      const cacheKey = cacheKeys.dailyPracticeQueue(userId);
+      const cachedData = await getCachedJson<ReturnType<SyllabusFlowService['getDailyPracticeQueue']>>(cacheKey);
+      if (cachedData) {
+        res.status(200).json(cachedData);
+        return;
+      }
+
+      const data = syllabusFlowService.getDailyPracticeQueue(userId);
+      await setCachedJson(cacheKey, data, cacheTtlSeconds.dailyPracticeQueue);
+      res.status(200).json(data);
     }),
   );
 

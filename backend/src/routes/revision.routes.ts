@@ -4,6 +4,7 @@ import { Router } from 'express';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 import { authRateLimiter } from '../middleware/rate-limit.middleware.js';
 import { validateRequest } from '../middleware/request-validation.js';
+import { cacheKeys, cacheTtlSeconds, getCachedJson, setCachedJson } from '../lib/cache.js';
 import {
   activeRecallSessionIdSchema,
   completeRevisionSprintSchema,
@@ -199,7 +200,17 @@ export const createRevisionRouter = (options: CreateRevisionRouterOptions = {}):
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      res.status(200).json(revisionService.getRetentionScores(req.authUser!.userId));
+      const userId = req.authUser!.userId;
+      const cacheKey = cacheKeys.retentionScores(userId);
+      const cachedData = await getCachedJson<ReturnType<RevisionService['getRetentionScores']>>(cacheKey);
+      if (cachedData) {
+        res.status(200).json(cachedData);
+        return;
+      }
+
+      const data = revisionService.getRetentionScores(userId);
+      await setCachedJson(cacheKey, data, cacheTtlSeconds.retentionScores);
+      res.status(200).json(data);
     }),
   );
 
