@@ -37,7 +37,7 @@ const createTestAccessToken = (role: 'student' | 'admin', userId = `${role}-user
   );
 };
 
-describe('analytics route integration via createApp', () => {
+describe('GET /api/v1/tests/:id/analytics integration', () => {
   it('returns analytics through mounted app router when backend is connected', async () => {
     const app = createApp({ analyticsService: new AnalyticsService({ attempts: [attempt] }) });
     const studentToken = createTestAccessToken('student', 'student-user-id');

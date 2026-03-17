@@ -21,6 +21,11 @@ export default function TestAnalyticsPage() {
     let active = true;
 
     const load = async () => {
+      if (active) {
+        setLoading(true);
+        setError(null);
+      }
+
       if (!params.id) {
         if (active) {
           setLoading(false);
@@ -30,8 +35,6 @@ export default function TestAnalyticsPage() {
       }
 
       try {
-        setLoading(true);
-        setError(null);
         const response = await testsApi.getAnalytics(params.id);
         if (active) {
           setAnalytics(response.data as TestAnalyticsResponse);
