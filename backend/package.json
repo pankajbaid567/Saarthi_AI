@@ -23,6 +23,7 @@
     "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.0",
+    "rate-limit-redis": "^4.3.0",
     "winston": "^3.19.0",
     "zod": "^4.3.6"
   },

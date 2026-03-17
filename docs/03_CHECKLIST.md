@@ -33,21 +33,21 @@
 
 ### Week 1: Authentication System
 
-- [ ] **POST /api/v1/auth/register** — Email/password registration
-- [ ] Email verification flow (send verification email)
-- [ ] **POST /api/v1/auth/login** — Login with JWT issuance
-- [ ] **POST /api/v1/auth/refresh** — Refresh token rotation
-- [ ] **POST /api/v1/auth/logout** — Invalidate refresh token
-- [ ] **GET /api/v1/auth/me** — Get current user profile
-- [ ] **POST /api/v1/auth/forgot-password** — Password reset request
-- [ ] **POST /api/v1/auth/reset-password** — Password reset execution
-- [ ] Google OAuth integration
-- [ ] Auth middleware (protect routes)
-- [ ] Role-based access middleware (student/admin/content_manager)
-- [ ] Rate limiting middleware (express-rate-limit + Redis store)
-- [ ] Session management in Redis
-- [ ] Unit tests for auth service
-- [ ] Integration tests for auth endpoints
+- [x] **POST /api/v1/auth/register** — Email/password registration
+- [x] Email verification flow (send verification email)
+- [x] **POST /api/v1/auth/login** — Login with JWT issuance
+- [x] **POST /api/v1/auth/refresh** — Refresh token rotation
+- [x] **POST /api/v1/auth/logout** — Invalidate refresh token
+- [x] **GET /api/v1/auth/me** — Get current user profile
+- [x] **POST /api/v1/auth/forgot-password** — Password reset request
+- [x] **POST /api/v1/auth/reset-password** — Password reset execution
+- [x] Google OAuth integration
+- [x] Auth middleware (protect routes)
+- [x] Role-based access middleware (student/admin/content_manager)
+- [x] Rate limiting middleware (express-rate-limit + Redis store)
+- [x] Session management in Redis
+- [x] Unit tests for auth service
+- [x] Integration tests for auth endpoints
 
 ### Week 2: Knowledge Graph — Schema & CRUD
 
