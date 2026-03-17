@@ -117,6 +117,9 @@ const median = (values: number[]): number => {
 };
 
 const normalizeDate = (date: Date): string => date.toISOString().slice(0, 10);
+const weakAreaTimeWeight = 0.5;
+const calculateWeakAreaSeverity = (accuracy: number, averageTimeSeconds: number): number =>
+  Number((100 - accuracy + averageTimeSeconds * weakAreaTimeWeight).toFixed(2));
 
 export class PerformanceService {
   private readonly attempts: PerformanceQuestionAttempt[];
@@ -301,7 +304,7 @@ export class PerformanceService {
       type: 'subject',
       accuracy: subject.accuracy,
       averageTimeSeconds: subject.averageTimeSeconds,
-      severity: Number((100 - subject.accuracy + subject.averageTimeSeconds / 2).toFixed(2)),
+      severity: calculateWeakAreaSeverity(subject.accuracy, subject.averageTimeSeconds),
     }));
 
     const weakTopics: WeakArea[] = overview.snapshot.topicBreakdown.map((topic) => ({
@@ -312,7 +315,7 @@ export class PerformanceService {
       subjectName: topic.subjectName,
       accuracy: topic.accuracy,
       averageTimeSeconds: topic.averageTimeSeconds,
-      severity: Number((100 - topic.accuracy + topic.averageTimeSeconds / 2).toFixed(2)),
+      severity: calculateWeakAreaSeverity(topic.accuracy, topic.averageTimeSeconds),
     }));
 
     return [...weakSubjects, ...weakTopics]
