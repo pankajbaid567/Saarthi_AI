@@ -45,6 +45,9 @@ export function Sidebar() {
         <Link href="/chat" className="block rounded px-2 py-1.5 hover:bg-muted">
           Quiz Chat
         </Link>
+        <Link href="/admin/review" className="block rounded px-2 py-1.5 hover:bg-muted">
+          Admin Review
+        </Link>
       </nav>
       <div className="mt-6">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Subject tree</p>

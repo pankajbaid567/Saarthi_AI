@@ -65,6 +65,7 @@ export const updateTopicSchema = z.object({
 });
 
 const contentNodeTypeSchema = z.enum(['concept', 'fact', 'highlight', 'micro_note', 'pyq']);
+const autoLinkReviewStatusSchema = z.enum(['pending', 'approved', 'rejected', 'merged']);
 
 export const contentIdSchema = z.object({
   params: z.object({
@@ -95,4 +96,79 @@ export const updateContentNodeSchema = z.object({
     .refine((value) => Object.keys(value).length > 0, {
       message: 'At least one field is required',
     }),
+});
+
+const extractedTextSchema = z.object({
+  text: z.string().min(1).max(10000),
+});
+
+export const autoLinkExtractedContentSchema = z.object({
+  body: z
+    .object({
+      mcqs: z
+        .array(
+          z.object({
+            question: z.string().min(1).max(2000),
+            options: z.array(z.string().min(1).max(500)).min(2).max(6),
+            explanation: z.string().max(5000).optional(),
+          }),
+        )
+        .optional(),
+      concepts: z.array(extractedTextSchema).optional(),
+      facts: z.array(extractedTextSchema).optional(),
+      mainsQuestions: z
+        .array(
+          z.object({
+            question: z.string().min(1).max(3000),
+            marks: z.number().int().min(1).max(50).optional(),
+            modelAnswer: z.string().max(10000).optional(),
+          }),
+        )
+        .optional(),
+    })
+    .refine((value) => Object.values(value).some((list) => list && list.length > 0), {
+      message: 'At least one extracted content category is required',
+    }),
+});
+
+export const listAutoLinkReviewItemsSchema = z.object({
+  query: z.object({
+    status: autoLinkReviewStatusSchema.optional(),
+  }),
+});
+
+export const approveAutoLinkReviewItemSchema = z.object({
+  params: z.object({
+    id: idSchema,
+  }),
+  body: z
+    .object({
+      topicId: idSchema.optional(),
+      editedText: z.string().min(1).max(10000).optional(),
+    })
+    .optional()
+    .default({}),
+});
+
+export const rejectAutoLinkReviewItemSchema = z.object({
+  params: z.object({
+    id: idSchema,
+  }),
+});
+
+export const mergeAutoLinkReviewItemsSchema = z.object({
+  body: z.object({
+    primaryId: idSchema,
+    duplicateId: idSchema,
+  }),
+});
+
+export const createTopicFromSuggestionSchema = z.object({
+  params: z.object({
+    id: idSchema,
+  }),
+  body: z.object({
+    subjectId: idSchema,
+    name: z.string().min(2).max(140).optional(),
+  }),
 });
