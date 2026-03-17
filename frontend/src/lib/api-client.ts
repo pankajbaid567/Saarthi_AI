@@ -70,6 +70,76 @@ export const testsApi = {
   getAnalytics: (id: string) => apiClient.get<TestAnalyticsResponse>(`/tests/${id}/analytics`),
 };
 
+export type RevisionPrediction = {
+  topicId: string;
+  topicName: string;
+  currentRetention: number;
+  predictedRetentionIn7Days: number;
+  decayRate: number;
+  recommendation: string;
+  alert: 'high' | 'moderate';
+};
+
+export type FlashcardItem = {
+  id: string;
+  topicId: string;
+  front: string;
+  back: string;
+  source: 'auto' | 'manual';
+  nextReviewAt: string;
+  lastRating: 'easy' | 'good' | 'hard' | 'forgot' | null;
+};
+
+export type ActiveRecallQuestion = {
+  id: string;
+  topicId: string;
+  type: 'concept_recall' | 'comparison' | 'factual' | 'application';
+  questionText: string;
+  expectedAnswer: string;
+};
+
+export const revisionApi = {
+  getPredictions: () =>
+    apiClient.get<{
+      success: boolean;
+      data: {
+        predictedToForget: RevisionPrediction[];
+        alerts: Array<{ topicId: string; topicName: string; message: string; severity: 'high' | 'moderate' }>;
+      };
+    }>('/revision/predictions'),
+  getStreaks: () =>
+    apiClient.get<{
+      success: boolean;
+      data: {
+        current: number;
+        longest: number;
+        lastRevisionDate: string | null;
+        graceDaysRemaining: number;
+        history: string[];
+      };
+    }>('/revision/streaks'),
+  getFlashcards: (params?: { due?: boolean; limit?: number }) =>
+    apiClient.get<{ success: boolean; data: FlashcardItem[] }>('/revision/flashcards', {
+      params,
+    }),
+  startSprint: (payload: { durationMinutes: 15 | 30 | 45; crashMode?: boolean; daysRemaining?: number }) =>
+    apiClient.post<{
+      success: boolean;
+      data: { sprintId: string; dailyTargetTopics: number | null; totalTopics: number; topics: Array<{ topicName: string }> };
+    }>('/revision/sprint/start', payload),
+  startActiveRecall: (payload: { topicIds: string[]; questionCount: number }) =>
+    apiClient.post<{
+      success: boolean;
+      data: { sessionId: string; questions: ActiveRecallQuestion[]; totalQuestions: number };
+    }>('/revision/active-recall/start', payload),
+  submitActiveRecallAnswer: (
+    sessionId: string,
+    payload: { questionId: string; userAnswer: string; confidenceLevel?: number },
+  ) =>
+    apiClient.post<{ success: boolean; data: { questionId: string; score: number } }>(
+      `/revision/active-recall/${sessionId}/answer`,
+      payload,
+    ),
 export type MainsQuestion = {
   id: string;
   topicId: string;

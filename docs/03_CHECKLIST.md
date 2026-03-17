@@ -440,44 +440,44 @@
 
 ### Week 16: NeuroRevise AI – Active Recall & Sprints
 
-- [ ] Active Recall Booster
-  - [ ] LLM generates recall questions per topic (concept_recall, comparison, factual, application)
-  - [ ] Store in `active_recall_questions` table
-  - [ ] **POST /api/v1/revision/active-recall/start** — Begin session (select topics, question count)
-  - [ ] **POST /api/v1/revision/active-recall/:sessionId/answer** — Submit recall answer
-  - [ ] **GET /api/v1/revision/active-recall/:sessionId/results** — Session results with delta
-- [ ] Revision Sprint Modes
-  - [ ] **POST /api/v1/revision/sprint/start** — Start 15/30/45-min timed sprint
-  - [ ] Auto-select topics by priority (urgent first)
-  - [ ] **POST /api/v1/revision/sprint/:sprintId/complete** — End sprint + summary
-  - [ ] **GET /api/v1/revision/sprint/history** — Past sprints
-- [ ] Flashcard system
-  - [ ] Auto-generate flashcards from concept notes + key facts (LLM)
-  - [ ] **GET /api/v1/revision/flashcards** — Get flashcards (by topic/subject)
-  - [ ] **POST /api/v1/revision/flashcards** — Create manual flashcard
-  - [ ] Card flip UI with rate recall (easy/good/hard/forgot)
-  - [ ] Auto-schedule next review based on rating
-- [ ] Revision predictions
-  - [ ] **GET /api/v1/revision/predictions** — Topics you'll forget by next week
-  - [ ] Alert system for rapidly declining retention
-- [ ] Streak tracking
-  - [ ] **GET /api/v1/revision/streaks** — Streak data + history
-  - [ ] Daily revision streak counter with gamification
-  - [ ] Streak recovery grace period (1 day)
-- [ ] "Last 30 Days" crash revision mode
-  - [ ] Accelerated scheduling (compress all intervals)
-  - [ ] Priority: lowest retention topics first
-  - [ ] Daily targets based on remaining days
-- [ ] NeuroRevise dashboard frontend
-  - [ ] Retention heatmap (subject × topic matrix, color-coded 0-100)
-  - [ ] Today's due items (priority-sorted, filterable by tier)
-  - [ ] Forgetting curve chart per topic (interactive)
-  - [ ] Active recall session UI
-  - [ ] Sprint mode timer + card flow
-  - [ ] Flashcard practice UI (flip, rate, progress bar)
-  - [ ] Predictions panel ("About to forget" warnings)
-  - [ ] Streak display + calendar view
-  - [ ] Crash mode toggle + daily target display
+- [x] Active Recall Booster
+  - [x] LLM generates recall questions per topic (concept_recall, comparison, factual, application)
+  - [x] Store in `active_recall_questions` table
+  - [x] **POST /api/v1/revision/active-recall/start** — Begin session (select topics, question count)
+  - [x] **POST /api/v1/revision/active-recall/:sessionId/answer** — Submit recall answer
+  - [x] **GET /api/v1/revision/active-recall/:sessionId/results** — Session results with delta
+- [x] Revision Sprint Modes
+  - [x] **POST /api/v1/revision/sprint/start** — Start 15/30/45-min timed sprint
+  - [x] Auto-select topics by priority (urgent first)
+  - [x] **POST /api/v1/revision/sprint/:sprintId/complete** — End sprint + summary
+  - [x] **GET /api/v1/revision/sprint/history** — Past sprints
+- [x] Flashcard system
+  - [x] Auto-generate flashcards from concept notes + key facts (LLM)
+  - [x] **GET /api/v1/revision/flashcards** — Get flashcards (by topic/subject)
+  - [x] **POST /api/v1/revision/flashcards** — Create manual flashcard
+  - [x] Card flip UI with rate recall (easy/good/hard/forgot)
+  - [x] Auto-schedule next review based on rating
+- [x] Revision predictions
+  - [x] **GET /api/v1/revision/predictions** — Topics you'll forget by next week
+  - [x] Alert system for rapidly declining retention
+- [x] Streak tracking
+  - [x] **GET /api/v1/revision/streaks** — Streak data + history
+  - [x] Daily revision streak counter with gamification
+  - [x] Streak recovery grace period (1 day)
+- [x] "Last 30 Days" crash revision mode
+  - [x] Accelerated scheduling (compress all intervals)
+  - [x] Priority: lowest retention topics first
+  - [x] Daily targets based on remaining days
+- [x] NeuroRevise dashboard frontend
+  - [x] Retention heatmap (subject × topic matrix, color-coded 0-100)
+  - [x] Today's due items (priority-sorted, filterable by tier)
+  - [x] Forgetting curve chart per topic (interactive)
+  - [x] Active recall session UI
+  - [x] Sprint mode timer + card flow
+  - [x] Flashcard practice UI (flip, rate, progress bar)
+  - [x] Predictions panel ("About to forget" warnings)
+  - [x] Streak display + calendar view
+  - [x] Crash mode toggle + daily target display
 
 ### Week 17: SyllabusFlow AI – Tracker + Practice Generation
 
