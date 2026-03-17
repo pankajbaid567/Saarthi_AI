@@ -12,6 +12,7 @@ import { createAuthRouter } from './routes/auth.routes.js';
 import { createChatRouter } from './routes/chat.routes.js';
 import { createKnowledgeGraphRouter } from './routes/knowledge-graph.routes.js';
 import { createLearningRouter } from './routes/learning.routes.js';
+import { createTestsRouter } from './routes/tests.routes.js';
 import { echoRequestSchema } from './schemas/echo.schema.js';
 
 export const createApp = () => {
@@ -40,6 +41,7 @@ export const createApp = () => {
   app.use('/api/v1/auth', createAuthRouter());
   app.use('/api/v1', createKnowledgeGraphRouter());
   app.use('/api/v1', createLearningRouter());
+  app.use('/api/v1', createTestsRouter());
   app.use('/api/v1', createChatRouter());
 
   app.use((_req, _res, next) => {
