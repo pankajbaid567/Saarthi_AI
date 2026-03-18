@@ -345,10 +345,10 @@ export type PostLaunchCommunityResponse = {
 };
 
 export const postLaunchApi = {
-  getCommunity: () => apiClient.get<PostLaunchCommunityResponse>('/post-launch/community'),
+  getCommunity: () => apiClient.get<PostLaunchCommunityResponse>('/features/community'),
   addForumMessage: (topicId: string, message: string) =>
     apiClient.post<{ id: string; topicId: string; userId: string; message: string; createdAt: string }>(
-      `/post-launch/community/forums/${topicId}/messages`,
+      `/features/community/forums/${topicId}/messages`,
       { message },
     ),
   getAdvancedAi: () =>
@@ -357,28 +357,28 @@ export const postLaunchApi = {
       voiceQuiz: { enabled: boolean; engine: string; languageSupport: string[] };
       neuroReviseGroupPatterns: { strongestForgettingWindowHours: number; recommendedGroupRevisionSlot: string };
       syllabusFlowPeerCalibration: { suggestedDifficulty: string; peerPercentile: number };
-    }>('/post-launch/advanced-ai'),
+    }>('/features/advanced-ai'),
   analyzeError: (payload: { questionId: string; userAnswer: string; correctAnswer: string; topicId?: string }) =>
     apiClient.post<{
       questionId: string;
       conceptGap: 'high' | 'low';
       whyYouGotThisWrong: string;
       neuroReviseContext: { topicId: string; lastRevisionMissProbability: number; nextBestAction: string };
-    }>('/post-launch/advanced-ai/error-analysis', payload),
+    }>('/features/advanced-ai/error-analysis', payload),
   getContentExpansion: () =>
     apiClient.get<{
       optionalSubjectModules: string[];
       interviewPreparation: { enabled: boolean; mockPanels: number; stressQuestionsBank: number };
       statePcsSupport: string[];
       multiLanguageMicroNotes: { supportedLanguages: string[]; translatedNotesCount: number };
-    }>('/post-launch/content-expansion'),
+    }>('/features/content-expansion'),
   getMobileCompanion: () =>
     apiClient.get<{
       platform: string;
       offlineMode: { cachedAssets: string[]; maxOfflineDays: number };
       pushNotifications: string[];
       widget: { enabled: boolean; metrics: string[] };
-    }>('/post-launch/mobile'),
+    }>('/features/mobile'),
   getAdvancedAnalytics: () =>
     apiClient.get<{
       comparativeAnalysis: { topperBaselineScore: number; currentUserScore: number; gapAreas: string[] };
@@ -387,7 +387,7 @@ export const postLaunchApi = {
       studyPatternOptimization: { bestStudyBlock: string; bestRevisionBlock: string };
       neuroReviseLongTermRetentionTrend: Array<{ month: string; retentionPercent: number }>;
       syllabusFlowPredictedCompletionDate: string;
-    }>('/post-launch/advanced-analytics'),
+    }>('/features/advanced-analytics'),
 };
 
 export default apiClient;

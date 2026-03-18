@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PostLaunchModules } from '@/components/post-launch/post-launch-modules';
 import { revisionApi, type ActiveRecallQuestion, type FlashcardItem, type RevisionPrediction } from '@/lib/api-client';
 
 type RevisionState = {
@@ -277,6 +278,8 @@ export default function DashboardPage() {
           )}
         </CardContent>
       </Card>
+
+      <PostLaunchModules />
     </div>
   );
 }

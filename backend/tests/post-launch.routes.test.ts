@@ -32,27 +32,27 @@ describe('post-launch routes', () => {
     const app = createTestApp();
     const studentToken = issueAccessToken('student', 'student-v1');
 
-    const unauthenticated = await request(app).get('/api/v1/post-launch/community');
+    const unauthenticated = await request(app).get('/api/v1/features/community');
     expect(unauthenticated.status).toBe(401);
 
-    const community = await request(app).get('/api/v1/post-launch/community').set('Authorization', `Bearer ${studentToken}`);
+    const community = await request(app).get('/api/v1/features/community').set('Authorization', `Bearer ${studentToken}`);
     expect(community.status).toBe(200);
     expect(community.body.forumsByTopic.length).toBeGreaterThan(0);
     expect(community.body.leaderboards.revisionStreak.length).toBeGreaterThan(0);
 
     const forumEntry = await request(app)
-      .post('/api/v1/post-launch/community/forums/polity-federalism/messages')
+      .post('/api/v1/features/community/forums/polity-federalism/messages')
       .set('Authorization', `Bearer ${studentToken}`)
       .send({ message: 'Sharing a framework for Centre-State fiscal devolution.' });
     expect(forumEntry.status).toBe(201);
     expect(forumEntry.body.topicId).toBe('polity-federalism');
 
-    const advancedAi = await request(app).get('/api/v1/post-launch/advanced-ai').set('Authorization', `Bearer ${studentToken}`);
+    const advancedAi = await request(app).get('/api/v1/features/advanced-ai').set('Authorization', `Bearer ${studentToken}`);
     expect(advancedAi.status).toBe(200);
     expect(advancedAi.body.modes.some((mode: { id: string }) => mode.id === 'upsc-thinking')).toBe(true);
 
     const analysis = await request(app)
-      .post('/api/v1/post-launch/advanced-ai/error-analysis')
+      .post('/api/v1/features/advanced-ai/error-analysis')
       .set('Authorization', `Bearer ${studentToken}`)
       .send({
         questionId: 'q-1',
@@ -64,17 +64,17 @@ describe('post-launch routes', () => {
     expect(analysis.body.neuroReviseContext.topicId).toBe('economy-inflation');
 
     const contentExpansion = await request(app)
-      .get('/api/v1/post-launch/content-expansion')
+      .get('/api/v1/features/content-expansion')
       .set('Authorization', `Bearer ${studentToken}`);
     expect(contentExpansion.status).toBe(200);
     expect(contentExpansion.body.multiLanguageMicroNotes.supportedLanguages).toContain('Hindi');
 
-    const mobile = await request(app).get('/api/v1/post-launch/mobile').set('Authorization', `Bearer ${studentToken}`);
+    const mobile = await request(app).get('/api/v1/features/mobile').set('Authorization', `Bearer ${studentToken}`);
     expect(mobile.status).toBe(200);
     expect(mobile.body.pushNotifications).toContain('streak-at-risk');
 
     const advancedAnalytics = await request(app)
-      .get('/api/v1/post-launch/advanced-analytics')
+      .get('/api/v1/features/advanced-analytics')
       .set('Authorization', `Bearer ${studentToken}`);
     expect(advancedAnalytics.status).toBe(200);
     expect(advancedAnalytics.body.neuroReviseLongTermRetentionTrend).toHaveLength(6);

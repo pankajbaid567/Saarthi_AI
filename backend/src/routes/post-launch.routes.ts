@@ -20,7 +20,7 @@ export const createPostLaunchRouter = (options: CreatePostLaunchRouterOptions = 
   const postLaunchService = options.postLaunchService ?? createPostLaunchService();
 
   router.get(
-    '/post-launch/community',
+    '/features/community',
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
@@ -29,7 +29,7 @@ export const createPostLaunchRouter = (options: CreatePostLaunchRouterOptions = 
   );
 
   router.post(
-    '/post-launch/community/forums/:topicId/messages',
+    '/features/community/forums/:topicId/messages',
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
@@ -39,7 +39,7 @@ export const createPostLaunchRouter = (options: CreatePostLaunchRouterOptions = 
   );
 
   router.get(
-    '/post-launch/advanced-ai',
+    '/features/advanced-ai',
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
@@ -48,7 +48,7 @@ export const createPostLaunchRouter = (options: CreatePostLaunchRouterOptions = 
   );
 
   router.post(
-    '/post-launch/advanced-ai/error-analysis',
+    '/features/advanced-ai/error-analysis',
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
@@ -63,7 +63,7 @@ export const createPostLaunchRouter = (options: CreatePostLaunchRouterOptions = 
   );
 
   router.get(
-    '/post-launch/content-expansion',
+    '/features/content-expansion',
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (_req, res) => {
@@ -72,7 +72,7 @@ export const createPostLaunchRouter = (options: CreatePostLaunchRouterOptions = 
   );
 
   router.get(
-    '/post-launch/mobile',
+    '/features/mobile',
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (_req, res) => {
@@ -81,7 +81,7 @@ export const createPostLaunchRouter = (options: CreatePostLaunchRouterOptions = 
   );
 
   router.get(
-    '/post-launch/advanced-analytics',
+    '/features/advanced-analytics',
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (_req, res) => {
