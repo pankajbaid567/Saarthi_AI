@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,40 +10,54 @@ export function ActiveRecallWidget({ predictions }: { predictions: RevisionPredi
   const [activeRecallQuestion, setActiveRecallQuestion] = useState<ActiveRecallQuestion | null>(null);
   const [activeRecallAnswer, setActiveRecallAnswer] = useState('');
   const [activeRecallScore, setActiveRecallScore] = useState<number | null>(null);
-  const [isStarting, setIsStarting] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const startActiveRecall = async () => {
-    if (predictions.length === 0) return;
-    setIsStarting(true);
-    try {
-      const topicIds = predictions.slice(0, 3).map((topic) => topic.topicId);
+  const startSessionMutation = useMutation({
+    mutationFn: async (topicIds: string[]) => {
       const response = await revisionApi.startActiveRecall({ topicIds, questionCount: 3 });
-      setActiveRecallSessionId(response.data.data.sessionId);
-      setActiveRecallQuestion(response.data.data.questions[0] ?? null);
+      return response.data.data;
+    },
+    onSuccess: (data) => {
+      setActiveRecallSessionId(data.sessionId);
+      setActiveRecallQuestion(data.questions[0] ?? null);
       setActiveRecallAnswer('');
       setActiveRecallScore(null);
-    } finally {
-      setIsStarting(false);
-    }
+    },
+  });
+
+  const submitAnswerMutation = useMutation({
+    mutationFn: async ({ sessionId, questionId, userAnswer }: { sessionId: string; questionId: string; userAnswer: string }) => {
+      const response = await revisionApi.submitActiveRecallAnswer(sessionId, {
+        questionId,
+        userAnswer,
+        confidenceLevel: 3,
+      });
+      return response.data.data;
+    },
+    onSuccess: (data) => {
+      setActiveRecallScore(data.score);
+    },
+  });
+
+  const handleStart = () => {
+    if (predictions.length === 0) return;
+    const topicIds = predictions.slice(0, 3).map((topic) => topic.topicId);
+    startSessionMutation.mutate(topicIds);
   };
 
-  const submitActiveRecall = async () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!activeRecallSessionId || !activeRecallQuestion || !activeRecallAnswer.trim()) {
       return;
     }
-    setIsSubmitting(true);
-    try {
-      const response = await revisionApi.submitActiveRecallAnswer(activeRecallSessionId, {
-        questionId: activeRecallQuestion.id,
-        userAnswer: activeRecallAnswer,
-        confidenceLevel: 3,
-      });
-      setActiveRecallScore(response.data.data.score);
-    } finally {
-      setIsSubmitting(false);
-    }
+    submitAnswerMutation.mutate({
+      sessionId: activeRecallSessionId,
+      questionId: activeRecallQuestion.id,
+      userAnswer: activeRecallAnswer,
+    });
   };
+
+  const isStarting = startSessionMutation.isPending;
+  const isSubmitting = submitAnswerMutation.isPending;
 
   return (
     <Card className="h-full flex flex-col">
@@ -50,17 +65,11 @@ export function ActiveRecallWidget({ predictions }: { predictions: RevisionPredi
         <CardTitle className="text-base">Active recall session</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 flex-1">
-        <Button onClick={startActiveRecall} disabled={predictions.length === 0 || isStarting}>
+        <Button onClick={handleStart} disabled={predictions.length === 0 || isStarting}>
           {isStarting ? 'Starting...' : 'Start active recall'}
         </Button>
         {activeRecallQuestion ? (
-          <form 
-            className="space-y-2 mt-4" 
-            onSubmit={(e) => {
-              e.preventDefault();
-              void submitActiveRecall();
-            }}
-          >
+          <form className="space-y-2 mt-4" onSubmit={handleSubmit}>
             <p className="text-sm font-medium">{activeRecallQuestion.questionText}</p>
             <Input 
               value={activeRecallAnswer} 
@@ -69,7 +78,7 @@ export function ActiveRecallWidget({ predictions }: { predictions: RevisionPredi
               disabled={isSubmitting}
             />
             <Button type="submit" variant="outline" disabled={isSubmitting || !activeRecallAnswer.trim()}>
-              Submit answer
+              {isSubmitting ? 'Submitting...' : 'Submit answer'}
             </Button>
             {activeRecallScore !== null ? <p className="text-sm font-semibold text-primary">Score: {activeRecallScore}</p> : null}
           </form>
