@@ -44,4 +44,5 @@ export const env = {
   llmProvider: process.env.LLM_PROVIDER ?? 'mock',
   llmModel: process.env.LLM_MODEL ?? 'mock-llm',
   llmApiKey: process.env.LLM_API_KEY ?? '',
+  sentryDsn: process.env.SENTRY_DSN ?? '',
 };
