@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GeneratedTest, getTestById, QuestionOption, submitTest } from '@/lib/test-engine';
+import { useMCQStore } from '@/stores/mcq-store';
 
 const WARNING_THRESHOLD_SECONDS = 300;
 
@@ -18,52 +19,41 @@ const formatSeconds = (seconds: number) => {
 };
 
 function TestHeaderTickers({
-  currentIndex,
   totalQuestions,
-  initialTimeSeconds,
   activeQuestionId,
-  isSubmitting,
   onAutoSubmit,
-  timeSpentRef,
 }: {
-  currentIndex: number;
   totalQuestions: number;
-  initialTimeSeconds: number;
   activeQuestionId: string;
-  isSubmitting: boolean;
   onAutoSubmit: () => void;
-  timeSpentRef: React.MutableRefObject<Record<string, number>>;
 }) {
-  const [timeRemainingSeconds, setTimeRemainingSeconds] = useState(initialTimeSeconds);
-  const [questionTime, setQuestionTime] = useState(0);
+  const currentIndex = useMCQStore((state) => state.currentIndex);
+  const timeRemainingSeconds = useMCQStore((state) => state.timeRemainingSeconds);
+  const isSubmitting = useMCQStore((state) => state.isSubmitting);
+  const timeSpentMap = useMCQStore((state) => state.timeSpentRef);
+  const decrementTimeRemaining = useMCQStore((state) => state.decrementTimeRemaining);
+  const incrementTimeSpent = useMCQStore((state) => state.incrementTimeSpent);
   const hasAutoSubmittedRef = useRef(false);
-
-  useEffect(() => {
-    setQuestionTime(timeSpentRef.current[activeQuestionId] ?? 0);
-  }, [activeQuestionId, timeSpentRef]);
 
   useEffect(() => {
     if (isSubmitting) return;
 
     const timerId = window.setInterval(() => {
-      setTimeRemainingSeconds((current) => {
-        const next = Math.max(0, current - 1);
-        if (next === 0 && !hasAutoSubmittedRef.current) {
-          hasAutoSubmittedRef.current = true;
-          onAutoSubmit();
-        }
-        return next;
-      });
-
-      setQuestionTime((current) => {
-        const next = current + 1;
-        timeSpentRef.current[activeQuestionId] = next;
-        return next;
-      });
+      decrementTimeRemaining();
+      incrementTimeSpent(activeQuestionId);
     }, 1000);
 
     return () => window.clearInterval(timerId);
-  }, [activeQuestionId, isSubmitting, onAutoSubmit, timeSpentRef]);
+  }, [activeQuestionId, isSubmitting, decrementTimeRemaining, incrementTimeSpent]);
+
+  useEffect(() => {
+    if (timeRemainingSeconds === 0 && !hasAutoSubmittedRef.current && !isSubmitting) {
+      hasAutoSubmittedRef.current = true;
+      onAutoSubmit();
+    }
+  }, [timeRemainingSeconds, isSubmitting, onAutoSubmit]);
+
+  const questionTime = timeSpentMap[activeQuestionId] || 0;
 
   return (
     <>
@@ -72,7 +62,10 @@ function TestHeaderTickers({
           Question {currentIndex + 1} of {totalQuestions}
         </CardTitle>
         <div className="text-sm font-medium">
-          Total timer: <span className={timeRemainingSeconds <= WARNING_THRESHOLD_SECONDS ? 'text-red-500' : ''}>{formatSeconds(timeRemainingSeconds)}</span>
+          Total timer:{' '}
+          <span className={timeRemainingSeconds <= WARNING_THRESHOLD_SECONDS ? 'text-destructive font-bold' : ''}>
+            {formatSeconds(timeRemainingSeconds)}
+          </span>
         </div>
       </div>
       <p className="text-sm text-muted-foreground">Per-question timer: {formatSeconds(questionTime)}</p>
@@ -83,43 +76,48 @@ function TestHeaderTickers({
 export default function TestAttemptPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const testId = params.id;
+
+  const {
+    currentIndex,
+    answers,
+    flagged,
+    doubts,
+    isSubmitting,
+    initializeTest,
+    setAnswer,
+    toggleFlag,
+    toggleDoubt,
+    setCurrentIndex,
+    setIsSubmitting,
+    reset,
+  } = useMCQStore();
+
   const test = useMemo<GeneratedTest | null>(() => {
-    if (!params.id) {
-      return null;
-    }
-    return getTestById(params.id);
-  }, [params.id]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, QuestionOption | null>>({});
-  const [flagged, setFlagged] = useState<string[]>([]);
-  const [doubts, setDoubts] = useState<string[]>([]);
-  const questionTimeSpentRef = useRef<Record<string, number>>({});
+    if (!testId) return null;
+    return getTestById(testId);
+  }, [testId]);
+
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (test && useMCQStore.getState().testId !== test.id) {
+      initializeTest(test.id, (test.timeLimitMinutes ?? 0) * 60);
+    }
+  }, [test, initializeTest]);
 
   const submitCurrentTest = useCallback(() => {
-    if (!test || isSubmitting) {
-      return;
-    }
+    if (!test || isSubmitting) return;
 
     setIsSubmitting(true);
     const result = submitTest(test, answers);
+    reset(); // Clear store after submission
     router.push(`/tests/${result.testId}/results`);
-  }, [answers, isSubmitting, router, test]);
-
-  const currentQuestion = useMemo(() => (test ? test.questions[currentIndex] : null), [currentIndex, test]);
-
-  const onToggle = (list: string[], questionId: string, setter: (items: string[]) => void) => {
-    if (list.includes(questionId)) {
-      setter(list.filter((item) => item !== questionId));
-      return;
-    }
-    setter([...list, questionId]);
-  };
+  }, [answers, isSubmitting, router, test, setIsSubmitting, reset]);
 
   const onSubmit = () => submitCurrentTest();
 
-  if (!test || !currentQuestion) {
+  if (!test) {
     return (
       <Card>
         <CardHeader>
@@ -129,18 +127,16 @@ export default function TestAttemptPage() {
     );
   }
 
+  const currentQuestion = test.questions[currentIndex] || test.questions[0];
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
       <Card>
         <CardHeader className="space-y-3">
           <TestHeaderTickers
-             currentIndex={currentIndex}
-             totalQuestions={test.questions.length}
-             initialTimeSeconds={(test.timeLimitMinutes ?? 0) * 60}
-             activeQuestionId={currentQuestion.id}
-             isSubmitting={isSubmitting}
-             onAutoSubmit={submitCurrentTest}
-             timeSpentRef={questionTimeSpentRef}
+            totalQuestions={test.questions.length}
+            activeQuestionId={currentQuestion.id}
+            onAutoSubmit={submitCurrentTest}
           />
         </CardHeader>
         <CardContent className="space-y-4">
@@ -152,8 +148,10 @@ export default function TestAttemptPage() {
                 <button
                   key={optionKey}
                   type="button"
-                  onClick={() => setAnswers((current) => ({ ...current, [currentQuestion.id]: optionKey }))}
-                  className={`rounded border p-3 text-left text-sm transition ${isSelected ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted'}`}
+                  onClick={() => setAnswer(currentQuestion.id, optionKey)}
+                  className={`rounded border p-3 text-left text-sm transition ${
+                    isSelected ? 'border-primary bg-primary/10' : 'border-border hover:bg-muted'
+                  }`}
                 >
                   <span className="font-semibold">{optionKey}.</span> {currentQuestion.options[optionKey]}
                 </button>
@@ -162,23 +160,32 @@ export default function TestAttemptPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={() => onToggle(flagged, currentQuestion.id, setFlagged)}>
+            <Button type="button" variant="outline" onClick={() => toggleFlag(currentQuestion.id)}>
               {flagged.includes(currentQuestion.id) ? 'Unflag review' : 'Flag for review'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => onToggle(doubts, currentQuestion.id, setDoubts)}>
+            <Button type="button" variant="outline" onClick={() => toggleDoubt(currentQuestion.id)}>
               {doubts.includes(currentQuestion.id) ? 'Clear doubt' : 'Mark for doubt'}
             </Button>
           </div>
 
           <div className="flex flex-wrap justify-between gap-2">
-            <Button type="button" variant="outline" onClick={() => setCurrentIndex((value) => Math.max(0, value - 1))} disabled={currentIndex === 0}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
+              disabled={currentIndex === 0}
+            >
               Previous
             </Button>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => setShowSubmitConfirmation(true)}>
                 Submit
               </Button>
-              <Button type="button" onClick={() => setCurrentIndex((value) => Math.min(test.questions.length - 1, value + 1))} disabled={currentIndex === test.questions.length - 1}>
+              <Button
+                type="button"
+                onClick={() => setCurrentIndex(Math.min(test.questions.length - 1, currentIndex + 1))}
+                disabled={currentIndex === test.questions.length - 1}
+              >
                 Next
               </Button>
             </div>
@@ -200,20 +207,25 @@ export default function TestAttemptPage() {
 
               let className = 'border-border';
               if (isAnswered) {
-                className = 'border-emerald-500 bg-emerald-500/10';
+                className = 'border-emerald-500 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100';
               }
               if (isFlagged) {
-                className = 'border-amber-500 bg-amber-500/10';
+                className = 'border-amber-500 bg-amber-500/10 text-amber-900 dark:text-amber-100';
               }
               if (isDoubt) {
-                className = 'border-indigo-500 bg-indigo-500/10';
+                className = 'border-indigo-500 bg-indigo-500/10 text-indigo-900 dark:text-indigo-100';
               }
               if (isCurrent) {
-                className = 'border-primary bg-primary/10';
+                className = 'border-primary bg-primary/10 text-primary';
               }
 
               return (
-                <button key={question.id} type="button" onClick={() => setCurrentIndex(index)} className={`rounded border p-2 text-xs font-medium ${className}`}>
+                <button
+                  key={question.id}
+                  type="button"
+                  onClick={() => setCurrentIndex(index)}
+                  className={`rounded border p-2 text-xs font-medium ${className}`}
+                >
                   {index + 1}
                 </button>
               );
@@ -234,8 +246,8 @@ export default function TestAttemptPage() {
                 <Button type="button" variant="outline" onClick={() => setShowSubmitConfirmation(false)}>
                   Continue test
                 </Button>
-                <Button type="button" onClick={onSubmit}>
-                  Confirm submit
+                <Button type="button" onClick={onSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Confirm submit'}
                 </Button>
               </div>
             </CardContent>
