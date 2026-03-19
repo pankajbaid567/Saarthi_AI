@@ -6,7 +6,7 @@ Saarthi AI is a monorepo for a UPSC preparation platform.
 
 This repository now includes the complete Week 1 Project Setup & Infrastructure baseline:
 
-- Monorepo with `backend` and `frontend` workspaces
+- Monorepo with `backend`, `frontend`, and `mobile` workspaces
 - Express + TypeScript backend
 - Next.js + TypeScript frontend
 - ESLint + Prettier configured for both workspaces
@@ -27,6 +27,7 @@ This repository now includes the complete Week 1 Project Setup & Infrastructure 
 │   ├── src/
 │   └── tests/
 ├── frontend/
+├── mobile/
 ├── docs/
 ├── docker-compose.yml
 └── .github/workflows/ci.yml
@@ -63,6 +64,9 @@ npm --prefix backend run dev
 
 # Frontend
 npm --prefix frontend run dev
+
+# Mobile (Expo React Native)
+npm --prefix mobile run start
 ```
 
 ## Quality Checks
@@ -82,4 +86,3 @@ npm run build
 
 - `GET /health`
 - `POST /api/v1/system/echo` (validated with Zod)
-

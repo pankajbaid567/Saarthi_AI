@@ -828,6 +828,7 @@
 ## 🎯 Post-Launch Features (Backlog)
 
 ### V1.1 — Community Features
+- [x] Kickoff implementation slice (API + UI) started
 - [ ] Discussion forums per topic
 - [ ] Peer answer review
 - [ ] Study groups

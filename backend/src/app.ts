@@ -19,6 +19,7 @@ import { createLearningRouter } from './routes/learning.routes.js';
 import { createMainsRouter } from './routes/mains.routes.js';
 import { createPdfRouter } from './routes/pdf.routes.js';
 import { createPerformanceRouter } from './routes/performance.routes.js';
+import { createPostLaunchRouter } from './routes/post-launch.routes.js';
 import { createPracticeRouter } from './routes/practice.routes.js';
 import { createRevisionRouter } from './routes/revision.routes.js';
 import { createSecondBrainRouter } from './routes/second-brain.routes.js';
@@ -74,6 +75,7 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.use('/api/v1', createChatRouter());
   app.use('/api/v1', createStrategyRouter());
   app.use('/api/v1', createSecondBrainRouter());
+  app.use('/api/v1', createPostLaunchRouter());
 
   app.use((_req, _res, next) => {
     next(new AppError('Route not found', 404));

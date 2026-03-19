@@ -331,4 +331,63 @@ export const secondBrainApi = {
   getAutoInsights: () => apiClient.get<Array<{ id: string; insight: string; relatedTags: string[] }>>('/second-brain/insights/auto-generated'),
 };
 
+export type PostLaunchCommunityResponse = {
+  forumsByTopic: Array<{ topicId: string; topicName: string; threads: number; activeUsers: number }>;
+  recentMessages: Array<{ id: string; topicId: string; userId: string; message: string; createdAt: string }>;
+  peerAnswerReview: { pendingReviews: number; reviewedThisWeek: number; avgScoreDelta: number };
+  studyGroups: Array<{ id: string; name: string; members: number; schedule: string }>;
+  leaderboards: {
+    revisionStreak: Array<{ userId: string; displayName: string; streakDays: number }>;
+    practiceStreak: Array<{ userId: string; displayName: string; streakDays: number }>;
+    syllabusCompletion: Array<{ userId: string; displayName: string; completionPercent: number }>;
+  };
+  refreshedAt: string;
+};
+
+export const postLaunchApi = {
+  getCommunity: () => apiClient.get<PostLaunchCommunityResponse>('/features/community'),
+  addForumMessage: (topicId: string, message: string) =>
+    apiClient.post<{ id: string; topicId: string; userId: string; message: string; createdAt: string }>(
+      `/features/community/forums/${topicId}/messages`,
+      { message },
+    ),
+  getAdvancedAi: () =>
+    apiClient.get<{
+      modes: Array<{ id: string; name: string; focus: string }>;
+      voiceQuiz: { enabled: boolean; engine: string; languageSupport: string[] };
+      neuroReviseGroupPatterns: { strongestForgettingWindowHours: number; recommendedGroupRevisionSlot: string };
+      syllabusFlowPeerCalibration: { suggestedDifficulty: string; peerPercentile: number };
+    }>('/features/advanced-ai'),
+  analyzeError: (payload: { questionId: string; userAnswer: string; correctAnswer: string; topicId?: string }) =>
+    apiClient.post<{
+      questionId: string;
+      conceptGap: 'high' | 'low';
+      whyYouGotThisWrong: string;
+      neuroReviseContext: { topicId: string; lastRevisionMissProbability: number; nextBestAction: string };
+    }>('/features/advanced-ai/error-analysis', payload),
+  getContentExpansion: () =>
+    apiClient.get<{
+      optionalSubjectModules: string[];
+      interviewPreparation: { enabled: boolean; mockPanels: number; stressQuestionsBank: number };
+      statePcsSupport: string[];
+      multiLanguageMicroNotes: { supportedLanguages: string[]; translatedNotesCount: number };
+    }>('/features/content-expansion'),
+  getMobileCompanion: () =>
+    apiClient.get<{
+      platform: string;
+      offlineMode: { cachedAssets: string[]; maxOfflineDays: number };
+      pushNotifications: string[];
+      widget: { enabled: boolean; metrics: string[] };
+    }>('/features/mobile'),
+  getAdvancedAnalytics: () =>
+    apiClient.get<{
+      comparativeAnalysis: { topperBaselineScore: number; currentUserScore: number; gapAreas: string[] };
+      customReportGeneration: { formats: string[]; latestGeneratedAt: string };
+      parentMentorDashboard: { enabled: boolean; sharableDigest: boolean; weeklyDigestDay: string };
+      studyPatternOptimization: { bestStudyBlock: string; bestRevisionBlock: string };
+      neuroReviseLongTermRetentionTrend: Array<{ month: string; retentionPercent: number }>;
+      syllabusFlowPredictedCompletionDate: string;
+    }>('/features/advanced-analytics'),
+};
+
 export default apiClient;
