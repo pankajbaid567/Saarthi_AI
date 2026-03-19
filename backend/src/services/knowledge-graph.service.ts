@@ -7,6 +7,7 @@ export type Subject = {
   name: string;
   slug: string;
   description: string | null;
+  paper: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -66,6 +67,7 @@ type CreateSubjectInput = {
   name: string;
   slug?: string;
   description?: string | null;
+  paper?: string | null;
 };
 
 type UpdateSubjectInput = Partial<CreateSubjectInput>;
@@ -223,15 +225,15 @@ export class KnowledgeGraphService {
   }
 
   createSubject(input: CreateSubjectInput): Subject {
-    const slug = input.slug ? toSlug(input.slug) : toSlug(input.name);
+    const paperPrefix = input.paper ? `${input.paper}-` : '';
+    const slug = input.slug ? toSlug(input.slug) : toSlug(`${paperPrefix}${input.name}`);
 
     if (!slug) {
       throw new AppError('Invalid subject slug', 400);
     }
 
     const hasConflict = [...this.subjects.values()].some(
-      (subject) =>
-        subject.name.toLowerCase() === input.name.toLowerCase() || subject.slug.toLowerCase() === slug.toLowerCase(),
+      (subject) => subject.slug.toLowerCase() === slug.toLowerCase(),
     );
 
     if (hasConflict) {
@@ -244,6 +246,7 @@ export class KnowledgeGraphService {
       name: input.name,
       slug,
       description: input.description ?? null,
+      paper: input.paper ?? null,
       createdAt: now,
       updatedAt: now,
     };
@@ -277,6 +280,7 @@ export class KnowledgeGraphService {
       name: nextName,
       slug: nextSlug,
       description: input.description ?? current.description,
+      paper: input.paper === undefined ? current.paper : input.paper ?? current.paper,
       updatedAt: new Date(),
     };
 
@@ -814,46 +818,947 @@ export class KnowledgeGraphService {
       return;
     }
 
-    const subjects = [
-      'History',
-      'Geography',
-      'Polity',
-      'Economy',
-      'Environment',
-      'Science and Technology',
-      'International Relations',
-      'Current Affairs',
+    // Full UPSC Civil Services syllabus data
+    // Structure: { paper, subjects: [{ name, description, topics: [{ name, subtopics: [string] }] }] }
+    const syllabus: Array<{
+      paper: string;
+      paperLabel: string;
+      subjects: Array<{
+        name: string;
+        description: string;
+        topics: Array<{ name: string; subtopics: string[] }>;
+      }>;
+    }> = [
+      // ── PRELIMS GS1 ──
+      {
+        paper: 'PRE_GS1',
+        paperLabel: 'Prelims - General Studies I',
+        subjects: [
+          {
+            name: 'History',
+            description: 'Indian History from ancient to modern period',
+            topics: [
+              {
+                name: 'Ancient India',
+                subtopics: [
+                  'Prehistoric cultures & Indus Valley Civilisation',
+                  'Vedic Age & Mahajanapadas',
+                  'Mauryan Empire & post-Mauryan polities',
+                  'Gupta Empire & regional kingdoms',
+                  'Art, architecture & literature of ancient India',
+                ],
+              },
+              {
+                name: 'Medieval India',
+                subtopics: [
+                  'Delhi Sultanate',
+                  'Mughal Empire',
+                  'Bhakti & Sufi movements',
+                  'Vijayanagara & other regional kingdoms',
+                  'Society, economy & culture in medieval India',
+                ],
+              },
+              {
+                name: 'Modern India',
+                subtopics: [
+                  'European penetration & British conquest',
+                  'Socio-religious reform movements',
+                  'Revolt of 1857 & aftermath',
+                  'Indian National Movement phases',
+                  'Post-1947 consolidation & integration',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Geography',
+            description: 'Physical, Indian & world geography',
+            topics: [
+              {
+                name: 'Physical Geography',
+                subtopics: [
+                  'Geomorphology & landforms',
+                  'Climatology & atmospheric circulation',
+                  'Oceanography',
+                  'Biogeography & soils',
+                ],
+              },
+              {
+                name: 'Indian Geography',
+                subtopics: [
+                  'Physiographic divisions',
+                  'Drainage systems & river basins',
+                  'Monsoon mechanism & climate regions',
+                  'Natural resources & mineral distribution',
+                  'Population distribution & urbanisation',
+                ],
+              },
+              {
+                name: 'World Geography',
+                subtopics: [
+                  'Continents & major physical features',
+                  'Global climate patterns',
+                  'Resource distribution worldwide',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Polity',
+            description: 'Indian Polity & governance',
+            topics: [
+              {
+                name: 'Constitutional Framework',
+                subtopics: [
+                  'Historical background & making of Constitution',
+                  'Preamble & salient features',
+                  'Fundamental Rights & Duties',
+                  'Directive Principles of State Policy',
+                  'Amendment process & basic structure doctrine',
+                ],
+              },
+              {
+                name: 'Union & State Government',
+                subtopics: [
+                  'Parliament: composition, powers & privileges',
+                  'President & Vice-President',
+                  'Prime Minister & Council of Ministers',
+                  'State legislature & Governor',
+                  'Centre-State relations',
+                ],
+              },
+              {
+                name: 'Judiciary',
+                subtopics: [
+                  'Supreme Court & High Courts',
+                  'Judicial review & PIL',
+                  'Tribunals & quasi-judicial bodies',
+                ],
+              },
+              {
+                name: 'Local Governance',
+                subtopics: [
+                  'Panchayati Raj (73rd Amendment)',
+                  'Municipalities (74th Amendment)',
+                  'Scheduled & Tribal Areas',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Economy',
+            description: 'Indian Economy & economic development',
+            topics: [
+              {
+                name: 'Macroeconomics & Planning',
+                subtopics: [
+                  'National income accounting',
+                  'Planning Commission to NITI Aayog',
+                  'Fiscal policy & budgeting',
+                  'Monetary policy & RBI functions',
+                ],
+              },
+              {
+                name: 'Sectors of Indian Economy',
+                subtopics: [
+                  'Agriculture & food management',
+                  'Industry & manufacturing policy',
+                  'Services sector & IT',
+                  'Infrastructure: energy, transport, telecom',
+                ],
+              },
+              {
+                name: 'External Sector',
+                subtopics: [
+                  'Balance of Payments & trade policy',
+                  'WTO & international economic bodies',
+                  'Foreign investment & exchange reserves',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Environment & Ecology',
+            description: 'Environment, ecology, biodiversity & climate change',
+            topics: [
+              {
+                name: 'Ecology Fundamentals',
+                subtopics: [
+                  'Ecosystems & food chains',
+                  'Biodiversity: types, threats & conservation',
+                  'Biomes & biogeochemical cycles',
+                ],
+              },
+              {
+                name: 'Environmental Issues',
+                subtopics: [
+                  'Pollution: air, water, soil, noise',
+                  'Climate change & global warming',
+                  'Waste management & circular economy',
+                ],
+              },
+              {
+                name: 'Environmental Governance',
+                subtopics: [
+                  'Environmental laws & policies in India',
+                  'International agreements (Paris, CBD, Ramsar)',
+                  'Protected areas & wildlife conservation',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Science & Technology',
+            description: 'General science, technology & space',
+            topics: [
+              {
+                name: 'Basic Sciences',
+                subtopics: [
+                  'Physics in everyday life',
+                  'Chemistry in everyday life',
+                  'Biology & human health',
+                ],
+              },
+              {
+                name: 'Technology & Innovation',
+                subtopics: [
+                  'IT, computers & cyber security',
+                  'Space technology & ISRO missions',
+                  'Defence technology & indigenisation',
+                  'Nuclear technology',
+                ],
+              },
+              {
+                name: 'Emerging Technologies',
+                subtopics: [
+                  'Artificial intelligence & machine learning',
+                  'Biotechnology & genetic engineering',
+                  'Nanotechnology & robotics',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Current Affairs',
+            description: 'National & international current events',
+            topics: [
+              {
+                name: 'National Events',
+                subtopics: [
+                  'Government schemes & policies',
+                  'Awards & appointments',
+                  'Important legislation',
+                ],
+              },
+              {
+                name: 'International Events',
+                subtopics: [
+                  'Summits & conferences',
+                  'Global conflicts & geopolitics',
+                  'International organisations',
+                ],
+              },
+            ],
+          },
+        ],
+      },
+
+      // ── PRELIMS GS2 (CSAT) ──
+      {
+        paper: 'PRE_GS2',
+        paperLabel: 'Prelims - CSAT (Paper II)',
+        subjects: [
+          {
+            name: 'Aptitude & Reasoning',
+            description: 'Comprehension, logical reasoning, analytical ability, decision-making & basic numeracy',
+            topics: [
+              {
+                name: 'Reading Comprehension',
+                subtopics: [
+                  'Passage-based questions',
+                  'Inference & critical reasoning from passages',
+                ],
+              },
+              {
+                name: 'Logical Reasoning',
+                subtopics: [
+                  'Deductive & inductive reasoning',
+                  'Syllogisms & logical connectives',
+                  'Coding-decoding & series',
+                  'Blood relations & direction sense',
+                  'Venn diagrams & arrangements',
+                ],
+              },
+              {
+                name: 'Analytical Ability',
+                subtopics: [
+                  'Data interpretation (tables, graphs, charts)',
+                  'Data sufficiency',
+                  'Pattern recognition',
+                ],
+              },
+              {
+                name: 'Decision Making & Problem Solving',
+                subtopics: [
+                  'Administrative decision making',
+                  'Situational judgement',
+                ],
+              },
+              {
+                name: 'Basic Numeracy & Data Handling',
+                subtopics: [
+                  'Number systems & simplification',
+                  'Percentage, ratio & proportion',
+                  'Time, speed, distance & work',
+                  'Probability & statistics basics',
+                ],
+              },
+            ],
+          },
+        ],
+      },
+
+      // ── MAINS ESSAY ──
+      {
+        paper: 'MAINS_ESSAY',
+        paperLabel: 'Mains - Essay (Paper I)',
+        subjects: [
+          {
+            name: 'Essay Writing',
+            description: 'Two essays on topics of national/international relevance',
+            topics: [
+              {
+                name: 'Philosophical & Abstract',
+                subtopics: [
+                  'Value-based & ethical themes',
+                  'Quotes & proverbs analysis',
+                ],
+              },
+              {
+                name: 'Socio-Economic',
+                subtopics: [
+                  'Poverty, inequality & development',
+                  'Education & social empowerment',
+                  'Urbanisation & rural issues',
+                ],
+              },
+              {
+                name: 'Political & Governance',
+                subtopics: [
+                  'Democracy, governance & policy',
+                  'Federalism & decentralisation',
+                ],
+              },
+              {
+                name: 'Science, Technology & Environment',
+                subtopics: [
+                  'Technology and society',
+                  'Climate change & sustainability',
+                ],
+              },
+              {
+                name: 'International & Strategic',
+                subtopics: [
+                  'India & the global order',
+                  'Geopolitical & security themes',
+                ],
+              },
+            ],
+          },
+        ],
+      },
+
+      // ── MAINS GS1 ──
+      {
+        paper: 'MAINS_GS1',
+        paperLabel: 'Mains - General Studies I',
+        subjects: [
+          {
+            name: 'Indian Heritage & Culture',
+            description: 'Art, architecture, literature & cultural history',
+            topics: [
+              {
+                name: 'Art & Architecture',
+                subtopics: [
+                  'Temple architecture styles (Nagara, Dravida, Vesara)',
+                  'Buddhist, Jain & Islamic architecture',
+                  'Paintings: miniature, mural, folk traditions',
+                  'Sculpture traditions across periods',
+                ],
+              },
+              {
+                name: 'Literature & Philosophy',
+                subtopics: [
+                  'Vedic & classical Sanskrit literature',
+                  'Regional languages & literary movements',
+                  'Indian philosophical schools',
+                ],
+              },
+              {
+                name: 'Performing Arts & Traditions',
+                subtopics: [
+                  'Classical dance forms',
+                  'Classical & folk music traditions',
+                  'Theatre & puppetry',
+                  'Festivals & fairs',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Modern Indian History',
+            description: 'From mid-18th century to present: freedom struggle, reform & consolidation',
+            topics: [
+              {
+                name: 'British Rule & Resistance',
+                subtopics: [
+                  'East India Company to Crown rule',
+                  'Revenue & administrative reforms',
+                  'Tribal & peasant movements',
+                  'Revolt of 1857',
+                ],
+              },
+              {
+                name: 'Freedom Movement',
+                subtopics: [
+                  'Moderate & Extremist phases',
+                  'Gandhian movements (NCM, CDM, QIM)',
+                  'Revolutionary movements',
+                  'Role of women & marginalised groups',
+                  'Towards partition & independence',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Post-Independence India',
+            description: 'Consolidation & reorganisation of India after 1947',
+            topics: [
+              {
+                name: 'Integration & State Reorganisation',
+                subtopics: [
+                  'Princely states integration',
+                  'States Reorganisation Commission & linguistic states',
+                ],
+              },
+              {
+                name: 'Political & Economic Development',
+                subtopics: [
+                  'Nehruvian era & five-year plans',
+                  'Green Revolution & industrial policy',
+                  'Liberalisation & reforms (1991 onwards)',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'World History',
+            description: '18th century world events to present',
+            topics: [
+              {
+                name: 'Revolutions & Wars',
+                subtopics: [
+                  'French Revolution & Napoleonic era',
+                  'American Revolution & Civil War',
+                  'World War I & its aftermath',
+                  'World War II & UN formation',
+                ],
+              },
+              {
+                name: 'Colonialism & Decolonisation',
+                subtopics: [
+                  'Imperialism in Asia & Africa',
+                  'Decolonisation movements',
+                  'Cold War & bipolar world',
+                ],
+              },
+              {
+                name: 'Political Ideologies',
+                subtopics: [
+                  'Communism, capitalism & socialism',
+                  'Nationalism & self-determination',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Indian Society',
+            description: 'Social structure, diversity, issues & globalisation',
+            topics: [
+              {
+                name: 'Social Structure & Diversity',
+                subtopics: [
+                  'Caste system & its transformations',
+                  'Tribal communities & their issues',
+                  'Regional, linguistic & religious diversity',
+                ],
+              },
+              {
+                name: 'Social Issues',
+                subtopics: [
+                  'Women & gender issues',
+                  'Population & demographic trends',
+                  'Urbanisation challenges',
+                  'Communalism, regionalism & secularism',
+                ],
+              },
+              {
+                name: 'Globalisation & Society',
+                subtopics: [
+                  'Effects on Indian culture & society',
+                  'Role of civil society & NGOs',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Geography',
+            description: 'Physical geography and resource distribution for Mains GS1',
+            topics: [
+              {
+                name: 'Physical Geography',
+                subtopics: [
+                  'Geomorphology & weathering',
+                  'Climatology & global pressure belts',
+                  'Oceanography: currents, tides, salinity',
+                ],
+              },
+              {
+                name: 'Human & Economic Geography',
+                subtopics: [
+                  'Population & settlement geography',
+                  'Migration patterns & urbanisation',
+                  'Resource distribution worldwide',
+                ],
+              },
+              {
+                name: 'Geographical Phenomena',
+                subtopics: [
+                  'Earthquakes, volcanoes & tsunamis',
+                  'Cyclones & floods',
+                ],
+              },
+            ],
+          },
+        ],
+      },
+
+      // ── MAINS GS2 ──
+      {
+        paper: 'MAINS_GS2',
+        paperLabel: 'Mains - General Studies II',
+        subjects: [
+          {
+            name: 'Polity & Constitution',
+            description: 'Indian Constitution, governance, political system',
+            topics: [
+              {
+                name: 'Constitutional Design',
+                subtopics: [
+                  'Federalism & Centre-State relations',
+                  'Separation of powers & checks',
+                  'Constitutional amendments & landmark judgements',
+                  'Comparison with other constitutions',
+                ],
+              },
+              {
+                name: 'Parliament & State Legislatures',
+                subtopics: [
+                  'Parliamentary procedures & committees',
+                  'Legislative process & delegated legislation',
+                  'Anti-defection law & parliamentary reforms',
+                ],
+              },
+              {
+                name: 'Executive & Judiciary',
+                subtopics: [
+                  'Executive accountability & ministerial responsibility',
+                  'Judicial activism & judicial overreach',
+                  'Appointment & transfer of judges',
+                  'Dispute redressal mechanisms',
+                ],
+              },
+              {
+                name: 'Elections & Representation',
+                subtopics: [
+                  'Election Commission & electoral reforms',
+                  'Representation of People Act',
+                  'Political parties & pressure groups',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Governance',
+            description: 'Government policies, transparency, e-governance & accountability',
+            topics: [
+              {
+                name: 'Government Policies & Interventions',
+                subtopics: [
+                  'Design & implementation of welfare schemes',
+                  'Role of NGOs & SHGs',
+                  'Citizens charters & service delivery',
+                ],
+              },
+              {
+                name: 'Transparency & Accountability',
+                subtopics: [
+                  'RTI Act & its impact',
+                  'Lokpal & Lokayuktas',
+                  'CVC, CBI & anti-corruption mechanisms',
+                ],
+              },
+              {
+                name: 'E-Governance',
+                subtopics: [
+                  'Digital India & e-governance initiatives',
+                  'Challenges of e-governance implementation',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Social Justice',
+            description: 'Welfare, health, education & vulnerable sections',
+            topics: [
+              {
+                name: 'Welfare Schemes & Institutions',
+                subtopics: [
+                  'Schemes for SC/ST/OBC/minorities/women',
+                  'Labour laws & social security',
+                  'Issues relating to poverty & hunger',
+                ],
+              },
+              {
+                name: 'Health & Education',
+                subtopics: [
+                  'Healthcare policies & public health',
+                  'Education policy (NEP) & reforms',
+                  'Issues of access & quality',
+                ],
+              },
+              {
+                name: 'Vulnerable Sections',
+                subtopics: [
+                  'Children & child labour',
+                  'Elderly, disabled & transgender rights',
+                  'Tribal welfare & displacement issues',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'International Relations',
+            description: 'India and its neighbourhood, bilateral & multilateral relations',
+            topics: [
+              {
+                name: 'India & Neighbourhood',
+                subtopics: [
+                  'India-Pakistan relations',
+                  'India-China relations',
+                  'Relations with SAARC & BIMSTEC nations',
+                  'India-Sri Lanka & India-Bangladesh',
+                ],
+              },
+              {
+                name: 'Bilateral & Global Relations',
+                subtopics: [
+                  'India-USA relations',
+                  'India-Russia & India-EU',
+                  'India-Africa & India-ASEAN',
+                  'Act East & Look West policies',
+                ],
+              },
+              {
+                name: 'International Organisations',
+                subtopics: [
+                  'UN system & reform',
+                  'WTO, IMF, World Bank',
+                  'Regional groupings (BRICS, SCO, G20, Quad)',
+                ],
+              },
+              {
+                name: 'Issues in International Relations',
+                subtopics: [
+                  'Indian diaspora & soft power',
+                  'Effect of other countries\u2019 policies on India',
+                ],
+              },
+            ],
+          },
+        ],
+      },
+
+      // ── MAINS GS3 ──
+      {
+        paper: 'MAINS_GS3',
+        paperLabel: 'Mains - General Studies III',
+        subjects: [
+          {
+            name: 'Economic Development',
+            description: 'Indian economy, growth, development & related issues',
+            topics: [
+              {
+                name: 'Growth & Development',
+                subtopics: [
+                  'Inclusive growth & sustainability',
+                  'Poverty, unemployment & inequality',
+                  'Government budgeting & fiscal policy',
+                ],
+              },
+              {
+                name: 'Financial Sector',
+                subtopics: [
+                  'Banking & financial inclusion',
+                  'Capital markets & insurance',
+                  'Monetary policy & inflation management',
+                ],
+              },
+              {
+                name: 'Industry & Infrastructure',
+                subtopics: [
+                  'Industrial policy & Make in India',
+                  'Investment models & PPP',
+                  'Infrastructure development: roads, ports, energy',
+                ],
+              },
+              {
+                name: 'External Economics',
+                subtopics: [
+                  'Liberalisation & globalisation effects',
+                  'Trade agreements & exports strategy',
+                  'Effects of global economic crises on India',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Agriculture',
+            description: 'Agriculture, food processing & related issues',
+            topics: [
+              {
+                name: 'Agricultural Practices',
+                subtopics: [
+                  'Cropping patterns & land reforms',
+                  'Irrigation & water management',
+                  'Farm mechanisation & technology',
+                ],
+              },
+              {
+                name: 'Food Security & Supply Chain',
+                subtopics: [
+                  'MSP, PDS & buffer stocks',
+                  'Food processing & value addition',
+                  'Supply chain management & e-NAM',
+                ],
+              },
+              {
+                name: 'Agricultural Reforms',
+                subtopics: [
+                  'Farm subsidies & their rationalisation',
+                  'Agricultural marketing reforms',
+                  'Animal husbandry & allied activities',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Science & Technology',
+            description: 'Developments in S&T and their applications',
+            topics: [
+              {
+                name: 'Indigenisation & Space',
+                subtopics: [
+                  'Indigenisation of technology & developing new tech',
+                  'ISRO missions & space policy',
+                  'Defence & strategic technologies',
+                ],
+              },
+              {
+                name: 'IT & Emerging Tech',
+                subtopics: [
+                  'AI, robotics & automation',
+                  'Cyber security & data protection',
+                  'Blockchain & fintech',
+                ],
+              },
+              {
+                name: 'Biotech & Health Tech',
+                subtopics: [
+                  'Biotechnology applications in agriculture & health',
+                  'IPR & technology transfer',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Environment & Disaster Management',
+            description: 'Environmental conservation, pollution & disaster management',
+            topics: [
+              {
+                name: 'Conservation & Biodiversity',
+                subtopics: [
+                  'Wildlife protection & conservation efforts',
+                  'Forest governance & community reserves',
+                  'Environmental Impact Assessment',
+                ],
+              },
+              {
+                name: 'Pollution & Climate',
+                subtopics: [
+                  'Air & water pollution control',
+                  'Climate change mitigation & adaptation',
+                  'Carbon credits & green finance',
+                ],
+              },
+              {
+                name: 'Disaster Management',
+                subtopics: [
+                  'NDMA & SDMA framework',
+                  'Disaster preparedness & response',
+                  'Flood, drought & earthquake management',
+                  'Role of technology in disaster risk reduction',
+                ],
+              },
+            ],
+          },
+          {
+            name: 'Internal Security',
+            description: 'Security challenges, border management, extremism & cyber security',
+            topics: [
+              {
+                name: 'Security Threats',
+                subtopics: [
+                  'Left-wing extremism (Naxalism)',
+                  'Terrorism & cross-border threats',
+                  'Insurgency in North-East India',
+                ],
+              },
+              {
+                name: 'Border & Coastal Security',
+                subtopics: [
+                  'Border management & fencing',
+                  'Coastal security & maritime threats',
+                  'Role of BSF, ITBP, Coast Guard',
+                ],
+              },
+              {
+                name: 'Organised Crime & Cyber',
+                subtopics: [
+                  'Money laundering & organised crime',
+                  'Cyber warfare & cyber crime',
+                  'Linkages between crime & terror',
+                ],
+              },
+              {
+                name: 'Security Architecture',
+                subtopics: [
+                  'Role of media & social media in security',
+                  'Security forces & their mandate',
+                  'Intelligence agencies & coordination',
+                ],
+              },
+            ],
+          },
+        ],
+      },
+
+      // ── MAINS GS4 ──
+      {
+        paper: 'MAINS_GS4',
+        paperLabel: 'Mains - General Studies IV (Ethics)',
+        subjects: [
+          {
+            name: 'Ethics, Integrity & Aptitude',
+            description: 'Ethics & human interface, attitude, aptitude, emotional intelligence, public service values',
+            topics: [
+              {
+                name: 'Ethics & Human Interface',
+                subtopics: [
+                  'Essence, determinants & consequences of ethics',
+                  'Dimensions of ethics: private & public relationships',
+                  'Human values: role of family, society & education',
+                  'Contributions of moral thinkers (Indian & Western)',
+                ],
+              },
+              {
+                name: 'Attitude',
+                subtopics: [
+                  'Content, structure & function of attitudes',
+                  'Influence on thought & behaviour',
+                  'Moral & political attitudes',
+                  'Persuasion & attitude change',
+                ],
+              },
+              {
+                name: 'Aptitude & Emotional Intelligence',
+                subtopics: [
+                  'Civil service aptitude & foundational values',
+                  'Integrity, impartiality & non-partisanship',
+                  'Emotional intelligence: concepts & application',
+                  'Tolerance, compassion & empathy in governance',
+                ],
+              },
+              {
+                name: 'Public Administration Ethics',
+                subtopics: [
+                  'Ethical concerns in public administration',
+                  'Laws, rules & conscience as sources of guidance',
+                  'Accountability & ethical governance',
+                  'Strengthening ethical & moral values in governance',
+                  'Code of conduct & code of ethics',
+                ],
+              },
+              {
+                name: 'Probity in Governance',
+                subtopics: [
+                  'Concept of public service & philosophy',
+                  'Information sharing & transparency',
+                  'RTI, codes of ethics & citizen charters',
+                  'Work culture & quality of service delivery',
+                  'Challenges of corruption',
+                ],
+              },
+              {
+                name: 'Case Studies',
+                subtopics: [
+                  'Ethical dilemma scenarios',
+                  'Conflict of interest situations',
+                  'Administrative ethics case analysis',
+                ],
+              },
+            ],
+          },
+        ],
+      },
     ];
 
-    subjects.forEach((subjectName) => {
-      const subject = this.createSubject({
-        name: subjectName,
-        slug: toSlug(subjectName),
-        description: `${subjectName} for UPSC preparation`,
-      });
-
-      const rootTopics: Topic[] = [];
-      for (let index = 1; index <= 20; index += 1) {
-        rootTopics.push(
-          this.createTopic({
-            subjectId: subject.id,
-            name: `${subjectName} Topic ${index}`,
-            slug: `${toSlug(subjectName)}-topic-${index}`,
-            description: `Core ${subjectName} topic ${index}`,
-          }),
-        );
-      }
-
-      for (let index = 1; index <= 6; index += 1) {
-        this.createTopic({
-          subjectId: subject.id,
-          parentTopicId: rootTopics[index - 1]?.id,
-          name: `${subjectName} Subtopic ${index}`,
-          slug: `${toSlug(subjectName)}-subtopic-${index}`,
-          description: `Detailed ${subjectName} subtopic ${index}`,
+    for (const paper of syllabus) {
+      for (const subjectData of paper.subjects) {
+        const subject = this.createSubject({
+          name: subjectData.name,
+          description: subjectData.description,
+          paper: paper.paper,
         });
+
+        for (const topicData of subjectData.topics) {
+          const topic = this.createTopic({
+            subjectId: subject.id,
+            name: topicData.name,
+            description: `${subjectData.name} — ${topicData.name}`,
+          });
+
+          for (const subtopicName of topicData.subtopics) {
+            this.createTopic({
+              subjectId: subject.id,
+              parentTopicId: topic.id,
+              name: subtopicName,
+              description: `${topicData.name} — ${subtopicName}`,
+            });
+          }
+        }
       }
-    });
+    }
   }
 }
 

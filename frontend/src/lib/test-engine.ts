@@ -1,3 +1,5 @@
+import { knowledgeApi, type SubjectResponse, type TopicResponse } from './api-client';
+
 export type TestType = 'topic' | 'mixed' | 'pyq' | 'weak-area';
 
 export type QuestionOption = 'A' | 'B' | 'C' | 'D';
@@ -76,32 +78,52 @@ const GENERATED_TESTS_STORAGE_KEY = 'saarthi-generated-tests';
 const TEST_RESULTS_STORAGE_KEY = 'saarthi-test-results';
 const NEGATIVE_MARKING_PENALTY = 0.33;
 
-const subjects: Subject[] = [
-  {
-    id: 'history',
-    name: 'History',
-    topics: [
-      { id: 'modern-india', name: 'Modern India' },
-      { id: 'ancient-india', name: 'Ancient India' },
-    ],
-  },
-  {
-    id: 'polity',
-    name: 'Polity',
-    topics: [
-      { id: 'constitution', name: 'Constitution' },
-      { id: 'parliament', name: 'Parliament' },
-    ],
-  },
-  {
-    id: 'geography',
-    name: 'Geography',
-    topics: [
-      { id: 'climatology', name: 'Climatology' },
-      { id: 'indian-geography', name: 'Indian Geography' },
-    ],
-  },
-];
+let cachedSubjects: SubjectResponse[] | null = null;
+let cachedTopics: Map<string, TopicResponse[]> | null = null;
+
+const fetchSubjectsFromApi = async (): Promise<SubjectResponse[]> => {
+  if (cachedSubjects) return cachedSubjects;
+  try {
+    const res = await knowledgeApi.getSubjects();
+    cachedSubjects = res.data;
+    return cachedSubjects;
+  } catch {
+    return [];
+  }
+};
+
+const fetchTopicsFromApi = async (subjectId: string): Promise<TopicResponse[]> => {
+  if (cachedTopics?.has(subjectId)) return cachedTopics.get(subjectId)!;
+  try {
+    const res = await knowledgeApi.getSubjectTopics(subjectId);
+    const topics = res.data;
+    if (!cachedTopics) cachedTopics = new Map();
+    cachedTopics.set(subjectId, topics);
+    return topics;
+  } catch {
+    return [];
+  }
+};
+
+export const getSubjects = async (): Promise<Subject[]> => {
+  const subjects = await fetchSubjectsFromApi();
+  const result: Subject[] = [];
+  for (const s of subjects.slice(0, 20)) {
+    const topics = await fetchTopicsFromApi(s.id);
+    const rootTopics = topics.filter((t) => t.parentTopicId === null).slice(0, 10);
+    result.push({
+      id: s.id,
+      name: s.name,
+      topics: rootTopics.map((t) => ({ id: t.id, name: t.name })),
+    });
+  }
+  return result;
+};
+
+export const getTopicsBySubject = async (subjectId: string): Promise<SubjectTopic[]> => {
+  const topics = await fetchTopicsFromApi(subjectId);
+  return topics.filter((t) => t.parentTopicId === null).map((t) => ({ id: t.id, name: t.name }));
+};
 
 const questionBank: TestQuestion[] = [
   {
@@ -268,12 +290,12 @@ const setStoredResults = (results: TestResult[]) => {
   window.localStorage.setItem(TEST_RESULTS_STORAGE_KEY, JSON.stringify(results));
 };
 
-export const getSubjects = () => subjects;
-
-export const getTopicsBySubject = (subjectId: string) => subjects.find((subject) => subject.id === subjectId)?.topics ?? [];
-
-export const createTest = (config: TestGenerationConfig): GeneratedTest => {
-  const selectedSubject = subjects.find((subject) => subject.id === config.subjectId) ?? subjects[0];
+export const createTest = async (config: TestGenerationConfig): Promise<GeneratedTest> => {
+  const allSubjects = await getSubjects();
+  const selectedSubject = allSubjects.find((subject) => subject.id === config.subjectId) ?? allSubjects[0];
+  if (!selectedSubject) {
+    throw new Error('No subjects available. Please ensure the backend is running and seeded.');
+  }
   const topicScope = config.topicIds.length > 0 ? new Set(config.topicIds) : null;
 
   const questionPool = questionBank.filter((question) => {

@@ -24,11 +24,38 @@ export const authApi = {
   forgotPassword: (email: string) => apiClient.post('/auth/forgot-password', { email }),
 };
 
+export type SubjectResponse = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  paper: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TopicResponse = {
+  id: string;
+  subjectId: string;
+  parentTopicId: string | null;
+  name: string;
+  slug: string;
+  description: string | null;
+  materializedPath: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TopicWithSubtopicsResponse = {
+  topic: TopicResponse;
+  subtopics: TopicResponse[];
+};
+
 export const knowledgeApi = {
-  getSubjects: () => apiClient.get('/knowledge-graph/subjects'),
-  getSubject: (id: string) => apiClient.get(`/knowledge-graph/subjects/${id}`),
-  getSubjectTopics: (id: string) => apiClient.get(`/knowledge-graph/subjects/${id}/topics`),
-  getTopic: (id: string) => apiClient.get(`/knowledge-graph/topics/${id}`),
+  getSubjects: () => apiClient.get<SubjectResponse[]>('/knowledge-graph/subjects'),
+  getSubject: (id: string) => apiClient.get<SubjectResponse>(`/knowledge-graph/subjects/${id}`),
+  getSubjectTopics: (id: string) => apiClient.get<TopicResponse[]>(`/knowledge-graph/subjects/${id}/topics`),
+  getTopic: (id: string) => apiClient.get<TopicWithSubtopicsResponse>(`/knowledge-graph/topics/${id}`),
 };
 
 export type TestAnalyticsResponse = {

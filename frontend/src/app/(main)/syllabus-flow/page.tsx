@@ -3,13 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { essaysApi, mainsApi, practiceApi, type MainsDailyQuestionResponse, type MainsGateStatus } from '@/lib/api-client';
-
-const topicStatuses = [
-  { id: 't1', name: 'Parliamentary Committees', status: 'completed', completion: 100 },
-  { id: 't2', name: 'Federalism Challenges', status: 'in_progress', completion: 62 },
-  { id: 't3', name: 'Local Governance', status: 'not_started', completion: 0 },
-];
+import { essaysApi, knowledgeApi, mainsApi, practiceApi, type MainsDailyQuestionResponse, type MainsGateStatus, type SubjectResponse, type TopicResponse } from '@/lib/api-client';
 
 const statusClassMap: Record<string, string> = {
   completed: 'bg-emerald-500/20 text-emerald-700',
@@ -37,25 +31,34 @@ type NonRepetitionStats = {
   repetitionRate: number;
 };
 
+type SyllabusTopic = {
+  id: string;
+  name: string;
+  status: string;
+  completion: number;
+};
+
 export default function SyllabusFlowPage() {
   const [gateStatus, setGateStatus] = useState<MainsGateStatus | null>(null);
   const [dailyQuestion, setDailyQuestion] = useState<MainsDailyQuestionResponse['question']>(null);
   const [weeklyEssayPrompt, setWeeklyEssayPrompt] = useState<string>('');
   const [feedbackLoop, setFeedbackLoop] = useState<FeedbackLoopResponse | null>(null);
   const [nonRepetitionStats, setNonRepetitionStats] = useState<NonRepetitionStats | null>(null);
+  const [syllabusTopics, setSyllabusTopics] = useState<SyllabusTopic[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     const load = async () => {
       try {
-        const [gateStatusResponse, questionResponse, essayQuestionResponse, feedbackLoopResponse, nonRepetitionResponse] =
+        const [gateStatusResponse, questionResponse, essayQuestionResponse, feedbackLoopResponse, nonRepetitionResponse, subjectsResponse] =
           await Promise.all([
             mainsApi.getGateStatus(),
             mainsApi.getDailyQuestion(),
             essaysApi.getWeeklyQuestion(),
             practiceApi.getFeedbackLoop(),
             practiceApi.getNonRepetitionStats(),
+            knowledgeApi.getSubjects(),
           ]);
 
         if (!active) {
@@ -67,6 +70,27 @@ export default function SyllabusFlowPage() {
         setWeeklyEssayPrompt(essayQuestionResponse.data.prompt);
         setFeedbackLoop(feedbackLoopResponse.data as FeedbackLoopResponse);
         setNonRepetitionStats(nonRepetitionResponse.data as NonRepetitionStats);
+
+        // Build syllabus topics from subjects - show first 10 root topics
+        const subjects: SubjectResponse[] = subjectsResponse.data;
+        const topics: SyllabusTopic[] = [];
+        for (const subject of subjects.slice(0, 5)) {
+          try {
+            const topicsRes = await knowledgeApi.getSubjectTopics(subject.id);
+            const rootTopics = (topicsRes.data as TopicResponse[]).filter((t) => t.parentTopicId === null).slice(0, 3);
+            for (const t of rootTopics) {
+              topics.push({
+                id: t.id,
+                name: `${subject.name}: ${t.name}`,
+                status: 'not_started',
+                completion: 0,
+              });
+            }
+          } catch {
+            // Skip subjects that fail
+          }
+        }
+        setSyllabusTopics(topics.slice(0, 10));
         setError(null);
       } catch {
         if (active) {
@@ -91,7 +115,7 @@ export default function SyllabusFlowPage() {
           <CardTitle>Syllabus tree & topic status</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {topicStatuses.map((topic) => (
+          {syllabusTopics.map((topic) => (
             <div key={topic.id} className="rounded border border-border p-3">
               <div className="mb-2 flex items-center justify-between">
                 <p className="text-sm font-medium">{topic.name}</p>

@@ -20,7 +20,7 @@ export default function RootLayout({
         <link rel="preconnect" href={apiOrigin} />
         <link rel="dns-prefetch" href={apiOrigin} />
       </head>
-      <body className="bg-background text-foreground antialiased">
+      <body className="bg-background text-foreground antialiased" suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>
     </html>

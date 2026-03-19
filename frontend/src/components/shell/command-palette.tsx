@@ -15,7 +15,6 @@ const commandItems = [
   { id: 'shortcuts', label: 'Keyboard Shortcuts Guide', href: '/shortcuts' },
   { id: 'second-brain', label: 'Second Brain', href: '/second-brain' },
   { id: 'admin-review', label: 'Admin Review', href: '/admin/review' },
-  { id: 'topic-biology', label: 'Cell Biology Topic', href: '/topics/cell-biology' },
 ];
 
 export function CommandPalette() {
