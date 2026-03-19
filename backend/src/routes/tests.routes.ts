@@ -55,7 +55,7 @@ export const createTestsRouter = (options: CreateTestsRouterOptions = {}): Route
     authMiddleware,
     validateRequest(getTestHistorySchema),
     asyncHandler(async (req, res) => {
-      res.status(200).json(testEngineService.listHistory(req.authUser!.userId, req.query));
+      res.status(200).json(await testEngineService.listHistory(req.authUser!.userId, req.query));
     }),
   );
 
@@ -65,7 +65,7 @@ export const createTestsRouter = (options: CreateTestsRouterOptions = {}): Route
     authMiddleware,
     validateRequest(getTestResultsSchema),
     asyncHandler(async (req, res) => {
-      res.status(200).json(testEngineService.getResults(req.authUser!.userId, req.params.id));
+      res.status(200).json(await testEngineService.getResults(req.authUser!.userId, req.params.id));
     }),
   );
 

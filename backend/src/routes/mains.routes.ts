@@ -93,7 +93,7 @@ export const createMainsRouter = (options: CreateMainsRouterOptions = {}): Route
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      res.status(200).json(mainsService.getDailyQuestion(req.authUser!.userId));
+      res.status(200).json(await mainsService.getDailyQuestion(req.authUser!.userId));
     }),
   );
 

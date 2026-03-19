@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 
 import { env } from '../config/env.js';
 import { AppError } from '../errors/app-error.js';
+import { prisma } from '../lib/prisma.js';
 import { redisClient } from '../lib/redis.js';
 import { logger } from '../utils/logger.js';
 
@@ -62,63 +63,61 @@ export interface KeyValueStore {
   del(key: string): Promise<void>;
 }
 
-class MemoryUserStore implements UserStore {
-  private readonly usersById = new Map<string, PersistedUser>();
-
+class PrismaUserStore implements UserStore {
   async findByEmail(email: string): Promise<PersistedUser | null> {
-    return [...this.usersById.values()].find((user) => user.email === email) ?? null;
+    const user = await prisma.user.findUnique({ where: { email } });
+    return user ? (user as unknown as PersistedUser) : null;
   }
 
   async findById(id: string): Promise<PersistedUser | null> {
-    return this.usersById.get(id) ?? null;
+    const user = await prisma.user.findUnique({ where: { id } });
+    return user ? (user as unknown as PersistedUser) : null;
   }
 
   async create(input: { email: string; passwordHash: string; role?: UserRole }): Promise<PersistedUser> {
-    const now = new Date();
-    const user: PersistedUser = {
-      id: randomUUID(),
-      email: input.email,
-      passwordHash: input.passwordHash,
-      role: input.role ?? 'student',
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    this.usersById.set(user.id, user);
-    return user;
+    const user = await prisma.user.create({
+      data: {
+        email: input.email,
+        passwordHash: input.passwordHash,
+        role: input.role as any,
+      },
+    });
+    return user as unknown as PersistedUser;
   }
 
   async updatePassword(id: string, passwordHash: string): Promise<void> {
-    const user = this.usersById.get(id);
-
-    if (!user) {
-      return;
-    }
-
-    user.passwordHash = passwordHash;
-    user.updatedAt = new Date();
+    await prisma.user.update({
+      where: { id },
+      data: { passwordHash },
+    });
   }
 }
 
-class MemorySessionStore implements SessionStore {
-  private readonly sessionsById = new Map<string, SessionRecord>();
-
+class PrismaSessionStore implements SessionStore {
   async create(session: SessionRecord): Promise<void> {
-    this.sessionsById.set(session.id, session);
+    await prisma.session.create({
+      data: {
+        id: session.id,
+        userId: session.userId,
+        refreshToken: session.refreshTokenHash,
+        expiresAt: session.expiresAt,
+      },
+    });
   }
 
   async updateRefreshTokenHash(sessionId: string, refreshTokenHash: string): Promise<void> {
-    const current = this.sessionsById.get(sessionId);
-
-    if (!current) {
-      return;
-    }
-
-    current.refreshTokenHash = refreshTokenHash;
+    await prisma.session.update({
+      where: { id: sessionId },
+      data: { refreshToken: refreshTokenHash },
+    });
   }
 
   async deleteById(sessionId: string): Promise<void> {
-    this.sessionsById.delete(sessionId);
+    try {
+      await prisma.session.delete({ where: { id: sessionId } });
+    } catch {
+      // Ignored
+    }
   }
 }
 
@@ -177,8 +176,8 @@ const toPublicUser = (user: PersistedUser): AuthUser => ({
   updatedAt: user.updatedAt,
 });
 
-const defaultUserStore = new MemoryUserStore();
-const defaultSessionStore = new MemorySessionStore();
+const defaultUserStore = new PrismaUserStore();
+const defaultSessionStore = new PrismaSessionStore();
 const defaultKeyValueStore = new RedisKeyValueStore();
 
 export class AuthService {

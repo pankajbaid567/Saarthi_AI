@@ -17,6 +17,12 @@ export const validateRequest = <T>(schema: ZodSchema<T>): RequestHandler => {
       return;
     }
 
+    if (result.data) {
+      if ('body' in (result.data as any)) req.body = (result.data as any).body;
+      if ('query' in (result.data as any)) req.query = (result.data as any).query;
+      if ('params' in (result.data as any)) req.params = (result.data as any).params;
+    }
+
     next();
   };
 };

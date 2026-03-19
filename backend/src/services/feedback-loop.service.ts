@@ -28,7 +28,7 @@ export class FeedbackLoopService {
     this.testEngineService = options.testEngineService ?? createTestEngineService();
   }
 
-  getFeedbackLoop(userId: string): {
+  async getFeedbackLoop(userId: string): Promise<{
     rollingWindowDays: number;
     topics: Array<{
       topicId: string;
@@ -39,9 +39,9 @@ export class FeedbackLoopService {
       reason: string;
     }>;
     loggedAdaptations: PracticeAdaptationLog[];
-  } {
+  }> {
     const rollingWindowDays = 7;
-    const topicPerformance = this.testEngineService.getRecentTopicPerformance(userId, rollingWindowDays);
+    const topicPerformance = await this.testEngineService.getRecentTopicPerformance(userId, rollingWindowDays);
     const topicAdaptations = topicPerformance.map((topic) => {
       const difficultyTierDelta = this.resolveDifficultyAdjustment(topic.accuracy);
       const weakAreaWeightMultiplier = topic.accuracy < 60 ? 1.35 : 1;
@@ -81,14 +81,14 @@ export class FeedbackLoopService {
     };
   }
 
-  getNonRepetitionStats(userId: string): {
+  async getNonRepetitionStats(userId: string): Promise<{
     windowDays: number;
     totalAttempts: number;
     uniqueQuestionCount: number;
     repeatAttempts: number;
     repetitionRate: number;
-  } {
-    return this.testEngineService.getNonRepetitionStats(userId, 30);
+  }> {
+    return await this.testEngineService.getNonRepetitionStats(userId, 30);
   }
 
   private resolveDifficultyAdjustment(accuracy: number): -1 | 0 | 1 {

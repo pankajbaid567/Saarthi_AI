@@ -1,12 +1,13 @@
 import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
+import helmet from 'helmet';
 
 import { env } from './config/env.js';
 import { AppError } from './errors/app-error.js';
 import { authMiddleware } from './middleware/auth.middleware.js';
 import { errorHandler } from './middleware/error-handler.js';
-import { authRateLimiter } from './middleware/rate-limit.middleware.js';
+import { authRateLimiter, globalRateLimiter } from './middleware/rate-limit.middleware.js';
 import { requireRole } from './middleware/rbac.middleware.js';
 import { validateRequest } from './middleware/request-validation.js';
 import { createAnalyticsRouter } from './routes/analytics.routes.js';
@@ -38,6 +39,7 @@ type CreateAppOptions = {
 export const createApp = (options: CreateAppOptions = {}) => {
   const app = express();
 
+  app.use(helmet());
   app.use(compression());
   app.use(
     cors({
@@ -50,6 +52,9 @@ export const createApp = (options: CreateAppOptions = {}) => {
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok' });
   });
+
+  // Apply global rate limiter to API routes but after health checks
+  app.use('/api/', globalRateLimiter);
 
   app.post('/api/v1/system/echo', validateRequest(echoRequestSchema), (req, res) => {
     res.status(200).json({ message: req.body.message });

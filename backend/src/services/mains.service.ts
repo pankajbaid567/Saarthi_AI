@@ -65,10 +65,10 @@ export class MainsService {
     this.testEngineService = options.testEngineService ?? createTestEngineService();
   }
 
-  getGateStatus(userId: string) {
+  async getGateStatus(userId: string) {
     const dateKey = toDateKey(new Date());
     const override = this.gateOverrides.get(`${userId}:${dateKey}`);
-    const attemptedMcqs = this.testEngineService.getDailyAttemptedMcqCount(userId);
+    const attemptedMcqs = await this.testEngineService.getDailyAttemptedMcqCount(userId);
     const isUnlocked = Boolean(override) || attemptedMcqs >= this.requiredDailyMcqAttempts;
 
     return {
@@ -80,11 +80,11 @@ export class MainsService {
     };
   }
 
-  getDailyQuestion(userId: string): {
-    gateStatus: ReturnType<MainsService['getGateStatus']>;
+  async getDailyQuestion(userId: string): Promise<{
+    gateStatus: Awaited<ReturnType<MainsService['getGateStatus']>>;
     question: MainsDailyQuestion | null;
-  } {
-    const gateStatus = this.getGateStatus(userId);
+  }> {
+    const gateStatus = await this.getGateStatus(userId);
     if (!gateStatus.isUnlocked) {
       return { gateStatus, question: null };
     }
@@ -105,8 +105,8 @@ export class MainsService {
     return override;
   }
 
-  submitDailyAnswer(userId: string, answer: string): MainsSubmission {
-    if (!this.getGateStatus(userId).isUnlocked) {
+  async submitDailyAnswer(userId: string, answer: string): Promise<MainsSubmission> {
+    if (!(await this.getGateStatus(userId)).isUnlocked) {
       throw new AppError('Mains question is locked until daily MCQ gate is cleared', 403);
     }
 
