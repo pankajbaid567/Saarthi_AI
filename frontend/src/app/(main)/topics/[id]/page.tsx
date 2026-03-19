@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { learningApi, type LearningSearchResult } from '@/lib/learning-api';
@@ -57,7 +58,7 @@ export default function TopicPage() {
             </TabsList>
             <TabsContent value="concept-notes">
               <article className="prose max-w-none dark:prose-invert" style={{ fontSize }}>
-                <ReactMarkdown>{sampleMarkdown}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{sampleMarkdown}</ReactMarkdown>
               </article>
             </TabsContent>
             <TabsContent value="pyqs">

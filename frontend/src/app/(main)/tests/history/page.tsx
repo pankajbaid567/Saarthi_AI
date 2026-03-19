@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getAllResults, getSubjects } from '@/lib/test-engine';
+import { getAllResults, getSubjects, type Subject } from '@/lib/test-engine';
 
 const typeLabelMap: Record<string, string> = {
   topic: 'Topic',
@@ -28,7 +28,15 @@ export default function TestHistoryPage() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
-  const subjects = getSubjects();
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  useEffect(() => {
+    let active = true;
+    getSubjects().then((res) => {
+      if (active) setSubjects(res);
+    });
+    return () => { active = false; };
+  }, []);
+
   const allResults = getAllResults();
 
   const filteredResults = allResults.filter((result) => {

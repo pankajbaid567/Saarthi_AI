@@ -1,17 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* =========================================
+     [1] COLOR PALETTE - LIGHT MODE (Vercel/Linear vibes)
+     ========================================= */
+  --background: #ffffff;
+  --foreground: #111110; 
+  
   --card: #ffffff;
-  --card-foreground: #0f172a;
-  --primary: #2563eb;
-  --primary-foreground: #eff6ff;
-  --muted: #e2e8f0;
-  --muted-foreground: #475569;
-  --border: #cbd5e1;
-  --destructive: #dc2626;
+  --card-foreground: #111110;
+  
+  --popover: #ffffff;
+  --popover-foreground: #111110;
+  
+  --primary: #111110;
+  --primary-foreground: #fcfcfc;
+  
+  --secondary: #f3f3f2;
+  --secondary-foreground: #111110;
+  
+  --muted: #f7f7f6;
+  --muted-foreground: #6b6b66;
+  
+  --accent: #f3f3f2;
+  --accent-foreground: #111110;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #fcfcfc;
+  
+  --border: #e6e6e4;
+  --input: #e6e6e4;
+  --ring: #111110;
 
+  /* =========================================
+     [2] TYPOGRAPHY & SPACING BASE
+     ========================================= */
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
@@ -20,64 +43,112 @@
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  /* =========================================
+     [3] BORDER RADII (Sleek, tight radii)
+     ========================================= */
+  --radius: 0.5rem;
 }
 
+/* =========================================
+   [4] COLOR PALETTE - DARK MODE 
+   ========================================= */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  
+  --card: #0c0c0c;
+  --card-foreground: #ededed;
+  
+  --popover: #0c0c0c;
+  --popover-foreground: #ededed;
+  
+  --primary: #ededed;
+  --primary-foreground: #0a0a0a;
+  
+  --secondary: #1f1f1f;
+  --secondary-foreground: #ededed;
+  
+  --muted: #171717;
+  --muted-foreground: #8a8a8a;
+  
+  --accent: #1f1f1f;
+  --accent-foreground: #ededed;
+  
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ededed;
+  
+  --border: #262626;
+  --input: #262626;
+  --ring: #e5e5e5;
+}
+
+/* =========================================
+   [5] TAILWIND V4 @THEME INTEGRATION
+   ========================================= */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
-  --font-sans: Inter, Arial, Helvetica, sans-serif;
-  --font-mono: 'Courier New', monospace;
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-float: 0 0 0 1px rgba(0,0,0,0.05), 0px 4px 12px rgba(0,0,0,0.05), 0px 10px 32px rgba(0,0,0,0.05);
+  --shadow-glow: 0 0 0 1px rgba(255,255,255,0.05), 0px 4px 12px rgba(0,0,0,0.2), 0px 10px 32px rgba(0,0,0,0.3);
 }
 
-.dark {
-  --background: #020617;
-  --foreground: #e2e8f0;
-  --card: #0f172a;
-  --card-foreground: #e2e8f0;
-  --primary: #60a5fa;
-  --primary-foreground: #082f49;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --border: #334155;
-  --destructive: #ef4444;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: var(--font-size-base);
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Inter, Arial, Helvetica, sans-serif;
-  font-size: var(--font-size-base);
-}
-
-:root[data-font-size='sm'] {
-  --font-size-base: var(--font-size-sm);
-}
-
-:root[data-font-size='base'] {
-  --font-size-base: 1rem;
-}
-
-:root[data-font-size='lg'] {
-  --font-size-base: var(--font-size-lg);
-}
+:root[data-font-size='sm'] { --font-size-base: var(--font-size-sm); }
+:root[data-font-size='base'] { --font-size-base: 1rem; }
+:root[data-font-size='lg'] { --font-size-base: var(--font-size-lg); }
 
 .page-transition {
-  animation: page-enter 180ms ease-out;
-  transition: opacity 180ms ease-out, transform 180ms ease-out;
+  animation: page-enter 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 220ms ease-out, transform 220ms ease-out;
 }
 
 @keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -85,38 +156,31 @@ body {
   }
 }
 
-.prose {
-  color: var(--foreground);
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted-foreground);
 }
 
-.prose h1,
-.prose h2,
-.prose h3 {
-  margin-top: var(--space-4);
-  margin-bottom: var(--space-2);
+@utility perspective-1000 {
+  perspective: 1000px;
 }
-
-.prose ul {
-  list-style: disc;
-  margin-left: 1.25rem;
+@utility transform-style-3d {
+  transform-style: preserve-3d;
 }
-
-@media print {
-  body {
-    background: #fff;
-    color: #000;
-  }
-
-  aside,
-  header,
-  nav,
-  .no-print {
-    display: none !important;
-  }
-
-  .printable-notes {
-    border: none !important;
-    box-shadow: none !important;
-    break-inside: avoid;
-  }
+@utility rotate-y-180 {
+  transform: rotateY(180deg);
+}
+@utility backface-hidden {
+  backface-visibility: hidden;
 }

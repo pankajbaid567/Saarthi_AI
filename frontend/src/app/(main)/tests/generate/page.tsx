@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,14 +16,50 @@ const testTypeOptions: { label: string; value: TestType }[] = [
 
 export default function GenerateTestPage() {
   const router = useRouter();
-  const subjects = getSubjects();
-  const [subjectId, setSubjectId] = useState(subjects[0]?.id ?? '');
+  
+  const [subjects, setSubjects] = useState<{ id: string; name: string }[]>([]);
+  const [topics, setTopics] = useState<{ id: string; name: string }[]>([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(true);
+  
+  const [subjectId, setSubjectId] = useState('');
   const [type, setType] = useState<TestType>('topic');
   const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
   const [questionCount, setQuestionCount] = useState(10);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(30);
 
-  const topics = useMemo(() => getTopicsBySubject(subjectId), [subjectId]);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const loadedSubjects = await getSubjects();
+        if (!active) return;
+        setSubjects(loadedSubjects);
+        if (loadedSubjects.length > 0) {
+          setSubjectId(loadedSubjects[0].id);
+        }
+      } finally {
+        if (active) setLoadingSubjects(false);
+      }
+    })();
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    if (!subjectId) {
+      setTopics([]);
+      return;
+    }
+    let active = true;
+    (async () => {
+      try {
+        const loadedTopics = await getTopicsBySubject(subjectId);
+        if (active) setTopics(loadedTopics);
+      } catch {
+        if (active) setTopics([]);
+      }
+    })();
+    return () => { active = false; };
+  }, [subjectId]);
 
   const onSubjectChange = (value: string) => {
     setSubjectId(value);
@@ -34,17 +70,28 @@ export default function GenerateTestPage() {
     setSelectedTopicIds((current) => (current.includes(topicId) ? current.filter((id) => id !== topicId) : [...current, topicId]));
   };
 
-  const onGenerate = () => {
-    const test = createTest({
-      type,
-      subjectId,
-      topicIds: selectedTopicIds,
-      questionCount,
-      timeLimitMinutes,
-    });
+  const [isGenerating, setIsGenerating] = useState(false);
 
-    router.push(`/tests/${test.id}`);
+  const onGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      const test = await createTest({
+        type,
+        subjectId,
+        topicIds: selectedTopicIds,
+        questionCount,
+        timeLimitMinutes,
+      });
+
+      router.push(`/tests/${test.id}`);
+    } finally {
+      setIsGenerating(false);
+    }
   };
+
+  if (loadingSubjects) {
+     return <p className="text-sm text-muted-foreground p-4">Loading test configurations...</p>;
+  }
 
   return (
     <Card>
@@ -121,8 +168,8 @@ export default function GenerateTestPage() {
           </select>
         </section>
 
-        <Button type="button" onClick={onGenerate}>
-          Start test
+        <Button type="button" onClick={() => void onGenerate()} disabled={isGenerating}>
+          {isGenerating ? 'Generating...' : 'Start test'}
         </Button>
       </CardContent>
     </Card>

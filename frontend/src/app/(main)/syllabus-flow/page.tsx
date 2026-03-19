@@ -74,22 +74,27 @@ export default function SyllabusFlowPage() {
         // Build syllabus topics from subjects - show first 10 root topics
         const subjects: SubjectResponse[] = subjectsResponse.data;
         const topics: SyllabusTopic[] = [];
-        for (const subject of subjects.slice(0, 5)) {
+        
+        // Parallelize network requests for child topics instead of blocking sequentially
+        const topicPromises = subjects.slice(0, 5).map(async (subject) => {
           try {
             const topicsRes = await knowledgeApi.getSubjectTopics(subject.id);
-            const rootTopics = (topicsRes.data as TopicResponse[]).filter((t) => t.parentTopicId === null).slice(0, 3);
-            for (const t of rootTopics) {
-              topics.push({
-                id: t.id,
-                name: `${subject.name}: ${t.name}`,
-                status: 'not_started',
-                completion: 0,
-              });
-            }
+            const rootTopics = topicsRes.data.filter((t) => t.parentTopicId === null).slice(0, 3);
+            return rootTopics.map((t) => ({
+              id: t.id,
+              name: `${subject.name}: ${t.name}`,
+              status: 'not_started' as const,
+              completion: 0,
+            }));
           } catch {
-            // Skip subjects that fail
+            return [];
           }
-        }
+        });
+
+        const nestedTopicsArrays = await Promise.all(topicPromises);
+        topics.push(...nestedTopicsArrays.flat());
+        
+        if (!active) return;
         setSyllabusTopics(topics.slice(0, 10));
         setError(null);
       } catch {

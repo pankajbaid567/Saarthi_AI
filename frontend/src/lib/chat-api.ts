@@ -97,11 +97,17 @@ export const chatApi = {
           return;
         }
 
-        const payload = JSON.parse(dataLine) as {
-          chunk?: string;
-          isCorrect?: boolean;
-          summary?: { attempted: number; correct: number; accuracy: number; difficultyLevel: number };
-        };
+        let payload;
+        try {
+          payload = JSON.parse(dataLine) as {
+            chunk?: string;
+            isCorrect?: boolean;
+            summary?: { attempted: number; correct: number; accuracy: number; difficultyLevel: number };
+          };
+        } catch (e) {
+          console.warn('Failed to parse SSE data stream chunk', e);
+          return;
+        }
 
         if (eventType === 'done') {
           finalResult = { isCorrect: payload.isCorrect, summary: payload.summary };

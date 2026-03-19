@@ -220,8 +220,15 @@ export default function SecondBrainPage() {
             <EmptyState
               title="No entries found"
               description="Capture your first insight to build long-term memory links."
-              ctaLabel="Create one now"
-              ctaHref="#create-insight"
+              action={{
+                label: "Create one now",
+                onClick: () => {
+                  const element = document.getElementById('create-insight');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }
+              }}
             />
           ) : null}
         </div>
@@ -238,7 +245,19 @@ export default function SecondBrainPage() {
             ))}
             {connections.length === 0 ? (
               <li>
-                <EmptyState title="No connections yet" description="Add tagged entries so Saarthi can auto-link your topics." ctaLabel="Create an entry" ctaHref="#create-insight" />
+                <EmptyState 
+                  title="No connections yet" 
+                  description="Add tagged entries so Saarthi can auto-link your topics." 
+                  action={{
+                    label: "Create an entry",
+                    onClick: () => {
+                      const element = document.getElementById('create-insight');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }
+                  }} 
+                />
               </li>
             ) : null}
           </ul>

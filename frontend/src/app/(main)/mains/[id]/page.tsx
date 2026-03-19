@@ -105,7 +105,19 @@ export default function MainsQuestionDetailPage() {
     }
 
     const submissionsRaw = window.localStorage.getItem('mains-submissions');
-    const submissions = submissionsRaw ? (JSON.parse(submissionsRaw) as Array<Record<string, unknown>>) : [];
+    
+    let submissions: Array<Record<string, unknown>> = [];
+    try {
+      if (submissionsRaw) {
+        const parsed = JSON.parse(submissionsRaw);
+        if (Array.isArray(parsed)) {
+          submissions = parsed as Array<Record<string, unknown>>;
+        }
+      }
+    } catch (e) {
+      console.warn('Corrupted local storage for mains-submissions, resetting.', e);
+    }
+    
     const now = new Date().toISOString();
 
     submissions.push({

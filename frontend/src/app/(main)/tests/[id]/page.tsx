@@ -17,6 +17,69 @@ const formatSeconds = (seconds: number) => {
   return `${minutes}:${remainingSeconds}`;
 };
 
+function TestHeaderTickers({
+  currentIndex,
+  totalQuestions,
+  initialTimeSeconds,
+  activeQuestionId,
+  isSubmitting,
+  onAutoSubmit,
+  timeSpentRef,
+}: {
+  currentIndex: number;
+  totalQuestions: number;
+  initialTimeSeconds: number;
+  activeQuestionId: string;
+  isSubmitting: boolean;
+  onAutoSubmit: () => void;
+  timeSpentRef: React.MutableRefObject<Record<string, number>>;
+}) {
+  const [timeRemainingSeconds, setTimeRemainingSeconds] = useState(initialTimeSeconds);
+  const [questionTime, setQuestionTime] = useState(0);
+  const hasAutoSubmittedRef = useRef(false);
+
+  useEffect(() => {
+    setQuestionTime(timeSpentRef.current[activeQuestionId] ?? 0);
+  }, [activeQuestionId, timeSpentRef]);
+
+  useEffect(() => {
+    if (isSubmitting) return;
+
+    const timerId = window.setInterval(() => {
+      setTimeRemainingSeconds((current) => {
+        const next = Math.max(0, current - 1);
+        if (next === 0 && !hasAutoSubmittedRef.current) {
+          hasAutoSubmittedRef.current = true;
+          onAutoSubmit();
+        }
+        return next;
+      });
+
+      setQuestionTime((current) => {
+        const next = current + 1;
+        timeSpentRef.current[activeQuestionId] = next;
+        return next;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timerId);
+  }, [activeQuestionId, isSubmitting, onAutoSubmit, timeSpentRef]);
+
+  return (
+    <>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <CardTitle>
+          Question {currentIndex + 1} of {totalQuestions}
+        </CardTitle>
+        <div className="text-sm font-medium">
+          Total timer: <span className={timeRemainingSeconds <= WARNING_THRESHOLD_SECONDS ? 'text-red-500' : ''}>{formatSeconds(timeRemainingSeconds)}</span>
+        </div>
+      </div>
+      <p className="text-sm text-muted-foreground">Per-question timer: {formatSeconds(questionTime)}</p>
+    </>
+  );
+}
+
 export default function TestAttemptPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
@@ -30,11 +93,9 @@ export default function TestAttemptPage() {
   const [answers, setAnswers] = useState<Record<string, QuestionOption | null>>({});
   const [flagged, setFlagged] = useState<string[]>([]);
   const [doubts, setDoubts] = useState<string[]>([]);
-  const [questionTimeSpent, setQuestionTimeSpent] = useState<Record<string, number>>({});
-  const [timeRemainingSeconds, setTimeRemainingSeconds] = useState((test?.timeLimitMinutes ?? 0) * 60);
+  const questionTimeSpentRef = useRef<Record<string, number>>({});
   const [showSubmitConfirmation, setShowSubmitConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const hasAutoSubmittedRef = useRef(false);
 
   const submitCurrentTest = useCallback(() => {
     if (!test || isSubmitting) {
@@ -45,42 +106,6 @@ export default function TestAttemptPage() {
     const result = submitTest(test, answers);
     router.push(`/tests/${result.testId}/results`);
   }, [answers, isSubmitting, router, test]);
-
-  useEffect(() => {
-    if (!test || isSubmitting) {
-      return;
-    }
-
-    const activeQuestion = test.questions[currentIndex];
-
-    const timerId = window.setInterval(() => {
-      setTimeRemainingSeconds((current) => Math.max(0, current - 1));
-
-      setQuestionTimeSpent((current) => ({
-        ...current,
-        [activeQuestion.id]: (current[activeQuestion.id] ?? 0) + 1,
-      }));
-    }, 1000);
-
-    return () => {
-      window.clearInterval(timerId);
-    };
-  }, [currentIndex, isSubmitting, test]);
-
-  useEffect(() => {
-    if (timeRemainingSeconds > 0 || hasAutoSubmittedRef.current) {
-      return;
-    }
-
-    hasAutoSubmittedRef.current = true;
-    const submitTimeoutId = window.setTimeout(() => {
-      submitCurrentTest();
-    }, 0);
-
-    return () => {
-      window.clearTimeout(submitTimeoutId);
-    };
-  }, [submitCurrentTest, timeRemainingSeconds]);
 
   const currentQuestion = useMemo(() => (test ? test.questions[currentIndex] : null), [currentIndex, test]);
 
@@ -108,15 +133,15 @@ export default function TestAttemptPage() {
     <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
       <Card>
         <CardHeader className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <CardTitle>
-              Question {currentIndex + 1} of {test.questions.length}
-            </CardTitle>
-            <div className="text-sm font-medium">
-              Total timer: <span className={timeRemainingSeconds <= WARNING_THRESHOLD_SECONDS ? 'text-red-500' : ''}>{formatSeconds(timeRemainingSeconds)}</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">Per-question timer: {formatSeconds(questionTimeSpent[currentQuestion.id] ?? 0)}</p>
+          <TestHeaderTickers
+             currentIndex={currentIndex}
+             totalQuestions={test.questions.length}
+             initialTimeSeconds={(test.timeLimitMinutes ?? 0) * 60}
+             activeQuestionId={currentQuestion.id}
+             isSubmitting={isSubmitting}
+             onAutoSubmit={submitCurrentTest}
+             timeSpentRef={questionTimeSpentRef}
+          />
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-base font-medium">{currentQuestion.prompt}</p>

@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { EmptyState } from '@/components/ui/empty-state';
+import { MessageSquare } from 'lucide-react';
 import { chatApi, type ChatMode } from '@/lib/chat-api';
 import { useChatStore } from '@/stores/chat-store';
 
@@ -24,14 +26,18 @@ export default function ChatPage() {
     useChatStore();
 
   useEffect(() => {
+    let active = true;
     void (async () => {
       try {
         const response = await chatApi.listSessions(8);
-        setSessions(response.data);
+        if (active) setSessions(response.data);
       } catch {
-        setSessions([]);
+        if (active) setSessions([]);
       }
     })();
+    return () => {
+      active = false;
+    };
   }, [setSessions]);
 
   const handleCreate = async () => {
@@ -56,7 +62,16 @@ export default function ChatPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <label className="block text-sm font-medium">Mode</label>
-          <select className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm" value={selectedMode} onChange={(event) => setMode(event.target.value as ChatMode)}>
+          <select 
+            className="h-10 w-full rounded-md border border-border bg-background px-3 text-sm" 
+            value={selectedMode} 
+            onChange={(event) => {
+              const val = event.target.value;
+              if (val === 'rapid_fire' || val === 'deep_concept' || val === 'elimination_training' || val === 'trap_questions') {
+                setMode(val as ChatMode);
+              }
+            }}
+          >
             {modes.map((mode) => (
               <option key={mode.value} value={mode.value}>
                 {mode.label}
@@ -81,12 +96,12 @@ export default function ChatPage() {
           <CardTitle>Recent Sessions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          {sessions.length === 0 ? <p className="text-muted-foreground">No sessions yet.</p> : null}
+          {sessions.length === 0 ? <EmptyState title="No active sessions" description="Start a new chat session to continue your learning journey." icon={MessageSquare} /> : null}
           {sessions.map((session) => (
             <button
               key={session.id}
               type="button"
-              className="w-full rounded border border-border p-2 text-left hover:bg-muted"
+              className="w-full rounded-md border border-border bg-card p-3 text-left transition-all duration-200 ease-in-out hover:shadow-md hover:border-primary/20 hover:scale-[1.01] active:scale-[0.99] outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent"
               onClick={() => router.push(`/chat/${session.id}`)}
             >
               <p className="font-medium">{session.title}</p>

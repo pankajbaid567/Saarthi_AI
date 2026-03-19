@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { PostLaunchModules } from '@/components/post-launch/post-launch-modules';
-import { revisionApi, type ActiveRecallQuestion, type FlashcardItem, type RevisionPrediction } from '@/lib/api-client';
+import { ActiveRecallWidget } from '@/components/dashboard/active-recall-widget';
+import { FlashcardWidget } from '@/components/dashboard/flashcard-widget';
+import { revisionApi, type FlashcardItem, type RevisionPrediction } from '@/lib/api-client';
 
 type RevisionState = {
   predictions: RevisionPrediction[];
@@ -28,12 +30,6 @@ export default function DashboardPage() {
   const [crashMode, setCrashMode] = useState(false);
   const [dailyTarget, setDailyTarget] = useState<number | null>(null);
   const [sprintSummary, setSprintSummary] = useState<string | null>(null);
-  const [activeRecallSessionId, setActiveRecallSessionId] = useState<string | null>(null);
-  const [activeRecallQuestion, setActiveRecallQuestion] = useState<ActiveRecallQuestion | null>(null);
-  const [activeRecallAnswer, setActiveRecallAnswer] = useState('');
-  const [activeRecallScore, setActiveRecallScore] = useState<number | null>(null);
-  const [selectedFlashcard, setSelectedFlashcard] = useState<FlashcardItem | null>(null);
-  const [showBack, setShowBack] = useState(false);
   const [daysRemaining, setDaysRemaining] = useState('30');
 
   const loadRevisionDashboard = async () => {
@@ -52,36 +48,11 @@ export default function DashboardPage() {
         streak: streaksResponse.data.data,
         flashcards,
       });
-      setSelectedFlashcard(flashcards[0] ?? null);
     } catch {
       setError('Unable to load NeuroRevise dashboard. Please login and retry.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const startActiveRecall = async () => {
-    if (state.predictions.length === 0) {
-      return;
-    }
-    const topicIds = state.predictions.slice(0, 3).map((topic) => topic.topicId);
-    const response = await revisionApi.startActiveRecall({ topicIds, questionCount: 3 });
-    setActiveRecallSessionId(response.data.data.sessionId);
-    setActiveRecallQuestion(response.data.data.questions[0] ?? null);
-    setActiveRecallAnswer('');
-    setActiveRecallScore(null);
-  };
-
-  const submitActiveRecall = async () => {
-    if (!activeRecallSessionId || !activeRecallQuestion || !activeRecallAnswer.trim()) {
-      return;
-    }
-    const response = await revisionApi.submitActiveRecallAnswer(activeRecallSessionId, {
-      questionId: activeRecallQuestion.id,
-      userAnswer: activeRecallAnswer,
-      confidenceLevel: 3,
-    });
-    setActiveRecallScore(response.data.data.score);
   };
 
   const startSprint = async (durationMinutes: 15 | 30 | 45) => {
@@ -173,28 +144,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Active recall session</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button onClick={startActiveRecall} disabled={state.predictions.length === 0}>
-              Start active recall
-            </Button>
-            {activeRecallQuestion ? (
-              <>
-                <p className="text-sm font-medium">{activeRecallQuestion.questionText}</p>
-                <Input value={activeRecallAnswer} onChange={(event) => setActiveRecallAnswer(event.target.value)} />
-                <Button variant="outline" onClick={submitActiveRecall}>
-                  Submit answer
-                </Button>
-                {activeRecallScore !== null ? <p className="text-sm">Score: {activeRecallScore}</p> : null}
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">Load data and start a session to practice recall.</p>
-            )}
-          </CardContent>
-        </Card>
+        <ActiveRecallWidget predictions={state.predictions} />
 
         <Card>
           <CardHeader>
@@ -229,55 +179,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Flashcards practice</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <p className="text-sm text-muted-foreground">Due today: {state.flashcards.length}</p>
-          {selectedFlashcard ? (
-            <div className="rounded border p-3">
-              <p className="text-sm font-medium">{showBack ? selectedFlashcard.back : selectedFlashcard.front}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <Button variant="outline" onClick={() => setShowBack((value) => !value)}>
-                  {showBack ? 'Show front' : 'Flip card'}
-                </Button>
-                {(['easy', 'good', 'hard', 'forgot'] as const).map((rating) => (
-                  <Button
-                    key={rating}
-                    variant="ghost"
-                    onClick={() => {
-                      const currentIndex = state.flashcards.findIndex((card) => card.id === selectedFlashcard.id);
-                      const nextCard = state.flashcards[currentIndex + 1] ?? null;
-                      setSelectedFlashcard(nextCard);
-                      setShowBack(false);
-                    }}
-                  >
-                    {rating}
-                  </Button>
-                ))}
-              </div>
-              <div className="mt-3 h-2 rounded bg-muted">
-                <div
-                  className="h-2 rounded bg-primary"
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      Math.round(
-                        ((state.flashcards.findIndex((card) => card.id === selectedFlashcard.id) + 1) /
-                          Math.max(1, state.flashcards.length)) *
-                          100,
-                      ),
-                    )}%`,
-                  }}
-                />
-              </div>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No due flashcards. Load dashboard data first.</p>
-          )}
-        </CardContent>
-      </Card>
+      <FlashcardWidget flashcards={state.flashcards} />
 
       <PostLaunchModules />
     </div>

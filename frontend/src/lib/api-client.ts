@@ -18,10 +18,15 @@ apiClient.interceptors.request.use((config) => {
 export type LoginPayload = { email: string; password: string };
 export type RegisterPayload = { name: string; email: string; password: string };
 
+export type AuthResponse = {
+  tokens?: { accessToken: string };
+  user?: { id: string; name: string; email: string };
+};
+
 export const authApi = {
-  login: (payload: LoginPayload) => apiClient.post('/auth/login', payload),
-  register: (payload: RegisterPayload) => apiClient.post('/auth/register', payload),
-  forgotPassword: (email: string) => apiClient.post('/auth/forgot-password', { email }),
+  login: (payload: LoginPayload) => apiClient.post<AuthResponse>('/auth/login', payload),
+  register: (payload: RegisterPayload) => apiClient.post<AuthResponse>('/auth/register', payload),
+  forgotPassword: (email: string) => apiClient.post<{ message: string }>('/auth/forgot-password', { email }),
 };
 
 export type SubjectResponse = {

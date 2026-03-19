@@ -1,21 +1,20 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
+import DOMPurify from 'dompurify';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { learningApi, type LearningSearchResult } from '@/lib/learning-api';
 
-const escapeHtml = (value: string): string =>
-  value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
-
 const highlightQuery = (text: string, query: string): string => {
   if (!query.trim()) {
-    return escapeHtml(text);
+    return DOMPurify.sanitize(text);
   }
 
   const escaped = query.trim().replace(/[.*+?^${}()|[\\[\\]]/g, '\\$&');
-  return escapeHtml(text).replace(new RegExp(`(${escaped})`, 'ig'), '<mark>$1</mark>');
+  const highlighted = text.replace(new RegExp(`(${escaped})`, 'ig'), '<mark>$1</mark>');
+  return DOMPurify.sanitize(highlighted, { ALLOWED_TAGS: ['mark'] });
 };
 
 export default function SearchPage() {

@@ -25,14 +25,24 @@ export default function ChatSessionPage() {
       return;
     }
 
+    let active = true;
+
     void (async () => {
       try {
         const response = await chatApi.getSession(params.sessionId);
-        setCurrentSession(response.data);
+        if (active) {
+          setCurrentSession(response.data);
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     })();
+
+    return () => {
+      active = false;
+    };
   }, [params.sessionId, setCurrentSession]);
 
   const pendingQuestion = useMemo(() => {
@@ -93,15 +103,21 @@ export default function ChatSessionPage() {
 
           {pendingQuestion ? <MCQOptions question={pendingQuestion} disabled={typing} onSelect={(option) => void sendMessage(option)} /> : null}
 
-          <div className="flex gap-2">
+          <form 
+            className="flex gap-2" 
+            onSubmit={(e) => {
+              e.preventDefault();
+              void sendMessage(inputValue);
+            }}
+          >
             <Input value={inputValue} onChange={(event) => setInputValue(event.target.value)} placeholder="Ask 10 MCQs on Federalism or answer A/B/C/D" />
-            <Button onClick={() => void sendMessage(inputValue)} disabled={typing || !inputValue.trim()}>
+            <Button type="submit" disabled={typing || !inputValue.trim()}>
               Send
             </Button>
-            <Button variant="outline" onClick={() => void sendMessage('end session')} disabled={typing}>
+            <Button type="button" variant="outline" onClick={() => void sendMessage('end session')} disabled={typing}>
               End
             </Button>
-          </div>
+          </form>
         </CardContent>
       </Card>
 

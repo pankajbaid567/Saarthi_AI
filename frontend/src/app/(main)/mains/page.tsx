@@ -82,6 +82,8 @@ export default function MainsQuestionsPage() {
   }, [marks]);
 
   useEffect(() => {
+    let active = true;
+
     const loadQuestions = async () => {
       setLoading(true);
       setError(null);
@@ -95,15 +97,28 @@ export default function MainsQuestionsPage() {
           limit: 50,
           offset: 0,
         });
-        setQuestions(response.data.items);
+        if (active) {
+          setQuestions(response.data.items);
+        }
       } catch {
-        setError('Unable to load mains questions');
+        if (active) {
+          setError('Unable to load mains questions');
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
-    void loadQuestions();
+    const timeoutId = setTimeout(() => {
+      void loadQuestions();
+    }, 400); // Debounce to prevent API flooding on keystrokes
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
   }, [normalizedMarks, search, source, topicId, type]);
 
   return (
