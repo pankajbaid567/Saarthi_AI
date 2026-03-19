@@ -13,6 +13,6 @@ export default withSentryConfig(nextConfig, {
   org: "saarthi",
   project: "saarthi-frontend",
   widenClientFileUpload: true,
-  hideSourceMaps: true,
-  disableLogger: true,
+  
+  
 });

@@ -24,7 +24,7 @@ export const createPracticeRouter = (options: CreatePracticeRouterOptions = {}):
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      res.status(200).json(feedbackLoopService.getFeedbackLoop(req.authUser!.userId));
+      res.status(200).json(await feedbackLoopService.getFeedbackLoop(req.authUser!.userId));
     }),
   );
 
@@ -33,7 +33,7 @@ export const createPracticeRouter = (options: CreatePracticeRouterOptions = {}):
     authRateLimiter,
     authMiddleware,
     asyncHandler(async (req, res) => {
-      res.status(200).json(feedbackLoopService.getNonRepetitionStats(req.authUser!.userId));
+      res.status(200).json(await feedbackLoopService.getNonRepetitionStats(req.authUser!.userId));
     }),
   );
 

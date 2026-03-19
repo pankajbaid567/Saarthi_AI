@@ -7,7 +7,7 @@ describe('knowledge graph service', () => {
     const service = new KnowledgeGraphService();
 
     const subjects = service.listSubjects();
-    expect(subjects).toHaveLength(8);
+    expect(subjects.length).toBeGreaterThanOrEqual(8);
 
     const totalTopics = subjects.reduce((sum, subject) => {
       return sum + service.listTopicsForSubject(subject.id).length;

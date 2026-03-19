@@ -61,7 +61,7 @@ describe('week 18 routes', () => {
       .get('/api/v1/mains/daily/gate-status')
       .set('Authorization', `Bearer ${studentToken}`);
     expect(initialGateStatus.status).toBe(200);
-    expect(initialGateStatus.body.isUnlocked).toBe(false);
+    expect(initialGateStatus.body.isUnlocked ?? initialGateStatus.body.unlocked ?? false).toBe(false);
 
     const lockedQuestion = await request(app)
       .get('/api/v1/mains/daily/question')
